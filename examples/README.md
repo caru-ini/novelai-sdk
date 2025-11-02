@@ -1,6 +1,6 @@
 # NovelAI API Examples
 
-This directory contains practical examples demonstrating various features of the NovelAI Python client.
+This directory contains practical examples demonstrating various features of the NovelAI Python SDK.
 
 ## Prerequisites
 

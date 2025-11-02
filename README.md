@@ -1,17 +1,17 @@
-# NovelAI Python Client
+# NovelAI Python SDK
 
 ![intro](./docs/images/intro.png)
 
-[![PyPI version](https://img.shields.io/pypi/v/novelai.svg)](https://pypi.org/project/novelai/)
-[![Python Version](https://img.shields.io/pypi/pyversions/novelai.svg)](https://pypi.org/project/novelai/)
+[![PyPI version](https://img.shields.io/pypi/v/novelai-sdk.svg)](https://pypi.org/project/novelai-sdk/)
+[![Python Version](https://img.shields.io/pypi/pyversions/novelai-sdk.svg)](https://pypi.org/project/novelai-sdk/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
-A modern, type-safe Python client for NovelAI's image generation API. Built with Pydantic v2 for robust validation and full type hints.
+A modern, type-safe Python SDK for NovelAI's image generation API. Features robust validation with Pydantic v2 and complete type hints.
 
 ## Features
 
-- Python 3.13+ with full type hints and Pydantic v2 validation
+- Python 3.10+ with full type hints and Pydantic v2 validation
 - High-level convenience API with automatic validation
 - Built-in PIL/Pillow support for easy image operations
 - SSE streaming for real-time progress monitoring

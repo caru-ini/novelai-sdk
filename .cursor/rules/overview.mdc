@@ -4,7 +4,7 @@ alwaysApply: true
 
 # Project Overview
 
-This is a Python client library for NovelAI's image generation API with Pydantic-based validation.
+This is a Python SDK library for NovelAI's image generation API with Pydantic-based validation.
 
 **Key Architecture:**
 
