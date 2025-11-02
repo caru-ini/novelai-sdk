@@ -53,7 +53,7 @@ pre-commit = ["fmt", "lint", "check"]
 release = "semantic-release publish"
 
 [tool.semantic_release]
-version_variables = ["src/novelai/__init__.py:__version__"]
+version_variables = ["src/novelai/__init__.py:__version__", "pyproject.toml:version"]
 branch = "main"
 build_command = """
     python -m pip install -e '.[build]'
