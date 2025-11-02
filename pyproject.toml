@@ -30,10 +30,10 @@ dependencies = [
 build = ["uv>=0.6.14"]
 
 [project.urls]
-Homepage = "https://github.com/caru-ini/novelai-api"
-Repository = "https://github.com/caru-ini/novelai-api"
-Issues = "https://github.com/caru-ini/novelai-api/issues"
-Documentation = "https://github.com/caru-ini/novelai-api#readme"
+Homepage = "https://github.com/caru-ini/novelai-sdk"
+Repository = "https://github.com/caru-ini/novelai-sdk"
+Issues = "https://github.com/caru-ini/novelai-sdk/issues"
+Documentation = "https://github.com/caru-ini/novelai-sdk#readme"
 
 [build-system]
 requires = ["hatchling"]
