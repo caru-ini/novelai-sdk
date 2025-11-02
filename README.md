@@ -248,8 +248,8 @@ python examples/01_basic_v4.py
 ### Setup
 
 ```bash
-git clone https://github.com/caru-ini/novelai-api.git
-cd novelai-api
+git clone https://github.com/caru-ini/novelai-sdk.git
+cd novelai-sdk
 uv sync
 ```
 
