@@ -1,0 +1,137 @@
+---
+alwaysApply: true
+---
+
+# Project Overview
+
+This is a Python client library for NovelAI's image generation API with Pydantic-based validation.
+
+**Key Architecture:**
+
+- `import novelai.api` - Low-level API matching the official REST API directly
+- `import novelai` - High-level API with simplified parameters, automatic image loading, and better DX
+- Built with Pydantic v2 for validation and httpx for HTTP requests
+- For type annotations, Python 3.13+ or `from __future__ import annotations` is required
+
+## Code Style Guidelines
+
+### General Principles
+
+- Use **Literal types** over Enum for better IDE autocomplete and DX
+- Prefer explicit imports and type hints
+- Keep code clean and maintainable with minimal comments
+- Follow Pydantic v2 patterns for validation
+
+### Formatting & Linting
+
+```bash
+# Format code with ruff
+uv run ruff format
+
+# Lint code
+uv run ruff check
+
+# Auto-fix linting issues
+uv run ruff check --fix
+```
+
+### Type Safety
+
+- All public APIs must have complete type hints
+- Use Pydantic models for validation
+- Prefer `Literal` over `Enum` for string constants (improves IDE experience)
+- Use strict type checking with pyright
+
+```python
+# Good - Literal & validate after for better DX
+# type definition
+ModelName = Literal["nai-diffusion-4-5-full", "nai-diffusion-4-curated"]
+
+# pydantic model
+class Model(BaseModel):
+    name: ModelName = Field(..., description="Model name")
+
+invalid_model = Model(name="invalid_model") # this should raise a validation error
+
+# bad - Enum creates less intuitive experience
+class ModelName(Enum):
+    V4_5_FULL = "nai-diffusion-4-5-full"
+    V4_CURATED = "nai-diffusion-4-curated"
+```
+
+### API Design
+
+- Low-level API (`novelai._api.*`): Mirror official REST API spec exactly and no validation is performed.
+- High-level API (`novelai`): Provide convenience methods with sensible defaults and validation is performed.
+- Always validate inputs with Pydantic v2
+- Use httpx for all HTTP requests (implement synchronous requests only for now)
+- Use `novelai._utils.*` for utility functions (image conversion, size validation, etc.)
+- Use `novelai.utils.*` for utility functions (metadata extraction, etc.)
+- Use `novelai.constants.*` for constants (models, sizes, samplers, etc.)
+- Use `novelai.types.*` for type definitions (api, user, etc.)
+
+### Before Committing
+
+Commit should be performed by human.
+
+## Type Checking
+
+Use pyright for static type analysis:
+
+```bash
+# Run type checking
+uvx pyright
+
+# Check specific files
+uvx pyright src/novelai/client.py
+
+# Check with verbose output
+uvx pyright --verbose
+```
+
+**Type checking must pass before committing any code.**
+
+## Project Structure
+
+```text
+src/novelai/
+  ├── __init__.py          # High-level API exports
+  ├── __main__.py          # CLI entry point
+  ├── client.py            # Main client implementation
+  ├── exceptions.py        # Custom exceptions
+  ├── api/                 # Low-level API (mirrors REST API)
+  ├── models/              # Pydantic models
+  └── utils/               # Utility functions
+
+tests/
+  ├── test_client.py       # Client tests
+  └── test_models.py       # Model validation tests
+```
+
+## API Architecture
+
+### Low-Level API (`novelai.api`)
+
+- Direct mapping to NovelAI REST API
+- Minimal abstractions
+- Minimal validation
+- Type hints supported
+- For users who need full control
+
+### High-Level API (`novelai`)
+
+- Good parameter structure
+- Automatic image handling (PIL/Pillow)
+- Convenient defaults
+- Better developer experience
+- Type hints supported
+
+## Dependencies
+
+Check `pyproject.toml` for the latest dependencies.
+
+## Security Considerations
+
+- API keys should be loaded from environment variables (`NOVELAI_API_KEY`)
+- Never commit API keys to version control
+- Use `.env` files for local development (add to `.gitignore`)

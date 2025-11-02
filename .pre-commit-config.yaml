@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: poe-pre-commit
+        name: poe pre-commit
+        entry: poe pre-commit
+        language: system
+        types: [python]
+        pass_filenames: false
