@@ -1,6 +1,6 @@
 [project]
 name = "novelai-sdk"
-version = "0.0.0"
+version = "0.0.2"
 description = "Python client library for NovelAI API with Pydantic validation"
 readme = "README.md"
 license = { text = "MIT" }
