@@ -7,6 +7,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
 
+English | [日本語](/docs/README_jp.md)
+
 A modern, type-safe Python SDK for NovelAI's image generation API. Features robust validation with Pydantic v2 and complete type hints.
 
 ## Features
