@@ -5,21 +5,11 @@ from __future__ import annotations
 import base64
 from io import BytesIO
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Protocol, TypeGuard, cast
+from typing import Any, TypeGuard, cast
 
+from PIL import Image
 
-class ImageProtocol(Protocol):
-    """Protocol for PIL Image objects"""
-
-    mode: str
-    size: tuple[int, int]
-
-    def save(self, fp: object, format: str | None = None) -> None: ...
-    def convert(self, mode: str) -> ImageProtocol: ...
-    def split(self) -> tuple[ImageProtocol, ...]: ...
-
-
-ImageInput = str | bytes | Path | ImageProtocol | Any
+ImageInput = str | bytes | Path | Image.Image | Any
 
 PILImageModule: Any = None
 np_module: Any = None
@@ -50,7 +40,41 @@ except ImportError:
     pass
 
 
-def is_pil_image(image: object) -> TypeGuard[ImageProtocol]:
+def to_pil_image(image: ImageInput) -> Image.Image:
+    """Convert various image formats to PIL Image
+
+    Args:
+        image: Can be:
+            - str: File path or base64 string
+            - bytes: Raw image bytes
+
+    Returns:
+        Image.Image: The converted PIL Image object
+    """
+    if not pil_available or PILImageModule is None:
+        raise ImportError("Pillow is required for image conversion")
+
+    if isinstance(image, str):
+        if image.startswith("data:image/"):
+            # Base64 string
+            image = base64.b64decode(image.split(",")[1])
+        else:
+            # File path
+            image = Path(image)
+
+    if isinstance(image, Path):
+        return PILImageModule.open(image)
+
+    if isinstance(image, bytes):
+        return PILImageModule.open(BytesIO(image))
+
+    if is_pil_image(image):
+        return image
+
+    raise TypeError("Unsupported image type")
+
+
+def is_pil_image(image: object) -> TypeGuard[Image.Image]:
     """Type guard to check if object is a PIL Image"""
     return hasattr(image, "save") and hasattr(image, "mode") and hasattr(image, "size")
 
@@ -194,18 +218,11 @@ def image_to_base64(image: ImageInput) -> str:
 
         # Convert RGBA to RGB if needed
         if pil_image.mode == "RGBA":
-            if TYPE_CHECKING:
-                from PIL.Image import Image as PILImageType
-            else:
-                PILImageType = object
-
             # Create white background
             background = PILImageModule.new("RGB", pil_image.size, (255, 255, 255))
             alpha_channel = pil_image.split()[3]
-            background.paste(
-                cast(PILImageType, pil_image), mask=cast(PILImageType, alpha_channel)
-            )
-            pil_image = cast(ImageProtocol, background)
+            background.paste(pil_image, mask=alpha_channel)
+            pil_image = cast(Image.Image, background)
         elif pil_image.mode != "RGB":
             pil_image = pil_image.convert("RGB")
 
