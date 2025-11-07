@@ -31,7 +31,8 @@ jobs:
     needs: check
     permissions:
       contents: write
-      id-token: write
+    outputs:
+      released: ${{ steps.release.outputs.released }}
     steps:
       - name: Setup | Create GitHub App Token
         uses: actions/create-github-app-token@v1
@@ -80,6 +81,8 @@ jobs:
     needs: release
     if: needs.release.outputs.released == 'true'
     environment: pypi
+    permissions:
+      id-token: write
     steps:
       - name: Setup | Download Build Artifacts
         uses: actions/download-artifact@v4
