@@ -68,10 +68,6 @@ build_command = """
 dist_glob_patterns = ["dist/*"]
 tag_format = "v{version}"
 
-[tool.semantic_release.commit_author]
-env = "GIT_COMMIT_AUTHOR"
-default = "github-actions <actions@github.com>"
-
 [tool.semantic_release.commit_parser_options]
 allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "chore", "build", "ci"]
 minor_tags = ["feat"]
