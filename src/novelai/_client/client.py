@@ -235,11 +235,11 @@ class NovelAI:
             api_key: NovelAI API key (Bearer token). If None, attempts to load
                 from NOVELAI_API_KEY environment variable. Must be provided
                 via one of these methods before making API requests.
-            image_base: Image API base URL. Reserved for future use.
+            image_base: Image API base URL.
                 Default behavior uses NovelAI's official endpoint.
-            text_base: Text API base URL. Reserved for future use.
+            text_base: Text API base URL.
                 Default behavior uses NovelAI's official endpoint.
-            api_base: Main API base URL. Reserved for future use.
+            api_base: Main API base URL.
                 Default behavior uses NovelAI's official endpoint.
             timeout: Request timeout in seconds. Applies to all HTTP requests.
                 Default is 120.0 seconds (2 minutes). Increase for slow
@@ -262,7 +262,13 @@ class NovelAI:
             Custom timeout:
                 >>> client = NovelAI(timeout=300.0)  # 5 minutes for slow connections
         """
-        self.api_client = _APIClient(api_key=api_key, timeout=timeout)
+        self.api_client = _APIClient(
+            api_key=api_key,
+            image_base=image_base,
+            text_base=text_base,
+            api_base=api_base,
+            timeout=timeout,
+        )
         self.image = ImageGeneration(self)
 
     @property
