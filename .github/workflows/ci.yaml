@@ -7,7 +7,7 @@ on:
 
 jobs:
   check:
-    if: ${{ github.event.sender.type != 'App' }}
+    if: github.actor != 'caru-bot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
         run: uv run poe pre-commit
 
   release:
-    if: ${{ github.event.sender.type != 'App' }}
+    if: github.actor != 'caru-bot[bot]'
     needs: check
     runs-on: ubuntu-latest
     environment: pypi
