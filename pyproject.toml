@@ -69,6 +69,7 @@ dist_glob_patterns = ["dist/*"]
 tag_format = "v{version}"
 
 [tool.semantic_release.commit_parser_options]
+allow_zero_version = true
 allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "chore", "build", "ci"]
 minor_tags = ["feat"]
 patch_tags = ["fix", "perf"]
@@ -85,7 +86,7 @@ dev = [
     "pyright>=1.1.407",
     "pytest>=8.4.2",
     "pytest-cov>=7.0.0",
-    "python-semantic-release>=9.14.0",
+    "python-semantic-release>=10.2.0",
     "ruff>=0.14.1",
 ]
 
