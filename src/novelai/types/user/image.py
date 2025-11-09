@@ -273,7 +273,7 @@ class GenerateImageParams(BaseModel):
     @model_validator(mode="after")
     def _check_character_references(self) -> Self:
         """Check if character references are compatible with the model"""
-        character_references = getattr(self, "character_references", [])
+        character_references = getattr(self, "character_references", []) or []
         if not self.is_v4_5(self.model) and len(character_references) > 0:
             raise ValueError("Character references are only supported for V4.5 models")
 
