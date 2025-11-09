@@ -26,7 +26,7 @@ from .exceptions import (
 
 # DO NOT EDIT!!
 # This value is automatically updated during the release process.
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 
 __all__ = [
     "NovelAI",
