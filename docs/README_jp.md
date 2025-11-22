@@ -145,7 +145,7 @@ params = GenerateImageParams(
 )
 ```
 
-### ControlNet(Vibe Transfer)
+### ControlNet(NovelAI ポーション)
 
 リファレンス画像で構図やポーズを制御:
 
