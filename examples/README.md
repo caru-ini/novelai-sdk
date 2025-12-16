@@ -38,6 +38,24 @@ python 01_basic_v4.py
 
 ---
 
+### Async Usage
+
+#### [`09_async_generation.py`](09_async_generation.py)
+
+Demonstrates how to use the asynchronous client for better performance in non-blocking applications.
+
+```bash
+python 09_async_generation.py
+```
+
+**Key Features:**
+
+- `AsyncNovelAI` client usage
+- Asynchronous context manager (`async with`)
+- Non-blocking execution
+
+---
+
 ### Director Tools (Character Reference)
 
 #### [`02_character_reference.py`](02_character_reference.py)
