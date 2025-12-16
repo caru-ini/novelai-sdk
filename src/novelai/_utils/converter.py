@@ -10,7 +10,7 @@ from ..types.api import image as api_types
 from ..types.user import image as user_types
 
 if TYPE_CHECKING:
-    from .._client.client import NovelAI
+    from .._client.client import AsyncNovelAI, NovelAI
 
 
 def _map_uc_preset_to_int(uc_preset: user_types.UCPreset) -> int:
@@ -158,6 +158,44 @@ def _convert_controlnet(
     return vibe_data, [img.strength for img in controlnet.images]
 
 
+async def _async_convert_controlnet(
+    controlnet: user_types.ControlNet | None,
+    client: AsyncNovelAI,
+) -> tuple[
+    list[str] | None,
+    list[float] | None,
+]:
+    """Convert ControlNet list to separate lists for API (async)"""
+    if controlnet is None:
+        return None, None
+
+    # Check cache first to avoid async calls if possible or gather results
+    vibe_data: list[str] = []
+    for img in controlnet.images:
+        # If cache exists (sync), use it. If not, await.
+        # But we can't easily check cache without duplicate logic or strict access.
+        # Assuming encode_vibe handles cache check.
+        # ControlNetImage.encode_vibe expects 'client' which has 'api_client.image.encode_vibe'.
+        # Since client is AsyncNovelAI, encode_vibe returns a coroutine.
+        # However, ControlNetImage.encode_vibe type hint says it returns str.
+        # This implies ControlNetImage.encode_vibe needs to be async-aware or we bypass it.
+        # Bypass it for now to be safe.
+        if img._vibe_data:
+            vibe_data.append(img._vibe_data)
+        else:
+            result = await client.api_client.image.encode_vibe(
+                api_types.EncodeVibeRequest(
+                    image=image_to_base64(img.image),
+                    information_extracted=img.info_extracted,
+                    model=img.controlnet_model,
+                )
+            )
+            img._vibe_data = result
+            vibe_data.append(result)
+
+    return vibe_data, [img.strength for img in controlnet.images]
+
+
 def convert_user_params_to_api_params(
     params: user_types.GenerateImageParams,
     client: NovelAI,
@@ -263,6 +301,92 @@ def convert_user_params_to_api_params(
     return params.prompt, params.model, generate_params
 
 
+async def async_convert_user_params_to_api_params(
+    params: user_types.GenerateImageParams,
+    client: AsyncNovelAI,
+) -> tuple[str, str, api_types.ImageParameters]:
+    """Convert user params to API request components (async)"""
+    if not isinstance(params.size, tuple):
+        raise ValueError("Size must be a tuple of ints")
+    width, height = params.size
+
+    processed_prompt = params.processed_prompt
+    processed_negative = params.processed_negative_prompt
+
+    if params.is_v4(params.model):
+        v4_prompt, v4_negative_prompt = _create_v4_prompts(
+            processed_prompt, processed_negative, params.characters
+        )
+        prompt_field = None
+    else:
+        v4_prompt = None
+        v4_negative_prompt = None
+        prompt_field = processed_prompt
+
+    character_prompts = _convert_characters_to_char_prompts(params.characters)
+
+    (
+        cr_images,
+        cr_descriptions,
+        cr_strengths,
+        cr_secondary_strengths,
+        cr_information_extracted,
+    ) = _convert_character_references(params.character_references)
+
+    (
+        cn_vibe_data,
+        cn_strengths,
+    ) = await _async_convert_controlnet(params.controlnet, client)
+
+    generate_params = api_types.ImageParameters(
+        params_version=3,
+        legacy=False,
+        legacy_v3_extend=False,
+        deliberate_euler_ancestral_bug=False,
+        prefer_brownian=True,
+        autoSmea=False,
+        sm=False,
+        sm_dyn=False,
+        add_original_image=True,
+        dynamic_thresholding=False,
+        legacy_uc=False,
+        inpaintImg2ImgStrength=1,
+        use_coords=False,
+        normalize_reference_strength_multiple=False,
+        width=width,
+        height=height,
+        steps=params.steps,
+        scale=params.scale,
+        sampler=params.sampler,
+        seed=params.seed,
+        n_samples=params.n_samples,
+        noise_schedule=params.noise_schedule,
+        prompt=prompt_field,
+        negative_prompt=processed_negative,
+        v4_prompt=v4_prompt,
+        v4_negative_prompt=v4_negative_prompt,
+        qualityToggle=params.quality,
+        ucPreset=_map_uc_preset_to_int(params.uc_preset),
+        cfg_rescale=params.cfg_rescale,
+        skip_cfg_above_sigma=58 if params.variety_boost else None,
+        image=_convert_image_input(getattr(params.i2i, "image", None)),
+        strength=getattr(params.i2i, "strength", None),
+        noise=getattr(params.i2i, "noise", None),
+        mask=_convert_image_input(getattr(params.i2i, "mask", None)),
+        reference_image_multiple=cn_vibe_data,
+        reference_strength_multiple=cn_strengths,
+        controlnet_strength=getattr(params.controlnet, "strength", 1),
+        director_reference_images=cr_images,
+        director_reference_descriptions=cr_descriptions,
+        director_reference_information_extracted=cr_information_extracted,
+        director_reference_secondary_strength_values=cr_secondary_strengths,
+        director_reference_strength_values=cr_strengths,
+        characterPrompts=character_prompts or [],
+    )
+
+    return params.prompt, params.model, generate_params
+
+
 def convert_user_params_to_api_request(
     params: user_types.GenerateImageParams | user_types.GenerateImageStreamParams,
     client: NovelAI,
@@ -282,6 +406,38 @@ def convert_user_params_to_api_request(
     input_prompt, model, generate_params = convert_user_params_to_api_params(
         params, client
     )
+
+    if isinstance(params, user_types.GenerateImageStreamParams):
+        stream_params = api_types.ImageStreamParameters(
+            **generate_params.model_dump(exclude_unset=True), stream=params.stream
+        )
+        return api_types.StreamImageGenerationRequest(
+            action="generate",
+            input=input_prompt,
+            model=model,
+            parameters=stream_params,
+            use_new_shared_trial=True,
+        )
+
+    return api_types.ImageGenerationRequest(
+        action="generate",
+        input=input_prompt,
+        model=model,
+        parameters=generate_params,
+        use_new_shared_trial=True,
+    )
+
+
+async def async_convert_user_params_to_api_request(
+    params: user_types.GenerateImageParams | user_types.GenerateImageStreamParams,
+    client: AsyncNovelAI,
+) -> api_types.ImageGenerationRequest | api_types.StreamImageGenerationRequest:
+    """Convert user params to low-level API request (async)"""
+    (
+        input_prompt,
+        model,
+        generate_params,
+    ) = await async_convert_user_params_to_api_params(params, client)
 
     if isinstance(params, user_types.GenerateImageStreamParams):
         stream_params = api_types.ImageStreamParameters(

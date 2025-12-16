@@ -13,7 +13,7 @@ For type definitions, import from .types:
 
 """
 
-from ._client.client import NovelAI
+from ._client.client import AsyncNovelAI, NovelAI
 from .exceptions import (
     AuthenticationError,
     InvalidRequestError,
@@ -30,6 +30,7 @@ __version__ = "0.2.3"
 
 __all__ = [
     "NovelAI",
+    "AsyncNovelAI",
     # Exceptions
     "NovelAIError",
     "AuthenticationError",

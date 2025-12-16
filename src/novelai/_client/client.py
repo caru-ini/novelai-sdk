@@ -25,11 +25,12 @@ Example:
 
 from __future__ import annotations
 
-from typing import Iterator, cast
+from typing import AsyncIterator, Iterator, cast
 
 from PIL import Image
 
-from .._api.client import _APIClient
+from .._api.client import _APIClient, _AsyncAPIClient
+from .._utils.converter import async_convert_user_params_to_api_request
 from ..types.api.image import (
     ImageGenerationRequest,
     ImageStreamChunk,
@@ -357,3 +358,80 @@ class NovelAI:
                 ...     images = client.image.generate(params)
         """
         self.api_client.close()
+
+
+class AsyncImageGeneration:
+    """High-level async image generation interface"""
+
+    def __init__(self, client: AsyncNovelAI):
+        self._client = client
+
+    async def generate(
+        self,
+        params: GenerateImageParams,
+    ) -> list[Image.Image]:
+        """Generate image(s) asynchronously with user-friendly parameters"""
+        request = cast(
+            ImageGenerationRequest,
+            await async_convert_user_params_to_api_request(params, self._client),
+        )
+        return await self._client.api_client.image.generate(request)
+
+    async def generate_stream(
+        self,
+        params: GenerateImageStreamParams,
+    ) -> AsyncIterator[ImageStreamChunk]:
+        """Generate image(s) with Server-Sent Events (SSE) streaming asynchronously"""
+        request = cast(
+            StreamImageGenerationRequest,
+            await async_convert_user_params_to_api_request(params, self._client),
+        )
+        async for chunk in self._client.api_client.image.generate_stream(request):
+            yield chunk
+
+
+class AsyncNovelAI:
+    """High-level async client for NovelAI API"""
+
+    def __init__(
+        self,
+        api_key: str | None = None,
+        image_base: str | None = None,
+        text_base: str | None = None,
+        api_base: str | None = None,
+        timeout: float = 120.0,
+    ):
+        self.api_client = _AsyncAPIClient(
+            api_key=api_key,
+            image_base=image_base,
+            text_base=text_base,
+            api_base=api_base,
+            timeout=timeout,
+        )
+        self.image = AsyncImageGeneration(self)
+
+    @property
+    def api_key(self) -> str:
+        api_key = self.api_client.api_key
+        if api_key is None:
+            raise ValueError("API key is not set")
+        return api_key
+
+    @property
+    def timeout(self) -> float:
+        return self.api_client.timeout
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object,
+    ) -> None:
+        await self.close()
+
+    async def close(self):
+        """Close the Async HTTP client and release resources"""
+        await self.api_client.close()
