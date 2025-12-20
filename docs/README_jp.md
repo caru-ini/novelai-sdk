@@ -19,6 +19,27 @@ NovelAIの画像生成APIのための、モダンで型安全なPython SDKです
 - リアルタイム進捗監視のためのSSEストリーミング
 - キャラクターリファレンス、ControlNet、マルチキャラクターポジショニング
 
+## 他ライブラリとの比較
+
+| 機能                         | novelai-sdk | [novelai-api](https://github.com/Aedial/novelai-api) | [novelai-python](https://github.com/LlmKira/novelai-python) |
+| ---------------------------- | :---------: | :--------------------------------------------------: | :---------------------------------------------------------: |
+| 型安全性（Pydantic v2）      |      ✅      |                          ❌                           |                              ✅                              |
+| 非同期サポート               |      ✅      |                          ✅                           |                              ✅                              |
+| 画像生成                     |      ✅      |                          ✅                           |                              ✅                              |
+| テキスト生成                 |      🚧      |                          ✅                           |                              ✅                              |
+| **キャラクターリファレンス** |      ✅      |                          ❌                           |                              ❌                              |
+| **マルチキャラクター配置**   |      ✅      |                          ❌                           |                              ✅                              |
+| ControlNet / Vibe Transfer   |      ✅      |                          ❌                           |                              ✅                              |
+| SSEストリーミング            |      ✅      |                          ❌                           |                              ✅                              |
+| Python 3.13+                 |      ✅      |                          ❌                           |                              ❌                              |
+| アクティブメンテナンス       |      ✅      |                          ✅                           |                              ⚠️                              |
+
+✅ サポート | ❌ 未サポート | 🚧 予定 | ⚠️ 限定的メンテナンス
+
+## ドキュメント
+
+詳細なガイドと高度な使い方については、[ドキュメントサイト](https://caru-ini.github.io/novelai-sdk/)をご覧ください。
+
 ## クイックスタート
 
 ### インストール
@@ -52,8 +73,6 @@ params = GenerateImageParams(
 images = client.image.generate(params)
 images[0].save("output.png")
 ```
-
-## ドキュメント
 
 ### 認証
 
@@ -212,35 +231,13 @@ for i, img in enumerate(images):
 
 ## サンプル
 
-`examples/`ディレクトリには実用的なデモが含まれています:
-
-**基本的な使い方:**
-
-- `01_basic_v4.py` - V4モデルの入門
-- `08_img2img.py` - Image-to-image変換
-
-**高度な機能:**
-
-- `02_character_reference.py` - キャラクターリファレンス
-- `03_character_prompts.py` - マルチキャラクターポジショニング
-- `04_advanced_reference.py` - リファレンステクニックの組み合わせ
-- `05_controlnet.py` - ControlNetの使用
-
-**生成テクニック:**
-
-- `06_batch_generation.py` - バッチ生成
-- `07_streaming_generation.py` - ストリーミング進捗
-
-サンプルの実行:
-
-```bash
-python examples/01_basic_v4.py
-```
+実用的な使用例については、[サンプルドキュメント](https://caru-ini.github.io/novelai-sdk/examples/)または[`examples/`](../examples/)ディレクトリをご覧ください。
 
 ## ロードマップ
 
-- [ ] 非同期サポート
-- [ ] Vibe transferファイルサポート(`.naiv4vibe`,`.naiv4vibebundle`)
+- [x] 非同期サポート
+- [x] FastAPI統合サンプル
+- [ ] Vibe transferファイルサポート（`.naiv4vibe`、`.naiv4vibebundle`）
 - [ ] Anlas消費量計算機
 - [ ] 画像メタデータ抽出
 - [ ] テキスト生成APIサポート
@@ -280,7 +277,7 @@ uv run poe pre-commit
 
 ## 必要要件
 
-- Python 3.13+
+- Python 3.10+
 - httpx (HTTPクライアント)
 - Pillow (画像処理)
 - Pydantic v2 (バリデーションと型安全性)
@@ -293,7 +290,7 @@ uv run poe pre-commit
 ### コミットガイドライン
 
 ```plaintext
-{feat|fix|docs|style|refactor|test|chore}: 短い説明
+{feat|fix|docs|style|refactor|test|chore}: 短い説明(英語で)
 ```
 
 1. リポジトリをフォーク
