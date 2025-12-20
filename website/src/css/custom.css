@@ -1,0 +1,203 @@
+/**
+ * Any CSS included here will be global. The companion CSS file at
+ * 'src/css/custom.css' is where you should put your custom styles.
+ */
+
+/* --- Design Tokens --- */
+:root {
+  /* Brand colors */
+  --n-color-primary: #9773FF;
+  --n-color-primary-dark: #8868e6;
+  --n-color-secondary: #EC56A7;
+  --n-color-accent: #75CF67;
+  
+  /* Semantic variables for Light Theme */
+  --ifm-color-primary: var(--n-color-primary);
+  --ifm-color-primary-dark: var(--n-color-primary-dark);
+  --ifm-color-primary-darker: #8062d9;
+  --ifm-color-primary-darkest: #6a51b3;
+  --ifm-color-primary-light: #a67eff;
+  --ifm-color-primary-lighter: #ad84ff;
+  --ifm-color-primary-lightest: #c396ff;
+
+  --n-text-title: #1a1a1a;
+  --n-text-body: #4a4a4a;
+  --n-bg-page: #ffffff;
+  --n-bg-surface: rgba(0, 0, 0, 0.03);
+  --n-border-color: rgba(0, 0, 0, 0.1);
+  
+  --ifm-background-color: var(--n-bg-page);
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.85);
+
+  --ifm-font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --ifm-navbar-height: 4rem;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] {
+  --n-text-title: #ffffff;
+  --n-text-body: #b0b0b0;
+  --n-bg-page: #191B31;
+  --n-bg-surface: rgba(19, 20, 44, 0.6);
+  --n-border-color: rgba(255, 255, 255, 0.05);
+
+  --ifm-background-color: var(--n-bg-page);
+  --ifm-navbar-background-color: rgba(19, 21, 49, 0.85);
+  --ifm-footer-background-color: #13142C;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* --- Global Styles --- */
+html, body {
+  min-height: 100vh;
+}
+
+body {
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(157, 122, 255, 0.05) 0%, transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(255, 122, 255, 0.05) 0%, transparent 25%);
+  background-attachment: scroll;
+  color: var(--n-text-body);
+}
+
+/* --- Components --- */
+
+/* Navbar */
+.navbar {
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--n-border-color);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Hero Section */
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 8rem 0;
+  text-align: center;
+}
+
+.hero__title {
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  color: var(--n-text-title); /* No more gradient */
+  text-shadow: 0 0 20px rgba(157, 122, 255, 0.15);
+}
+
+[data-theme='light'] .hero__title {
+  color: var(--n-color-primary);
+}
+
+.hero__subtitle {
+  font-size: 1.5rem;
+  color: var(--n-text-body);
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  line-height: 1.6;
+}
+
+/* Buttons */
+.button--primary, .button--secondary {
+  border-radius: 50px;
+  padding: 0.8rem 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-transform: uppercase;
+  font-size: 0.9rem;
+}
+
+.button--secondary {
+  background: var(--n-bg-surface);
+  border: 1px solid var(--n-border-color);
+  color: var(--n-text-title);
+  backdrop-filter: blur(4px);
+}
+
+.button--secondary:hover {
+  background: rgba(128, 128, 128, 0.1);
+  border-color: var(--n-color-primary);
+  transform: translateY(-2px);
+  color: var(--n-color-primary);
+}
+
+/* Feature Cards */
+.features_src-components-HomepageFeatures-styles-module {
+  padding: 6rem 0;
+}
+
+.card-premium {
+  background: var(--n-bg-surface);
+  border: 1px solid var(--n-border-color);
+  border-radius: 24px;
+  padding: 2.5rem;
+  height: 100%;
+  transition: all 0.4s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-premium::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--n-color-primary), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card-premium:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.1);
+  border-color: var(--n-color-primary);
+}
+
+.card-premium:hover::before {
+  opacity: 0.5;
+}
+
+.featureSvg {
+  height: 100px;
+  width: 100px;
+  margin-bottom: 2rem;
+  filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+  transition: transform 0.4s ease;
+}
+
+.card-premium:hover .featureSvg {
+  transform: scale(1.1);
+}
+
+.card-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: var(--n-text-title);
+}
+
+.card-content p {
+  color: var(--n-text-body);
+  line-height: 1.7;
+}
+
+/* Markdown Content */
+.markdown h1 {
+  font-size: 3rem;
+  margin-bottom: 2rem;
+  color: var(--n-text-title);
+}
+
+.markdown h2, .markdown h3 {
+  color: var(--n-text-title);
+}
+
+.navbar__logo > img {
+  width: 1.4rem;
+}
