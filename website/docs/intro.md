@@ -24,11 +24,28 @@ Designed for Developer Experience (DX) with full Pydantic v2 validation and comp
 - **Modern Features**: Support for V4 models, Character References, ControlNet, etc.
 - **Utilities**: Built-in PIL/Pillow integration, SSE streaming.
 
+## Comparison with Alternatives
+
+| Feature                         | novelai-sdk | [novelai-api](https://github.com/Aedial/novelai-api) | [novelai-python](https://github.com/LlmKira/novelai-python) |
+| ------------------------------- | :---------: | :--------------------------------------------------: | :---------------------------------------------------------: |
+| Type Safety (Pydantic v2)       |      ✅      |                          ❌                           |                              ✅                              |
+| Async Support                   |      ✅      |                          ✅                           |                              ✅                              |
+| Image Generation                |      ✅      |                          ✅                           |                              ✅                              |
+| Text Generation                 |      🚧      |                          ✅                           |                              ✅                              |
+| **Character Reference**         |      ✅      |                          ❌                           |                              ❌                              |
+| **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
+| ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
+| SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
+| Python 3.13+                    |      ✅      |                          ❌                           |                              ❌                              |
+| Active Maintenance              |      ✅      |                          ✅                           |                              ⚠️                              |
+
+✅ Supported | ❌ Not supported | 🚧 Planned | ⚠️ Limited maintenance
+
 ## Where to Start?
 
-*   **[Getting Started](./getting-started.md)**: From installation to your first generation.
-*   **[Authentication](./authentication.md)**: How to set up your API key.
-*   **[Examples](./examples)**: Practical usage examples.
+- **[Getting Started](./getting-started.md)**: From installation to your first generation.
+- **[Authentication](./authentication.md)**: How to set up your API key.
+- **[Examples](./examples)**: Practical usage examples.
 
 ## Links
 

@@ -19,6 +19,27 @@ A modern, type-safe Python SDK for NovelAI's image generation API. Features robu
 - SSE streaming for real-time progress monitoring
 - Character references, ControlNet, and multi-character positioning
 
+## Comparison with Alternatives
+
+| Feature                         | novelai-sdk | [novelai-api](https://github.com/Aedial/novelai-api) | [novelai-python](https://github.com/LlmKira/novelai-python) |
+| ------------------------------- | :---------: | :--------------------------------------------------: | :---------------------------------------------------------: |
+| Type Safety (Pydantic v2)       |      ✅      |                          ❌                           |                              ✅                              |
+| Async Support                   |      ✅      |                          ✅                           |                              ✅                              |
+| Image Generation                |      ✅      |                          ✅                           |                              ✅                              |
+| Text Generation                 |      🚧      |                          ✅                           |                              ✅                              |
+| **Character Reference**         |      ✅      |                          ❌                           |                              ❌                              |
+| **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
+| ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
+| SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
+| Python 3.13+                    |      ✅      |                          ❌                           |                              ❌                              |
+| Active Maintenance              |      ✅      |                          ✅                           |                              ⚠️                              |
+
+✅ Supported | ❌ Not supported | 🚧 Planned | ⚠️ Limited maintenance
+
+## Documentation
+
+For detailed guides and advanced usage, visit our [Documentation Site](https://caru-ini.github.io/novelai-sdk/).
+
 ## Quick Start
 
 ### Installation
@@ -53,9 +74,7 @@ images = client.image.generate(params)
 images[0].save("output.png")
 ```
 
-## Documentation
-
-### Authentication
+## Authentication
 
 Provide your NovelAI API key via environment variable or direct initialization:
 
@@ -212,36 +231,14 @@ for i, img in enumerate(images):
 
 ## Examples
 
-The `examples/` directory contains practical demonstrations:
+For practical usage examples, see the [Examples Documentation](https://caru-ini.github.io/novelai-sdk/examples/) or the [`examples/`](./examples/) directory.
 
-**Basic Usage:**
+## Roadmap
 
-- `01_basic_v4.py` - Getting started with V4 model
-- `08_img2img.py` - Image-to-image transformation
-
-**Advanced Features:**
-
-- `02_character_reference.py` - Character reference
-- `03_character_prompts.py` - Multi-character positioning
-- `04_advanced_reference.py` - Combined reference techniques
-- `05_controlnet.py` - ControlNet usage
-
-**Generation Techniques:**
-
-- `06_batch_generation.py` - Batch generation
-- `07_streaming_generation.py` - Streaming progress
-
-Run any example:
-
-```bash
-python examples/01_basic_v4.py
-```
-
-## Loadmap
-
-- [ ] Async support
-- [ ] Vibe transfer file support (`.naiv4vibe`,`.naiv4vibebundle`)
-- [ ] Anlas consuption calculator
+- [x] Async support
+- [x] FastAPI integration example
+- [ ] Vibe transfer file support (`.naiv4vibe`, `.naiv4vibebundle`)
+- [ ] Anlas consumption calculator
 - [ ] Image metadata extraction
 - [ ] Text generation API support
 
