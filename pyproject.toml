@@ -80,6 +80,7 @@ upload_to_vcs_release = true
 
 [dependency-groups]
 dev = [
+    "fastapi>=0.115.0",
     "opencv-python>=4.10.0",
     "poethepoet>=0.37.0",
     "pre-commit>=4.0.1",
@@ -88,5 +89,5 @@ dev = [
     "pytest-cov>=7.0.0",
     "python-semantic-release>=10.2.0",
     "ruff>=0.14.1",
+    "uvicorn>=0.30.0",
 ]
-

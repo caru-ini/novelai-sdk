@@ -185,6 +185,34 @@ python 08_img2img.py
 
 ---
 
+### Web Framework Integration
+
+#### FastAPI ([10_fastapi_integration.py](10_fastapi_integration.py))
+
+Demonstrates how to integrate the SDK into a [FastAPI](https://fastapi.tiangolo.com/) web application.
+
+**Key Features:**
+
+- Lifecycle management using `lifespan` for client initialization and cleanup
+- Asynchronous image generation within an API endpoint
+- Returning the generated image directly as a PNG response
+
+To run this example, you need to install additional dependencies:
+
+```bash
+pip install fastapi uvicorn
+```
+
+Then run the server:
+
+```bash
+python examples/10_fastapi_integration.py
+```
+
+After the server starts, you can generate an image by visiting `http://localhost:8000/generate?prompt=cat`.
+
+---
+
 ## Common Parameters
 
 ### Model Selection
