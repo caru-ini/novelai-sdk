@@ -6,7 +6,6 @@ import base64
 import io
 import os
 import zipfile
-from pathlib import Path
 from typing import AsyncIterator, Iterator
 
 import httpx
@@ -130,7 +129,6 @@ class ImageAPI:
             NetworkError: Network connection error
         """
         try:
-            Path("request.json").write_text(request.model_dump_json(exclude_none=True))
             response = self._client.client.post(
                 f"{self.api_base}/ai/generate-image",
                 content=request.model_dump_json(exclude_none=True),
