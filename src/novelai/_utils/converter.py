@@ -296,6 +296,8 @@ def convert_user_params_to_api_params(
         director_reference_strength_values=cr_strengths,
         # Character prompts
         characterPrompts=character_prompts or [],
+        # Misc
+        image_format=params.image_format,
     )
 
     return params.prompt, params.model, generate_params
@@ -382,6 +384,8 @@ async def async_convert_user_params_to_api_params(
         director_reference_secondary_strength_values=cr_secondary_strengths,
         director_reference_strength_values=cr_strengths,
         characterPrompts=character_prompts or [],
+        # Misc
+        image_format=params.image_format,
     )
 
     return params.prompt, params.model, generate_params

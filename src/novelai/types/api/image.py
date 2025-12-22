@@ -240,6 +240,9 @@ class ImageParameters(BaseModel):
     use_coords: bool | None = Field(
         default=None, description="Use coordinates for positioning"
     )
+    image_format: Literal["webp", "png"] | None = Field(
+        default=None, description="Image format (webp is lossless, default is png)"
+    )
 
 
 class ImageStreamParameters(ImageParameters):

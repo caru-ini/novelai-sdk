@@ -270,6 +270,11 @@ class GenerateImageParams(BaseModel):
         description="Character reference images with settings (high-level API)",
     )
 
+    # misc
+    image_format: Literal["webp", "png"] | None = Field(
+        default=None, description="Image format (webp is lossless, None to use png)"
+    )
+
     @model_validator(mode="after")
     def _check_character_references(self) -> Self:
         """Check if character references are compatible with the model"""
