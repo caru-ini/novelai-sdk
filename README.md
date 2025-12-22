@@ -169,15 +169,15 @@ params = GenerateImageParams(
 Control composition and pose with reference images:
 
 ```python
-from novelai.types import ControlNetModel
+from novelai.types import ControlNet, ControlNetImage, GenerateImageParams
+
+controlnet_image = ControlNetImage(image="pose_reference.png", strength=0.6)
+controlnet = ControlNet(images=[controlnet_image])
 
 params = GenerateImageParams(
     prompt="1girl, standing",
     model="nai-diffusion-4-5-full",
-    controlnet_model=ControlNetModel(
-        image="pose_reference.png",
-        strength=0.6,
-    ),
+    controlnet=controlnet,
 )
 ```
 
@@ -205,11 +205,18 @@ for chunk in client.image.generate_stream(params):
 Transform existing images with text prompts:
 
 ```python
+from novelai.types import GenerateImageParams, I2iParams
+
+i2i_params = I2iParams(
+    image="input.png",
+    strength=0.5,  # 0.0-1.0
+    noise=0.0,
+)
+
 params = GenerateImageParams(
     prompt="cyberpunk style",
     model="nai-diffusion-4-5-full",
-    image="input.png",
-    strength=0.5,  # 0.0-1.0
+    i2i=i2i_params,
 )
 ```
 
