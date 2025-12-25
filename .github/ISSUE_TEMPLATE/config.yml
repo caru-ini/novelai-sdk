@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation
+    url: https://caru-ini.github.io/novelai-sdk/
+    about: Read the documentation before opening an issue

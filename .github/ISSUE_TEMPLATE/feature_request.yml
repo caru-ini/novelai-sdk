@@ -1,0 +1,97 @@
+name: Feature Request
+description: Suggest a new feature or enhancement for novelai-sdk
+labels: ["enhancement"]
+assignees: ["caru-ini"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature!
+        Please fill out this form to help us understand your request.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched the existing issues and this is not a duplicate
+          required: true
+        - label: I have checked the Roadmap in the README
+          required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Feature Category
+      description: What area of the SDK does this feature relate to?
+      options:
+        - Image Generation
+        - Text Generation
+        - Character Reference
+        - ControlNet / Vibe Transfer
+        - Streaming
+        - Authentication
+        - Type Safety / Validation
+        - Documentation
+        - Examples
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: Is your feature request related to a problem? Please describe.
+      placeholder: A clear and concise description of what the problem is. Ex. I'm always frustrated when...
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe the solution you'd like
+      placeholder: A clear and concise description of what you want to happen.
+    validations:
+      required: true
+
+  - type: textarea
+    id: api-design
+    attributes:
+      label: Suggested API Design
+      description: If applicable, suggest how the API might look
+      render: python
+      placeholder: |
+        # Example of how the feature might be used:
+        from novelai.types import NewFeature
+
+        params = NewFeature(
+            option="value",
+        )
+        result = client.some_method(params)
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or features you've considered
+      placeholder: Other approaches you've thought about...
+
+  - type: dropdown
+    id: willingness
+    attributes:
+      label: Contribution
+      description: Would you be willing to help implement this feature?
+      options:
+        - "Yes, I can submit a PR"
+        - "Yes, but I need guidance"
+        - "No, just suggesting"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Add any other context, screenshots, or references about the feature request
