@@ -35,7 +35,9 @@ def _convert_characters_to_char_prompts(
         api_types.CharacterPrompt(
             prompt=char.prompt,
             uc=char.negative_prompt,
-            center=(float(char.position[0]), float(char.position[1])),
+            center=api_types.CenterPoint(
+                x=float(char.position[0]), y=float(char.position[1])
+            ),
             enabled=char.enabled,
         )
         for char in characters
@@ -58,7 +60,11 @@ def _convert_characters_to_char_captions(
     return [
         api_types.V4CharacterCaption(
             char_caption=char.negative_prompt if is_negative else char.prompt,
-            centers=[(float(char.position[0]), float(char.position[1]))],
+            centers=[
+                api_types.CenterPoint(
+                    x=float(char.position[0]), y=float(char.position[1])
+                )
+            ],
         )
         for char in characters
         if char.enabled
