@@ -296,13 +296,13 @@ class GenerateImageParams(BaseModel):
         description="Character-specific prompts with positioning (V4 models only)",
     )
 
-    @field_validator("characters", mode="after")
-    @classmethod
-    def _check_characters(cls, v: list[Character]) -> list[Character]:
+    @model_validator(mode="after")
+    def _check_characters(self) -> Self:
         """Check if characters are compatible with the model"""
-        if not cls.is_v4(cls.model) and len(v) > 0:
+        characters = getattr(self, "characters", []) or []
+        if not self.is_v4(self.model) and len(characters) > 0:
             raise ValueError("Characters are only supported for V4 models")
-        return v
+        return self
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
