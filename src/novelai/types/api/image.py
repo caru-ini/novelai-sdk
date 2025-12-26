@@ -9,12 +9,19 @@ from pydantic import BaseModel, ConfigDict, Field
 from ...constants import StreamingType
 
 
+class CenterPoint(BaseModel):
+    """Center point coordinates in object format for API"""
+
+    x: float = Field(..., description="X coordinate")
+    y: float = Field(..., description="Y coordinate")
+
+
 class CharacterPrompt(BaseModel):
     """Character-specific prompt with positioning"""
 
     prompt: str = Field(..., description="Character prompt")
     uc: str = Field(..., description="Undesired content for character")
-    center: tuple[float, float] = Field(..., description="Character center position")
+    center: CenterPoint = Field(..., description="Character center position")
     enabled: bool = Field(default=True, description="Enable this character prompt")
 
 
@@ -31,7 +38,7 @@ class EncodeVibeRequest(BaseModel):
 class V4CharacterCaption(BaseModel):
     """Character caption with positioning for V4"""
 
-    centers: list[tuple[float, float]] | None = Field(
+    centers: list[CenterPoint] | None = Field(
         None, description="Character center coordinates"
     )
     char_caption: str | None = Field(

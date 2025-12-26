@@ -23,6 +23,7 @@ params = GenerateImageParams(
     # General prompt can be used, but details should be in characters list
     prompt="two people standing together, holding hands, best quality",
     model="nai-diffusion-4-5-full",
+    size=(832, 1216),  # Size must be explicitly specified
     characters=characters,
 )
 ```
