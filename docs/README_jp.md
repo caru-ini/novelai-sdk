@@ -299,7 +299,7 @@ uv run poe pre-commit
 
 貢献を歓迎します。大きな変更の場合は、まずissueを開いてください。
 
-### コミットガイドライン
+詳細については、[貢献ガイド](CONTRIBUTING_jp.md)をご覧ください。開発環境のセットアップ、コード品質チェック、プルリクエストの手順などが記載されています。
 
 ```plaintext
 {feat|fix|docs|style|refactor|test|chore}: 短い説明(英語で)

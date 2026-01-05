@@ -299,7 +299,7 @@ Tests will be added in future releases.
 
 Contributions are welcome. For major changes, please open an issue first.
 
-### Commit Guidelines
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute, including development setup, code quality checks, and pull request guidelines.
 
 ```plaintext
 {feat|fix|docs|style|refactor|test|chore}: Short description
