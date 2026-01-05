@@ -41,6 +41,15 @@ Designed for Developer Experience (DX) with full Pydantic v2 validation and comp
 
 ✅ Supported | ❌ Not supported | 🚧 Planned | ⚠️ Limited maintenance
 
+## Data Model Architecture
+
+The library is designed with two distinct layers of data models:
+
+![Model Architecture](./images/model-architecture.png)
+
+1.  **User Model (Recommended)**: User-friendly models with sensible defaults and automatic validation.
+2.  **API Model**: Direct 1:1 mapping to NovelAI's API endpoints, primarily used internally.
+
 ## Where to Start?
 
 - **[Getting Started](./getting-started.md)**: From installation to your first generation.

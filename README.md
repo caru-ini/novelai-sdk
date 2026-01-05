@@ -93,9 +93,14 @@ client = NovelAI()
 client = NovelAI(api_key="your_api_key_here")
 ```
 
-### API Architecture
+### Data Model Architecture
 
-The library provides a high-level API with sensible defaults and automatic validation. A low-level API exists internally for direct REST endpoint access, but is not intended for general use.
+The library is designed with two distinct layers of data models:
+
+![Model Architecture](./docs/images/model-architecture.png)
+
+1.  **User Model (Recommended)**: User-friendly models with sensible defaults and automatic validation.
+2.  **API Model**: Direct 1:1 mapping to NovelAI's API endpoints, primarily used internally.
 
 #### High-Level API
 
