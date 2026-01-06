@@ -31,7 +31,7 @@ A modern, type-safe Python SDK for NovelAI's image generation API. Features robu
 | **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
 | SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
-| Python 3.13+                    |      ✅      |                          ❌                           |                              ❌                              |
+| Python 3.10+                    |      ✅      |                          ❌                           |                              ❌                              |
 | Active Maintenance              |      ✅      |                          ✅                           |                              ⚠️                              |
 
 ✅ Supported | ❌ Not supported | 🚧 Planned | ⚠️ Limited maintenance
@@ -289,7 +289,7 @@ Tests will be added in future releases.
 
 ## Requirements
 
-- Python 3.13+
+- Python 3.10+
 - httpx (HTTP client)
 - Pillow (image processing)
 - Pydantic v2 (validation and type safety)

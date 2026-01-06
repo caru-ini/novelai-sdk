@@ -36,7 +36,7 @@ Designed for Developer Experience (DX) with full Pydantic v2 validation and comp
 | **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
 | SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
-| Python 3.13+                    |      ✅      |                          ❌                           |                              ❌                              |
+| Python 3.10+                    |      ✅      |                          ❌                           |                              ❌                              |
 | Active Maintenance              |      ✅      |                          ✅                           |                              ⚠️                              |
 
 ✅ Supported | ❌ Not supported | 🚧 Planned | ⚠️ Limited maintenance
