@@ -6,7 +6,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from ...constants import StreamingType
+from ...constants.noise_schedules import StreamingType
 
 
 class CenterPoint(BaseModel):

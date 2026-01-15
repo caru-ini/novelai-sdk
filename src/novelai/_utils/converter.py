@@ -5,7 +5,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from .._utils.image import crop_and_resize, image_to_base64
-from ..constants import UC_FURRY_FOCUS, UC_HUMAN_FOCUS, UC_LIGHT, UC_NONE, UC_STRONG
+from ..constants.negative_prompts import (
+    UC_FURRY_FOCUS,
+    UC_HUMAN_FOCUS,
+    UC_LIGHT,
+    UC_NONE,
+    UC_STRONG,
+)
 from ..types.api import image as api_types
 from ..types.user import image as user_types
 
