@@ -31,7 +31,7 @@ from ...constants import (
     Sampler,
     UCPreset,
 )
-from ...constants.position import Position, PositionPreset
+from ...constants.positions import Position, PositionPreset
 from ...constants.sizes import PRESET_MAP
 from ...types.api.image import EncodeVibeRequest
 

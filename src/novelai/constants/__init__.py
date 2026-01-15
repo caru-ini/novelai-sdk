@@ -15,14 +15,14 @@ from .models import (
     V4_FULL,
     ImageModel,
 )
-from .noise_schedule import (
+from .noise_schedules import (
     NOISE_EXPONENTIAL,
     NOISE_KARRAS,
     NOISE_POLYEXPONENTIAL,
     NoiseSchedule,
     StreamingType,
 )
-from .presets import (
+from .negative_prompts import (
     QUALITY_TAGS,
     UC_FURRY_FOCUS,
     UC_HUMAN_FOCUS,
