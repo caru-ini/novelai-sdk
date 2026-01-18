@@ -20,11 +20,11 @@ base_prompt = "2girls, standing, park background, very aesthetic, masterpiece"
 """
 Pro tip:
 You can specify character(like A1, B2, etc.) instead of (x, y) coordinates.
-| A1 | A2 | A3 | A4 | A5 |
-| B1 | B2 | B3 | B4 | B5 |
-| C1 | C2 | C3 | C4 | C5 | 
-| D1 | D2 | D3 | D4 | D5 |
-| E1 | E2 | E3 | E4 | E5 |
+| A1 | B1 | C1 | D1 | E1 |
+| A2 | B2 | C2 | D2 | E2 |
+| A3 | B3 | C3 | D3 | E3 |
+| A4 | B4 | C4 | D4 | E4 |
+| A5 | B5 | C5 | D5 | E5 |
 """
 
 characters = [
@@ -49,7 +49,6 @@ params = GenerateImageParams(
     steps=23,
     scale=5.0,
     sampler="k_euler_ancestral",
-    seed=1234567890,
     characters=characters,
 )
 

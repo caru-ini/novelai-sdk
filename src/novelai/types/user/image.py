@@ -70,7 +70,7 @@ class Character(BaseModel):
                 raise ValueError("Invalid position preset")
             # position is 5x5 grid, convert to 0.0-1.0 range
             x_str, y_str = "ABCDE".index(v[0]) + 1, "12345".index(v[1]) + 1
-            return (x_str / 5, y_str / 5)
+            return ((x_str - 0.5) / 5, (y_str - 0.5) / 5)
 
         x, y = v
         if not (0.0 <= x <= 1.0) or not (0.0 <= y <= 1.0):
