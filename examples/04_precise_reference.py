@@ -1,11 +1,10 @@
-"""Advanced example combining Director Tools and Character Prompts
+"""
+Advanced example of character references(precise references).
 
-This example demonstrates the most advanced usage by combining:
-- Director Tools (Character Reference) for style/character reference
-- Character Prompts for precise character positioning
-- Custom positioning and prompts for each character
-
-This recreates the structure from ref_both_075.json reference.
+This example shows how to use new precise character references(formally called character references),
+introduced in February 2026.
+The reference type can be set to "char", "style", or "both" for a single image.
+Multiple references are supported and can be combined to apply different characters and styles.
 """
 
 from pathlib import Path
@@ -21,24 +20,37 @@ client = NovelAI()
 
 base_prompt = "1girl, standing, rating:general, simple background, very aesthetic, masterpiece, no text"
 
-reference_image_path = Path("reference_character.png")
+char_image = Path("reference_character.png")
+style_image = Path("reference_style.png")
 
-if not reference_image_path.exists():
-    print(f"Error: Reference image not found: {reference_image_path}")
+if not char_image.exists():
+    print(f"Error: Reference image not found: {char_image}")
+    print("Please provide a reference image.")
+    exit(1)
+
+if not style_image.exists():
+    print(f"Error: Reference image not found: {style_image}")
     print("Please provide a reference image.")
     exit(1)
 
 character_references = [
     CharacterReference(
-        image=reference_image_path,
-        type="character&style",
-        fidelity=0.75,
-    )
+        image=char_image,
+        type="character",
+        fidelity=1,
+        strength=0.75,
+    ),
+    CharacterReference(
+        image=style_image,
+        type="style",
+        fidelity=1,
+        strength=0.75,
+    ),
 ]
 
 characters = [
     Character(
-        prompt="girl,leaning forward, v",
+        prompt="girl, v",
         negative_prompt="",
         position=(0.5, 0.5),
         enabled=True,
