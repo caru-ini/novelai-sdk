@@ -1,9 +1,9 @@
 """
-Advanced example of character references(precise references).
+Advanced example of character references (precise references).
 
-This example shows how to use new precise character references(formally called character references),
+This example shows how to use new precise character references (formerly called character references),
 introduced in February 2026.
-The reference type can be set to "char", "style", or "both" for a single image.
+The reference type can be set to "char", "style", or "character&style" for a single image.
 Multiple references are supported and can be combined to apply different characters and styles.
 """
 
