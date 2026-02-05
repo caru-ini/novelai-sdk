@@ -281,12 +281,6 @@ class GenerateImageParams(BaseModel):
         if not self.is_v4_5(self.model) and len(character_references) > 0:
             raise ValueError("Character references are only supported for V4.5 models")
 
-        # currently, multiple character references are not supported for V4 models
-        # block multiple references until NovelAI supports it
-        if len(character_references) > 1:
-            raise ValueError(
-                "Multiple character references are not supported for V4 models"
-            )
         return self
 
     # Character prompts (V4, V4.5 only)
