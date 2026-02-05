@@ -167,11 +167,14 @@ class CharacterReference(BaseModel):
     """
 
     image: ImageInput = Field(..., description="Character reference image")
-    type: Literal["character", "character&style"] = Field(
+    type: Literal["character", "style", "character&style"] = Field(
         default="character&style", description="Character reference type"
     )
     fidelity: float = Field(
-        default=0.75, ge=0.0, le=1.0, description="Reference fidelity"
+        default=1.0, ge=0.0, le=1.0, description="Reference fidelity"
+    )
+    strength: float = Field(
+        default=1.0, ge=0.0, le=1.0, description="Reference strength"
     )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)

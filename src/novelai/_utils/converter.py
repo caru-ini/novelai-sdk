@@ -143,7 +143,7 @@ def _convert_character_references(
         )
         for ref in character_references
     ]
-    strengths = [1.0] * len(character_references)
+    strengths = [round(ref.strength, 2) for ref in character_references]
     information_extracted = [1.0] * len(character_references)
     secondary_strengths = [round(1 - ref.fidelity, 2) for ref in character_references]
 
