@@ -27,9 +27,11 @@ if not reference_image_path.exists():
 character_references = [
     CharacterReference(
         image=reference_image_path,
-        type="character",
-        fidelity=0.75,  # higher fidelity means more similar to the reference image
+        type="character",  # character, style, character&style are supported
+        fidelity=1,  # higher fidelity means more similar to the reference image
+        strength=1,  # higher strength means more dominant compared to other references
     )
+    # (multiple references are supported...)
 ]
 
 characters = [

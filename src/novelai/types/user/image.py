@@ -167,11 +167,14 @@ class CharacterReference(BaseModel):
     """
 
     image: ImageInput = Field(..., description="Character reference image")
-    type: Literal["character", "character&style"] = Field(
+    type: Literal["character", "style", "character&style"] = Field(
         default="character&style", description="Character reference type"
     )
     fidelity: float = Field(
-        default=0.75, ge=0.0, le=1.0, description="Reference fidelity"
+        default=1.0, ge=0.0, le=1.0, description="Reference fidelity"
+    )
+    strength: float = Field(
+        default=1.0, ge=0.0, le=1.0, description="Reference strength"
     )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -281,12 +284,6 @@ class GenerateImageParams(BaseModel):
         if not self.is_v4_5(self.model) and len(character_references) > 0:
             raise ValueError("Character references are only supported for V4.5 models")
 
-        # currently, multiple character references are not supported for V4 models
-        # block multiple references until NovelAI supports it
-        if len(character_references) > 1:
-            raise ValueError(
-                "Multiple character references are not supported for V4 models"
-            )
         return self
 
     # Character prompts (V4, V4.5 only)
