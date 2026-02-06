@@ -21,7 +21,7 @@ Designed for Developer Experience (DX) with full Pydantic v2 validation and comp
 
 - **Type Safety**: Python 3.10+ support, robust validation with Pydantic v2.
 - **High-Level API**: Intuitive and easy-to-use interface.
-- **Modern Features**: Support for V4 models, Character References, ControlNet, etc.
+- **Modern Features**: Support for V4 models, Precise reference (Character reference), ControlNet, etc.
 - **Utilities**: Built-in PIL/Pillow integration, SSE streaming.
 
 ## Comparison with Alternatives
@@ -32,7 +32,7 @@ Designed for Developer Experience (DX) with full Pydantic v2 validation and comp
 | Async Support                   |      ✅      |                          ✅                           |                              ✅                              |
 | Image Generation                |      ✅      |                          ✅                           |                              ✅                              |
 | Text Generation                 |      🚧      |                          ✅                           |                              ✅                              |
-| **Character Reference**         |      ✅      |                          ❌                           |                              ❌                              |
+| **Precise reference (Character reference)** |      ✅      |                          ❌                           |                              ❌                              |
 | **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
 | SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
@@ -47,8 +47,8 @@ The library is designed with two distinct layers of data models:
 
 ![Model Architecture](./images/model-architecture.png)
 
-1.  **User Model (Recommended)**: User-friendly models with sensible defaults and automatic validation.
-2.  **API Model**: Direct 1:1 mapping to NovelAI's API endpoints, primarily used internally.
+1. **User Model (Recommended)**: User-friendly models with sensible defaults and automatic validation.
+2. **API Model**: Direct 1:1 mapping to NovelAI's API endpoints, primarily used internally.
 
 ## Where to Start?
 

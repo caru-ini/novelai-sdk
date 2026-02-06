@@ -21,7 +21,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。
 
 - **类型安全**: 支持 Python 3.10+，使用 Pydantic v2 进行强大的验证。
 - **高级 API**: 直观且易于使用的界面。
-- **现代功能**: 支持 V4 模型、角色参考、ControlNet 等。
+- **现代功能**: 支持 V4 模型、精准参考（角色参考）、ControlNet 等。
 - **实用工具**: 内置 PIL/Pillow 集成，SSE 流式传输。
 
 ## 与替代方案的比较
@@ -32,7 +32,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。
 | 异步支持                        |      ✅      |                          ✅                           |                              ✅                              |
 | 图像生成                        |      ✅      |                          ✅                           |                              ✅                              |
 | 文本生成                        |      🚧      |                          ✅                           |                              ✅                              |
-| **角色参考**                    |      ✅      |                          ❌                           |                              ❌                              |
+| **精准参考（角色参考）**        |      ✅      |                          ❌                           |                              ❌                              |
 | **多角色定位**                  |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
 | SSE 流式传输                    |      ✅      |                          ❌                           |                              ✅                              |
@@ -47,14 +47,14 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。
 
 ![Model Architecture](./images/model-architecture.png)
 
-1.  **用户模型 (推荐)**: 具有合理默认值和自动验证的用户友好模型。
-2.  **API 模型**: 直接 1:1 映射到 NovelAI 的 API 端点，主要用于内部。
+1. **用户模型 (推荐)**: 具有合理默认值和自动验证的用户友好模型。
+2. **API 模型**: 直接 1:1 映射到 NovelAI 的 API 端点，主要用于内部。
 
 ## 下一步
 
-* 查看 **[快速开始](./getting-started.md)** 以在几分钟内生成图像。
-* 浏览 **[示例](./examples/index.md)** 以了解特定用例（ControlNet、i2i 等）。
-* 阅读 **[认证](./authentication.md)** 了解如何处理 API 密钥。
+- 查看 **[快速开始](./getting-started.md)** 以在几分钟内生成图像。
+- 浏览 **[示例](./examples/index.md)** 以了解特定用例（ControlNet、i2i 等）。
+- 阅读 **[认证](./authentication.md)** 了解如何处理 API 密钥。
 
 ## 链接
 

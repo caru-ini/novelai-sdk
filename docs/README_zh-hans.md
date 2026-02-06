@@ -17,7 +17,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。具有使用 P
 - 高级便捷 API，自动验证
 - 内置 PIL/Pillow 支持，便于图像操作
 - SSE 流式传输，用于实时进度监控
-- 角色参考、ControlNet 和多角色定位
+- 精准参考（角色参考）、ControlNet 和多角色定位
 
 ## 与替代方案的比较
 
@@ -27,7 +27,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。具有使用 P
 | 异步支持                        |      ✅      |                          ✅                           |                              ✅                              |
 | 图像生成                        |      ✅      |                          ✅                           |                              ✅                              |
 | 文本生成                        |      🚧      |                          ✅                           |                              ✅                              |
-| **角色参考**                    |      ✅      |                          ❌                           |                              ❌                              |
+| **精准参考（角色参考）**        |      ✅      |                          ❌                           |                              ❌                              |
 | **多角色定位**                  |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
 | SSE 流式传输                    |      ✅      |                          ❌                           |                              ✅                              |
@@ -99,8 +99,8 @@ client = NovelAI(api_key="your_api_key_here")
 
 ![Model Architecture](./images/model-architecture.png)
 
-1.  **用户模型 (推荐)**: 具有合理默认值和自动验证的用户友好模型。
-2.  **API 模型**: 直接 1:1 映射到 NovelAI 的 API 端点，主要用于内部。
+1. **用户模型 (推荐)**: 具有合理默认值和自动验证的用户友好模型。
+2. **API 模型**: 直接 1:1 映射到 NovelAI 的 API 端点，主要用于内部。
 
 #### 高级 API
 

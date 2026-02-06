@@ -17,7 +17,7 @@ A modern, type-safe Python SDK for NovelAI's image generation API. Features robu
 - High-level convenience API with automatic validation
 - Built-in PIL/Pillow support for easy image operations
 - SSE streaming for real-time progress monitoring
-- Character references, ControlNet, and multi-character positioning
+- Precise reference(Character reference), ControlNet, and multi-character positioning
 
 ## Comparison with Alternatives
 
@@ -27,7 +27,7 @@ A modern, type-safe Python SDK for NovelAI's image generation API. Features robu
 | Async Support                   |      ✅      |                          ✅                           |                              ✅                              |
 | Image Generation                |      ✅      |                          ✅                           |                              ✅                              |
 | Text Generation                 |      🚧      |                          ✅                           |                              ✅                              |
-| **Character Reference**         |      ✅      |                          ❌                           |                              ❌                              |
+| **Precise Reference(Character Reference)**         |      ✅      |                          ❌                           |                              ❌                              |
 | **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
 | SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
@@ -99,8 +99,8 @@ The library is designed with two distinct layers of data models:
 
 ![Model Architecture](./docs/images/model-architecture.png)
 
-1.  **User Model (Recommended)**: User-friendly models with sensible defaults and automatic validation.
-2.  **API Model**: Direct 1:1 mapping to NovelAI's API endpoints, primarily used internally.
+1. **User Model (Recommended)**: User-friendly models with sensible defaults and automatic validation.
+2. **API Model**: Direct 1:1 mapping to NovelAI's API endpoints, primarily used internally.
 
 #### High-Level API
 
