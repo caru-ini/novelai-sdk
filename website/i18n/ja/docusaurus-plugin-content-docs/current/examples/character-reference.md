@@ -1,4 +1,4 @@
-# 精密参照 (Precision Reference)
+# 精密参照 (Precise Reference)
 
 :::info
 この機能は以前「キャラクター参照」と呼ばれていましたが、2026年2月に「精密参照」に名称変更されました。

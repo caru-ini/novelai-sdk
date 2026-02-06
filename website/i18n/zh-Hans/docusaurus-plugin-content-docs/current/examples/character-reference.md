@@ -1,4 +1,4 @@
-# 精密参考 (Precision Reference)
+# 精密参考 (Precise Reference)
 
 :::info
 此功能以前称为"角色参考 (Character Reference)"，于2026年2月更名为"精密参考"。

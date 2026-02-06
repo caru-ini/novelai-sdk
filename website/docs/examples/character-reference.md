@@ -1,11 +1,11 @@
-# Precision Reference
+# Precise Reference
 
 :::info
-This feature was previously called "Character Reference" and was renamed to "Precision Reference" in February 2026.
+This feature was previously called "Character Reference" and was renamed to "Precise Reference" in February 2026.
 :::
 
 Control character appearance and art style with reference images.
-Precision Reference allows you to maintain consistent character designs and apply specific art styles across generations.
+Precise Reference allows you to maintain consistent character designs and apply specific art styles across generations.
 
 ## Features
 
