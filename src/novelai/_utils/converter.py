@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from .._utils.image import crop_and_resize, image_to_base64
+from .._utils.image import (
+    crop_and_resize,
+    image_to_base64,
+    mask_to_base64,
+    resize_base64,
+)
 from ..constants.negative_prompts import (
     UC_FURRY_FOCUS,
     UC_HUMAN_FOCUS,
@@ -211,7 +216,7 @@ async def _async_convert_controlnet(
 def convert_user_params_to_api_params(
     params: user_types.GenerateImageParams,
     client: NovelAI,
-) -> tuple[str, str, api_types.ImageParameters]:
+) -> api_types.ImageParameters:
     """Convert user params to API request components
 
     Args:
@@ -219,7 +224,7 @@ def convert_user_params_to_api_params(
         client: NovelAI client
 
     Returns:
-        Tuple of (input_prompt, model, api_parameters)
+        API image parameters
     """
     if not isinstance(params.size, tuple):
         raise ValueError("Size must be a tuple of ints")
@@ -256,6 +261,35 @@ def convert_user_params_to_api_params(
         cn_strengths,
     ) = _convert_controlnet(params.controlnet, client)
 
+    # Determine i2i/inpaint source parameters
+    i2i_or_inpaint = params.i2i or params.inpaint
+    source_image_raw = _convert_image_input(getattr(i2i_or_inpaint, "image", None))
+    source_image = (
+        resize_base64(source_image_raw, target_size=(width, height))
+        if source_image_raw is not None
+        else None
+    )
+    source_strength = getattr(i2i_or_inpaint, "strength", None)
+    source_noise = getattr(params.i2i, "noise", 0) if i2i_or_inpaint else None
+    source_mask = (
+        mask_to_base64(
+            params.inpaint.mask,
+            target_size=(width, height),
+        )
+        if params.inpaint
+        else None
+    )
+    source_seed = getattr(i2i_or_inpaint, "seed", None)
+
+    i2i_params = (
+        api_types.Img2ImgParams(color_correct=True, strength=source_strength)
+        if any([params.i2i, params.inpaint])
+        else None
+    )
+
+    # add_original_image: True for img2img, False for inpaint
+    add_original = any([params.i2i, params.inpaint])
+
     # Build ImageParameters with explicit defaults from user params
     generate_params = api_types.ImageParameters(
         params_version=3,
@@ -266,10 +300,10 @@ def convert_user_params_to_api_params(
         autoSmea=False,
         sm=False,
         sm_dyn=False,
-        add_original_image=True,
+        add_original_image=add_original,
         dynamic_thresholding=False,
         legacy_uc=False,
-        inpaintImg2ImgStrength=1,
+        inpaintImg2ImgStrength=source_strength,
         use_coords=False,
         normalize_reference_strength_multiple=False,
         # Basic parameters
@@ -290,12 +324,13 @@ def convert_user_params_to_api_params(
         ucPreset=_map_uc_preset_to_int(params.uc_preset),
         cfg_rescale=params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,
-        # i2i
-        image=_convert_image_input(getattr(params.i2i, "image", None)),
-        strength=getattr(params.i2i, "strength", None),
-        noise=getattr(params.i2i, "noise", None),
-        # Inpainting
-        mask=_convert_image_input(getattr(params.i2i, "mask", None)),
+        # i2i / inpaint
+        image=source_image,
+        strength=0.7,
+        noise=source_noise,
+        mask=source_mask,
+        img2img=i2i_params,
+        extra_noise_seed=source_seed,
         # ControlNet
         reference_image_multiple=cn_vibe_data,
         reference_strength_multiple=cn_strengths,
@@ -312,13 +347,13 @@ def convert_user_params_to_api_params(
         image_format=params.image_format,
     )
 
-    return params.prompt, params.model, generate_params
+    return generate_params
 
 
 async def async_convert_user_params_to_api_params(
     params: user_types.GenerateImageParams,
     client: AsyncNovelAI,
-) -> tuple[str, str, api_types.ImageParameters]:
+) -> api_types.ImageParameters:
     """Convert user params to API request components (async)"""
     if not isinstance(params.size, tuple):
         raise ValueError("Size must be a tuple of ints")
@@ -352,6 +387,27 @@ async def async_convert_user_params_to_api_params(
         cn_strengths,
     ) = await _async_convert_controlnet(params.controlnet, client)
 
+    # Determine i2i/inpaint source parameters
+    i2i_or_inpaint = params.i2i or params.inpaint
+    source_image_raw = _convert_image_input(getattr(i2i_or_inpaint, "image", None))
+    source_image = (
+        resize_base64(source_image_raw, target_size=(width, height))
+        if source_image_raw is not None
+        else None
+    )
+    source_strength = getattr(i2i_or_inpaint, "strength", None)
+    source_noise = getattr(i2i_or_inpaint, "noise", 0) if i2i_or_inpaint else None
+    source_mask = (
+        mask_to_base64(
+            params.inpaint.mask,
+            target_size=(width, height),
+        )
+        if params.inpaint
+        else None
+    )
+
+    # add_original = params.inpaint is None
+
     generate_params = api_types.ImageParameters(
         params_version=3,
         legacy=False,
@@ -364,7 +420,7 @@ async def async_convert_user_params_to_api_params(
         add_original_image=True,
         dynamic_thresholding=False,
         legacy_uc=False,
-        inpaintImg2ImgStrength=1,
+        inpaintImg2ImgStrength=source_strength,
         use_coords=False,
         normalize_reference_strength_multiple=False,
         width=width,
@@ -383,10 +439,10 @@ async def async_convert_user_params_to_api_params(
         ucPreset=_map_uc_preset_to_int(params.uc_preset),
         cfg_rescale=params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,
-        image=_convert_image_input(getattr(params.i2i, "image", None)),
-        strength=getattr(params.i2i, "strength", None),
-        noise=getattr(params.i2i, "noise", None),
-        mask=_convert_image_input(getattr(params.i2i, "mask", None)),
+        image=source_image,
+        strength=source_strength,
+        noise=source_noise,
+        mask=source_mask,
         reference_image_multiple=cn_vibe_data,
         reference_strength_multiple=cn_strengths,
         controlnet_strength=getattr(params.controlnet, "strength", 1),
@@ -400,7 +456,37 @@ async def async_convert_user_params_to_api_params(
         image_format=params.image_format,
     )
 
-    return params.prompt, params.model, generate_params
+    return generate_params
+
+
+def _determine_action(
+    params: user_types.GenerateImageParams | user_types.GenerateImageStreamParams,
+) -> str:
+    """Determine the API action based on i2i/inpaint parameters.
+
+    Returns:
+        "generate" for text-to-image, "img2img" for img2img, "infill" for inpainting
+    """
+    if params.inpaint is not None:
+        return "infill"
+    if params.i2i is not None:
+        return "img2img"
+    return "generate"
+
+
+def _resolve_inpaint_model(
+    params: user_types.GenerateImageParams | user_types.GenerateImageStreamParams,
+) -> str:
+    """Auto-resolve inpainting model variant internally.
+
+    All models have an inpainting variant (e.g. nai-diffusion-4-5-full-inpainting).
+    Like the webui, inpainting models are hidden from the user — they always specify
+    a standard model, and the SDK automatically appends '-inpainting' when inpaint
+    params are present.
+    """
+    if params.inpaint is not None:
+        return params.model + "-inpainting"
+    return params.model
 
 
 def convert_user_params_to_api_request(
@@ -419,26 +505,27 @@ def convert_user_params_to_api_request(
     Returns:
         Low-level API request (ImageGenerationRequest or StreamImageGenerationRequest)
     """
-    input_prompt, model, generate_params = convert_user_params_to_api_params(
-        params, client
-    )
+    generate_params = convert_user_params_to_api_params(params, client)
+
+    action = _determine_action(params)
+    resolved_model = _resolve_inpaint_model(params)
 
     if isinstance(params, user_types.GenerateImageStreamParams):
         stream_params = api_types.ImageStreamParameters(
             **generate_params.model_dump(exclude_unset=True), stream=params.stream
         )
         return api_types.StreamImageGenerationRequest(
-            action="generate",
-            input=input_prompt,
-            model=model,
+            action=action,
+            input=params.prompt,
+            model=resolved_model,
             parameters=stream_params,
             use_new_shared_trial=True,
         )
 
     return api_types.ImageGenerationRequest(
-        action="generate",
-        input=input_prompt,
-        model=model,
+        action=action,
+        input=params.prompt,
+        model=resolved_model,
         parameters=generate_params,
         use_new_shared_trial=True,
     )
@@ -449,28 +536,27 @@ async def async_convert_user_params_to_api_request(
     client: AsyncNovelAI,
 ) -> api_types.ImageGenerationRequest | api_types.StreamImageGenerationRequest:
     """Convert user params to low-level API request (async)"""
-    (
-        input_prompt,
-        model,
-        generate_params,
-    ) = await async_convert_user_params_to_api_params(params, client)
+    generate_params = await async_convert_user_params_to_api_params(params, client)
+
+    action = _determine_action(params)
+    resolved_model = _resolve_inpaint_model(params)
 
     if isinstance(params, user_types.GenerateImageStreamParams):
         stream_params = api_types.ImageStreamParameters(
             **generate_params.model_dump(exclude_unset=True), stream=params.stream
         )
         return api_types.StreamImageGenerationRequest(
-            action="generate",
-            input=input_prompt,
-            model=model,
+            action=action,
+            input=params.prompt,
+            model=resolved_model,
             parameters=stream_params,
             use_new_shared_trial=True,
         )
 
     return api_types.ImageGenerationRequest(
-        action="generate",
-        input=input_prompt,
-        model=model,
+        action=action,
+        input=params.prompt,
+        model=resolved_model,
         parameters=generate_params,
         use_new_shared_trial=True,
     )
