@@ -53,10 +53,8 @@ def erase_metadata(
     """
     new_image = to_pil_image(image)
     if target in ["both", "alpha"]:
-        print("erase Alpha")
         new_image = new_image.convert("RGB")
     if target in ["both", "png_info"]:
-        print("erase info")
         new_image.info = {}
 
     return new_image

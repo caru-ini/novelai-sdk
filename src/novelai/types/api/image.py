@@ -318,7 +318,6 @@ class ImageStreamChunk(BaseModel):
     @classmethod
     def from_text_chunk(cls, text: str) -> ImageStreamChunk:
         """Create ImageStreamChunk from text chunk"""
-        print(text)
         if text.startswith("data: "):
             text = text.split("data: ")[1]
         return cls.model_validate_json(text)
