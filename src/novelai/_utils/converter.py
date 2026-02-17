@@ -287,9 +287,6 @@ def convert_user_params_to_api_params(
         else None
     )
 
-    # add_original_image: True for img2img, False for inpaint
-    add_original = any([params.i2i, params.inpaint])
-
     # Build ImageParameters with explicit defaults from user params
     generate_params = api_types.ImageParameters(
         params_version=3,
@@ -300,7 +297,7 @@ def convert_user_params_to_api_params(
         autoSmea=False,
         sm=False,
         sm_dyn=False,
-        add_original_image=add_original,
+        add_original_image=False,
         dynamic_thresholding=False,
         legacy_uc=False,
         inpaintImg2ImgStrength=source_strength,
@@ -326,7 +323,7 @@ def convert_user_params_to_api_params(
         skip_cfg_above_sigma=58 if params.variety_boost else None,
         # i2i / inpaint
         image=source_image,
-        strength=0.7,
+        strength=source_strength if params.i2i else 0.7,
         noise=source_noise,
         mask=source_mask,
         img2img=i2i_params,
@@ -396,7 +393,7 @@ async def async_convert_user_params_to_api_params(
         else None
     )
     source_strength = getattr(i2i_or_inpaint, "strength", None)
-    source_noise = getattr(i2i_or_inpaint, "noise", 0) if i2i_or_inpaint else None
+    source_noise = getattr(params.i2i, "noise", 0) if i2i_or_inpaint else None
     source_mask = (
         mask_to_base64(
             params.inpaint.mask,
@@ -405,8 +402,13 @@ async def async_convert_user_params_to_api_params(
         if params.inpaint
         else None
     )
+    source_seed = getattr(i2i_or_inpaint, "seed", None)
 
-    # add_original = params.inpaint is None
+    i2i_params = (
+        api_types.Img2ImgParams(color_correct=True, strength=source_strength)
+        if any([params.i2i, params.inpaint])
+        else None
+    )
 
     generate_params = api_types.ImageParameters(
         params_version=3,
@@ -417,7 +419,7 @@ async def async_convert_user_params_to_api_params(
         autoSmea=False,
         sm=False,
         sm_dyn=False,
-        add_original_image=True,
+        add_original_image=False,
         dynamic_thresholding=False,
         legacy_uc=False,
         inpaintImg2ImgStrength=source_strength,
@@ -439,10 +441,13 @@ async def async_convert_user_params_to_api_params(
         ucPreset=_map_uc_preset_to_int(params.uc_preset),
         cfg_rescale=params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,
+        # i2i / inpaint
         image=source_image,
-        strength=source_strength,
+        strength=source_strength if params.i2i else 0.7,
         noise=source_noise,
         mask=source_mask,
+        img2img=i2i_params,
+        extra_noise_seed=source_seed,
         reference_image_multiple=cn_vibe_data,
         reference_strength_multiple=cn_strengths,
         controlnet_strength=getattr(params.controlnet, "strength", 1),
