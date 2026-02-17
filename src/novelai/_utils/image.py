@@ -235,6 +235,104 @@ def image_to_base64(image: ImageInput) -> str:
     )
 
 
+def mask_to_base64(
+    image: ImageInput,
+    target_size: tuple[int, int] | None = None,
+) -> str:
+    """Convert a mask image to the base64 encoded RGBA PNG format expected by the NovelAI API.
+
+    This function aligns the mask with the VAE's latent space (8x8 blocks) and ensures
+    the output is strictly binary.
+
+    Input Interpretation:
+    - Standard (RGB/L): Brightness determines the mask (White=Inpaint, Black=Keep).
+    - Alpha-based (RGBA/LA): Alpha channel determines the mask (Opaque=Inpaint, Transparent=Keep).
+
+    Processing Pipeline:
+    1. Resize input to `target_size` (if provided) using Bilinear interpolation.
+    2. Extract the mask signal (Alpha channel for RGBA/LA, Grayscale for RGB/L).
+    3. Align to 8x8 VAE Grid:
+       - Downscale by 8x using Box sampling (averaging).
+       - Upscale by 8x using Nearest Neighbor.
+       This creates the 8x8 block structure required by the VAE latents.
+    4. Binarize at threshold 127 (values > 127 become 255, else 0).
+    5. Encode as RGBA PNG where R=G=B=MaskVal and A=255.
+
+    Args:
+        image: Input mask in any supported format (path, PIL, bytes, base64, numpy).
+        target_size: Optional (width, height) to resize inputs to.
+
+    Returns:
+        str: Base64-encoded RGBA PNG string of the processed mask.
+    """
+    if not pil_available or PILImageModule is None:
+        raise ImportError("Pillow is required for mask processing")
+
+    img = to_pil_image(image)
+
+    if target_size is not None and img.size != target_size:
+        img = img.resize(target_size, PILImageModule.BILINEAR)
+
+    final_size = target_size if target_size else img.size
+
+    # Extract mask signal
+    if img.mode in ("RGBA", "LA", "PA"):
+        gray = img.split()[-1]
+    else:
+        gray = img.convert("L")
+
+    # Align to 8x8 VAE grid
+    w, h = final_size
+    small_w = max(1, w // 8)
+    small_h = max(1, h // 8)
+
+    gray = gray.resize((small_w, small_h), resample=PILImageModule.BOX)
+    gray = gray.resize(final_size, resample=PILImageModule.NEAREST)
+
+    # Binarize
+    gray = gray.point([255 if i > 127 else 0 for i in range(256)])
+
+    # Output opaque RGBA
+    rgba = PILImageModule.merge(
+        "RGBA", (gray, gray, gray, PILImageModule.new("L", gray.size, 255))
+    )
+
+    buffer = BytesIO()
+    rgba.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+
+def resize_base64(
+    b64_image: str,
+    target_size: tuple[int, int],
+) -> str:
+    """Resize a base64-encoded image to the exact target size.
+
+    Uses LANCZOS interpolation for high-quality resizing.
+    If the image already matches the target size, it is returned as-is.
+
+    Args:
+        b64_image: Base64 encoded image string
+        target_size: (width, height) to resize the image to
+
+    Returns:
+        Base64 encoded PNG string of the resized image
+    """
+    if not pil_available or PILImageModule is None:
+        raise ImportError("Pillow is required for image resizing")
+
+    img = PILImageModule.open(BytesIO(base64.b64decode(b64_image)))
+
+    if img.size == target_size:
+        return b64_image
+
+    resized = img.resize(target_size, PILImageModule.LANCZOS)
+
+    buffer = BytesIO()
+    resized.save(buffer, format="PNG")
+    return base64.b64encode(buffer.getvalue()).decode("utf-8")
+
+
 def path_to_base64(path: Path) -> str:
     """Convert file path to base64 string
 
