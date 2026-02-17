@@ -12,3 +12,4 @@ Practical usage examples of the NovelAI API.
 *   **[ControlNet](./controlnet.md)**: Controlling composition, pose, or vibe.
 *   **[Streaming Generation](./streaming.md)**: Real-time generation feedback.
 *   **[Image-to-Image](./image-to-image.md)**: Generating based on an input image.
+*   **[Inpainting](./inpainting.md)**: Regenerating a masked area of an image.

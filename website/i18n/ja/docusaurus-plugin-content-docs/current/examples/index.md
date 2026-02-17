@@ -12,3 +12,4 @@ NovelAI APIの実践的な使用例です。
 * **[ControlNet](./controlnet.md)**: 構図やポーズ、雰囲気を指定する。
 * **[ストリーミング生成](./streaming.md)**: 生成プロセスをリアルタイムで取得する。
 * **[Image-to-Image](./image-to-image.md)**: 画像を元に新しい画像を生成する。
+* **[インペインティング](./inpainting.md)**: 画像のマスク領域を再生成する。

@@ -12,3 +12,4 @@ NovelAI API 的实用示例。
 * [ControlNet](./controlnet.md): 控制构图、姿势或氛围。
 * [流式生成](./streaming.md): 实时生成反馈。
 * [图生图](./image-to-image.md): 基于输入图像生成。
+* [局部重绘](./inpainting.md): 重新生成图像的遮罩区域。
