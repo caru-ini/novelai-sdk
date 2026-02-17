@@ -9,6 +9,7 @@ from .user.image import (
     GenerateImageStreamParams,
     I2iParams,
     ImageInput,
+    InpaintParams,
 )
 
 __all__ = [
@@ -19,6 +20,7 @@ __all__ = [
     "GenerateImageStreamParams",
     "ImageInput",
     "I2iParams",
+    "InpaintParams",
     "ControlNet",
     "ControlNetImage",
 ]
