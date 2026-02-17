@@ -178,10 +178,31 @@ python 08_img2img.py
 **Key Features:**
 
 - Image-to-image transformation
-- Strength parameter control
+- Strength parameter control (`0.01`–`0.99`)
+- Noise injection for variation (`0.0`–`0.99`)
 - Source image preservation
 
 **Requirements:** A source image file (`source.png`)
+
+---
+
+### Inpainting
+
+#### [`11_inpainting.py`](11_inpainting.py)
+
+Regenerate a masked area of an existing image. The model is automatically switched to the inpainting variant.
+
+```bash
+python 11_inpainting.py
+```
+
+**Key Features:**
+
+- Mask-based partial regeneration (white=inpaint, black=keep)
+- Automatic inpainting model selection (e.g., `nai-diffusion-4-5-full` → `nai-diffusion-4-5-full-inpainting`)
+- Strength parameter control (`0.01`–`1.0`)
+
+**Requirements:** A source image file (`source.png`) and a mask image file (`mask.png`)
 
 ---
 
