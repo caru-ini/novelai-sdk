@@ -48,6 +48,3 @@ output_dir.mkdir(exist_ok=True)
 for i, img in enumerate(images):
     img.save(output_dir / f"img2img_{i + 1}.png")
     print(f"Saved: {output_dir / f'img2img_{i + 1}.png'}")
-
-print("\nTip: Adjust 'strength' parameter to control how much the output")
-print("differs from the source image. Lower = more similar to source.")

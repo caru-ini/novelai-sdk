@@ -152,9 +152,29 @@ class I2iParams(BaseModel):
     noise: float = Field(
         default=0.0, ge=0.0, le=0.99, description="Noise amount for img2img"
     )
-    mask: ImageInput | None = Field(
-        default=None,
-        description="Mask image for inpainting",
+    seed: int = Field(
+        default_factory=lambda: randint(0, 999999999),
+        description="Random seed for i2i noise",
+    )
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
+
+class InpaintParams(BaseModel):
+    """Parameters for inpainting generation
+
+    Inpainting regenerates a masked area of an image.
+    Unlike img2img, noise parameter is not available.
+    """
+
+    image: ImageInput = Field(..., description="Source image for inpainting")
+    mask: ImageInput = Field(
+        ..., description="Mask image for inpainting (white=inpaint, black=keep)"
+    )
+    strength: float = Field(default=1, ge=0.01, le=1, description="Inpainting strength")
+    seed: int = Field(
+        default_factory=lambda: randint(0, 999999999),
+        description="Random seed for inpaint noise",
     )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -261,6 +281,11 @@ class GenerateImageParams(BaseModel):
         default=None,
         description="Img2img parameters",
     )
+    # Inpainting
+    inpaint: InpaintParams | None = Field(
+        default=None,
+        description="Inpainting parameters (mask-based regeneration)",
+    )
     controlnet: ControlNet | None = Field(
         default=None,
         description="ControlNet(Vibe Transfer) configuration",
@@ -283,6 +308,14 @@ class GenerateImageParams(BaseModel):
         character_references = getattr(self, "character_references", []) or []
         if not self.is_v4_5(self.model) and len(character_references) > 0:
             raise ValueError("Character references are only supported for V4.5 models")
+
+        return self
+
+    @model_validator(mode="after")
+    def _check_i2i_inpaint(self) -> Self:
+        """Ensure i2i and inpaint are mutually exclusive, and inpainting model requires mask"""
+        if self.i2i is not None and self.inpaint is not None:
+            raise ValueError("Cannot use both i2i and inpaint at the same time")
 
         return self
 
@@ -325,6 +358,10 @@ class GenerateImageParams(BaseModel):
             "nai-diffusion-4-5-curated",
             "nai-diffusion-4-full",
             "nai-diffusion-4-curated",
+            "nai-diffusion-4-5-full-inpainting",
+            "nai-diffusion-4-5-curated-inpainting",
+            "nai-diffusion-4-full-inpainting",
+            "nai-diffusion-4-curated-inpainting",
         ]
 
     @staticmethod
@@ -332,6 +369,8 @@ class GenerateImageParams(BaseModel):
         return model in [
             "nai-diffusion-4-5-full",
             "nai-diffusion-4-5-curated",
+            "nai-diffusion-4-5-full-inpainting",
+            "nai-diffusion-4-5-curated-inpainting",
         ]
 
     def to_api_request(
