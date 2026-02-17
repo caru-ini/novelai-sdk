@@ -79,10 +79,8 @@ class Img2ImgParams(BaseModel):
     """Parameters for i2i generation"""
 
     color_correct: bool | None = Field(None, description="Apply color correction")
-    extra_noise_seed: int | None = Field(None, description="Extra noise seed")
-    noise: float | None = Field(None, description="Noise amount")
     strength: float | None = Field(
-        None, ge=0.0, le=1.0, description="Strength of transformation. 1 - fidelity"
+        None, ge=0.0, le=1.0, description="Strength of transformation."
     )
 
 
@@ -164,7 +162,7 @@ class ImageParameters(BaseModel):
     legacy_v3_extend: bool | None = Field(
         default=None, description="Use legacy V3 extend"
     )
-    skip_cfg_above_sigma: Literal[58] | None = Field(
+    skip_cfg_above_sigma: float | None = Field(
         default=None, description="Skip CFG above sigma (Variety Boost)"
     )
     deliberate_euler_ancestral_bug: bool | None = Field(
