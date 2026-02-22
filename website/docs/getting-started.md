@@ -96,6 +96,21 @@ Run it:
 python generate.py
 ```
 
+## 4. CLI Quick Start
+
+The SDK also provides a CLI via `python -m novelai`.
+
+```bash
+# Basic generation
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# Interactive mode
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# Generate from request JSON
+python -m novelai --request-json examples/request_user.json -o output
+```
+
 ## Next Steps
 
 *   **[Authentication](./authentication.md)**: More about API key handling.

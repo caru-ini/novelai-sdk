@@ -579,6 +579,7 @@ dependencies = [
     { name = "pillow" },
     { name = "pydantic" },
     { name = "python-dotenv" },
+    { name = "rich" },
 ]
 
 [package.optional-dependencies]
@@ -607,6 +608,7 @@ requires-dist = [
     { name = "pillow", specifier = ">=12.0.0" },
     { name = "pydantic", specifier = ">=2.12.3" },
     { name = "python-dotenv", specifier = ">=1.1.1" },
+    { name = "rich", specifier = ">=13.9.4" },
     { name = "uv", marker = "extra == 'build'", specifier = ">=0.6.14" },
 ]
 provides-extras = ["build"]

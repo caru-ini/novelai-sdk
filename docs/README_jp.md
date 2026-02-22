@@ -74,6 +74,22 @@ images = client.image.generate(params)
 images[0].save("output.png")
 ```
 
+### CLIの使い方
+
+```bash
+# 基本生成
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# 対話モード
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# リクエストJSONから生成（高レベルparams）
+python -m novelai --request-json examples/request_user.json -o output
+
+# リクエストJSONをstdinから生成
+cat examples/request_user.json | python -m novelai --request-json-stdin -o output
+```
+
 ### 認証
 
 環境変数または直接初期化でNovelAI APIキーを提供します:
@@ -294,6 +310,7 @@ uv run poe pre-commit
 - Pillow (画像処理)
 - Pydantic v2 (バリデーションと型安全性)
 - python-dotenv (環境変数)
+- rich (CLI出力レンダリング)
 
 ## 貢献
 

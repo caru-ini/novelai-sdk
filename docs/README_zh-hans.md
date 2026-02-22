@@ -74,6 +74,22 @@ images = client.image.generate(params)
 images[0].save("output.png")
 ```
 
+### CLI 用法
+
+```bash
+# 基本生成
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# 交互模式
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# 从请求 JSON 生成（高级 params）
+python -m novelai --request-json examples/request_user.json -o output
+
+# 从 stdin 读取请求 JSON 生成
+cat examples/request_user.json | python -m novelai --request-json-stdin -o output
+```
+
 ## 认证
 
 通过环境变量或直接初始化提供您的 NovelAI API 密钥：
@@ -294,6 +310,7 @@ uv run poe pre-commit
 - Pillow (图像处理)
 - Pydantic v2 (验证和类型安全)
 - python-dotenv (环境变量)
+- rich (CLI 输出渲染)
 
 ## 贡献
 

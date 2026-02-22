@@ -114,3 +114,18 @@ except ValidationError as e:
 except NovelAIError as e:
     print(f"API 错误: {e}")
 ```
+
+## CLI 快速开始
+
+该 SDK 也提供 `python -m novelai` 命令行用法。
+
+```bash
+# 基本生成
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# 交互模式
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# 从请求 JSON 生成
+python -m novelai --request-json examples/request_user.json -o output
+```
