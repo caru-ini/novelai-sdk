@@ -74,6 +74,22 @@ images = client.image.generate(params)
 images[0].save("output.png")
 ```
 
+### CLI Usage
+
+```bash
+# Basic generation
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# Interactive mode
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# Generate from request JSON (high-level params)
+python -m novelai --request-json examples/request_user.json -o output
+
+# Generate from request JSON (stdin)
+cat examples/request_user.json | python -m novelai --request-json-stdin -o output
+```
+
 ## Authentication
 
 Provide your NovelAI API key via environment variable or direct initialization:
@@ -294,6 +310,7 @@ Tests will be added in future releases.
 - Pillow (image processing)
 - Pydantic v2 (validation and type safety)
 - python-dotenv (environment variables)
+- rich (CLI output rendering)
 
 ## Contributing
 
