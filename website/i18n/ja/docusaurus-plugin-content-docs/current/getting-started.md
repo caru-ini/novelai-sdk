@@ -101,6 +101,21 @@ python generate.py
 
 成功すると、同じフォルダに `output.png` が作成されます！
 
+## 4. CLIクイックスタート
+
+このSDKは `python -m novelai` でCLIとしても利用できます。
+
+```bash
+# 基本生成
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# 対話モード
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# リクエストJSONから生成
+python -m novelai --request-json examples/request_user.json -o output
+```
+
 ## 次のステップ
 
 *   **[認証の詳細](./authentication.md)**: APIキーの扱い方について詳しく知りたい場合。
