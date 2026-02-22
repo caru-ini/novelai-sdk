@@ -5,7 +5,12 @@ from __future__ import annotations
 import base64
 from io import BytesIO
 from pathlib import Path
-from typing import Any, TypeGuard, cast
+from typing import Any, cast
+
+try:
+    from typing import TypeGuard
+except ImportError:  # pragma: no cover - Python < 3.10
+    from typing_extensions import TypeGuard
 
 from PIL import Image
 

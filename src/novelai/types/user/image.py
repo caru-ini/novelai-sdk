@@ -4,7 +4,12 @@ from __future__ import annotations
 
 from pathlib import Path
 from random import randint
-from typing import TYPE_CHECKING, Any, Literal, Self
+from typing import TYPE_CHECKING, Any, Literal
+
+try:
+    from typing import Self
+except ImportError:  # pragma: no cover - Python < 3.11
+    from typing_extensions import Self
 
 from PIL import Image as PILImage
 from pydantic import (

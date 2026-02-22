@@ -26,7 +26,12 @@ THE SOFTWARE.
 
 import gzip
 import json
-from typing import Any, TypeAlias
+from typing import Any
+
+try:
+    from typing import TypeAlias
+except ImportError:  # pragma: no cover - Python < 3.10
+    from typing_extensions import TypeAlias
 
 import numpy as np
 from numpy.typing import NDArray
