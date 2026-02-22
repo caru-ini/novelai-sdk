@@ -108,7 +108,8 @@ class ImageAPI:
                 f"{self.api_base}/ai/encode-vibe",
                 content=request.model_dump_json(exclude_none=True),
             )
-            return base64.b64encode(response.content).decode("utf-8")
+            content = self._client.handle_response(response)
+            return base64.b64encode(content).decode("utf-8")
         except httpx.RequestError as e:
             raise NetworkError(f"Network error: {str(e)}") from e
 
@@ -200,7 +201,8 @@ class AsyncImageAPI:
                 f"{self.api_base}/ai/encode-vibe",
                 content=request.model_dump_json(exclude_none=True),
             )
-            return base64.b64encode(response.content).decode("utf-8")
+            content = self._client.handle_response(response)
+            return base64.b64encode(content).decode("utf-8")
         except httpx.RequestError as e:
             raise NetworkError(f"Network error: {str(e)}") from e
 
