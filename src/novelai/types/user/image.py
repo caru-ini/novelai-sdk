@@ -35,6 +35,7 @@ from novelai.constants.positions import Position, PositionPreset
 from novelai.constants.samplers import K_EULER_ANCESTRAL, Sampler
 from novelai.constants.sizes import PRESET_MAP, ImageSize
 from novelai.types.api.image import EncodeVibeRequest
+from novelai.utils.anlas import calculate_anlas_from_params
 
 if TYPE_CHECKING:
     from novelai._client.client import NovelAI
@@ -42,6 +43,7 @@ if TYPE_CHECKING:
         ImageGenerationRequest,
         StreamImageGenerationRequest,
     )
+    from novelai.utils.anlas import AnlasEstimate
 
 
 # Type alias for image inputs
@@ -392,6 +394,15 @@ class GenerateImageParams(BaseModel):
         """
 
         return convert_user_params_to_api_request(self, client)
+
+    def calculate_anlas(self, *, is_opus: bool = False) -> AnlasEstimate:
+        """Estimate the Anlas cost for these parameters.
+
+        This follows the SDK's reverse-engineered pricing logic and should be
+        treated as an estimate rather than a 100% guaranteed billing value.
+        """
+
+        return calculate_anlas_from_params(self, is_opus=is_opus)
 
 
 class GenerateImageStreamParams(GenerateImageParams):
