@@ -32,9 +32,9 @@ uv add novelai-sdk
 
 NovelAIの機能を使うには、**APIキー**が必要です。
 
-1.  [NovelAIのウェブサイト](https://novelai.net/)にログインします。
-2.  設定画面（歯車アイコン）を開きます。
-3.  「Account」タブの「Get API Key」をクリックしてキーを取得します。
+1. [NovelAIのウェブサイト](https://novelai.net/)にログインします。
+2. 設定画面（歯車アイコン）を開きます。
+3. 「Account」タブの「Get API Key」をクリックしてキーを取得します。
 
 取得したキーは、プログラムに直接書くこともできますが、セキュリティのため**環境変数**または`.env`ファイルを使うのがおすすめです。
 
@@ -116,7 +116,30 @@ python -m novelai --interactive --model nai-diffusion-4-5-full
 python -m novelai --request-json examples/request_user.json -o output
 ```
 
+## 5. Anlas消費量を見積もる
+
+生成前に Anlas 消費量を見積もれます。
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` は現在の WebUI と公式ドキュメントをもとにした
+best-effort な推定値です。プレビュー用途には使えますが、課金額を 100%
+保証するものではありません。
+
 ## 次のステップ
 
-*   **[認証の詳細](./authentication.md)**: APIキーの扱い方について詳しく知りたい場合。
-*   **[機能例](./examples)**: 特定のキャラクターを出したり、ポーズを指定したい場合。
+* **[認証の詳細](./authentication.md)**: APIキーの扱い方について詳しく知りたい場合。
+* **[機能例](./examples)**: 特定のキャラクターを出したり、ポーズを指定したい場合。
+* **[Anlas計算](./anlas-calculation.md)**: 現在の見積もりロジックの詳細。
