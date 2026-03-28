@@ -129,3 +129,30 @@ python -m novelai --interactive --model nai-diffusion-4-5-full
 # 从请求 JSON 生成
 python -m novelai --request-json examples/request_user.json -o output
 ```
+
+## 估算 Anlas 消耗
+
+你可以在发送请求前先估算本次生成的 Anlas 消耗。
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` 是基于当前 WebUI 和官方文档整理出的 best-effort
+估算值，适合用于预览，但不能视为 100% 准确的计费真值来源。
+
+## 下一步
+
+- **[认证](./authentication.md)**：了解 API Key 的处理方式。
+- **[示例](./examples/index.md)**：查看 Character Reference、ControlNet 等用法。
+- **[Anlas 计算](./anlas-calculation.md)**：查看当前估算逻辑的细节。
