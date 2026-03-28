@@ -257,6 +257,28 @@ for i, img in enumerate(images):
     img.save(f"output_{i}.png")
 ```
 
+### Estimate Anlas
+
+Estimate the generation cost before sending the request:
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` is a best-effort estimate based on the current web UI and
+documentation. It is useful for previews, but it is not guaranteed to be a
+100% accurate billing source of truth.
+
 ## Examples
 
 For practical usage examples, see the [Examples Documentation](https://caru-ini.github.io/novelai-sdk/examples/) or the [`examples/`](./examples/) directory.
@@ -266,7 +288,7 @@ For practical usage examples, see the [Examples Documentation](https://caru-ini.
 - [x] Async support
 - [x] FastAPI integration example
 - [ ] Vibe transfer file support (`.naiv4vibe`, `.naiv4vibebundle`)
-- [ ] Anlas consumption calculator
+- [x] Anlas consumption calculator
 - [ ] Image metadata extraction
 - [ ] Text generation API support
 

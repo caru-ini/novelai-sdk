@@ -32,9 +32,9 @@ uv add novelai-sdk
 
 You need a **NovelAI API Key** to use the features.
 
-1.  Log in to [NovelAI](https://novelai.net/).
-2.  Open Settings (Gear icon).
-3.  Go to "Account" tab and click "Get API Key".
+1. Log in to [NovelAI](https://novelai.net/).
+2. Open Settings (Gear icon).
+3. Go to "Account" tab and click "Get API Key".
 
 ### Method A: Using .env (Recommended)
 
@@ -111,7 +111,30 @@ python -m novelai --interactive --model nai-diffusion-4-5-full
 python -m novelai --request-json examples/request_user.json -o output
 ```
 
+## 5. Estimate Anlas
+
+You can estimate the generation cost before sending the request:
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` is a best-effort estimate based on the current web UI and
+official documentation. It is useful for previews, but it is not guaranteed to
+be a 100% accurate billing source of truth.
+
 ## Next Steps
 
-*   **[Authentication](./authentication.md)**: More about API key handling.
-*   **[Examples](./examples)**: Character references, poses, etc.
+* **[Authentication](./authentication.md)**: More about API key handling.
+* **[Examples](./examples)**: Character references, poses, etc.
+* **[Anlas Calculation](./anlas-calculation.md)**: Details of the current estimate logic.
