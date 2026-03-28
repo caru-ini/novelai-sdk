@@ -257,6 +257,28 @@ for i, img in enumerate(images):
     img.save(f"output_{i}.png")
 ```
 
+### Anlas消費量の見積もり
+
+生成前に Anlas 消費量を見積もれます:
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` は現在の WebUI と公式ドキュメントをもとにした
+best-effort な推定値です。プレビュー用途には使えますが、課金額を 100%
+保証するものではありません。
+
 ## サンプル
 
 実用的な使用例については、[サンプルドキュメント](https://caru-ini.github.io/novelai-sdk/examples/)または[`examples/`](../examples/)ディレクトリをご覧ください。
@@ -266,7 +288,7 @@ for i, img in enumerate(images):
 - [x] 非同期サポート
 - [x] FastAPI統合サンプル
 - [ ] Vibe transferファイルサポート（`.naiv4vibe`、`.naiv4vibebundle`）
-- [ ] Anlas消費量計算機
+- [x] Anlas消費量計算機
 - [ ] 画像メタデータ抽出
 - [ ] テキスト生成APIサポート
 
