@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'NovelAI SDK (Unofficial)',
-  tagline: 'Unofficial SDK for NovelAI',
+  tagline: 'NovelAI API Python SDK (Unofficial)',
   favicon: 'img/fountain_pen.svg',
 
   // Future flags, see https://docusaurus.io/docs/api/docusaurus-config#future
@@ -63,7 +63,7 @@ const config: Config = {
       respectPrefersColorScheme: true,
     },
     navbar: {
-      title: 'NovelAI API',
+      title: 'NovelAI SDK (Unofficial)',
       logo: {
         alt: 'NovelAI SDK',
         src: 'img/fountain_pen.svg',
