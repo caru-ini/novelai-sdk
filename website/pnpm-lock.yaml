@@ -31,8 +31,8 @@ importers:
         version: 19.2.4(react@19.2.5)
     devDependencies:
       '@docusaurus/module-type-aliases':
-        specifier: 3.9.2
-        version: 3.9.2(react-dom@19.2.4(react@19.2.5))(react@19.2.5)
+        specifier: 3.10.0
+        version: 3.10.0(react-dom@19.2.4(react@19.2.5))(react@19.2.5)
       '@docusaurus/tsconfig':
         specifier: 3.10.0
         version: 3.10.0
@@ -1087,12 +1087,6 @@ packages:
       react: '*'
       react-dom: '*'
 
-  '@docusaurus/module-type-aliases@3.9.2':
-    resolution: {integrity: sha512-8qVe2QA9hVLzvnxP46ysuofJUIc/yYQ82tvA/rBTrnpXtCjNSFLxEZfd5U8cYZuJIVlkPxamsIgwd5tGZXfvew==}
-    peerDependencies:
-      react: '*'
-      react-dom: '*'
-
   '@docusaurus/plugin-content-blog@3.10.0':
     resolution: {integrity: sha512-RuTz68DhB7CL96QO5UsFbciD7GPYq6QV+YMfF9V0+N4ZgLhJIBgpVAr8GobrKF6NRe5cyWWETU5z5T834piG9g==}
     engines: {node: '>=20.0'}
@@ -1204,12 +1198,6 @@ packages:
 
   '@docusaurus/types@3.10.0':
     resolution: {integrity: sha512-F0dOt3FOoO20rRaFK7whGFQZ3ggyrWEdQc/c8/UiRuzhtg4y1w9FspXH5zpCT07uMnJKBPGh+qNazbNlCQqvSw==}
-    peerDependencies:
-      react: ^18.0.0 || ^19.0.0
-      react-dom: ^18.0.0 || ^19.0.0
-
-  '@docusaurus/types@3.9.2':
-    resolution: {integrity: sha512-Ux1JUNswg+EfUEmajJjyhIohKceitY/yzjRUpu04WXgvVz+fbhVC0p+R0JhvEu4ytw8zIAys2hrdpQPBHRIa8Q==}
     peerDependencies:
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
@@ -1671,9 +1659,6 @@ packages:
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
-
-  '@types/react@19.2.7':
-    resolution: {integrity: sha512-MWtvHrGZLFttgeEj28VXHxpmwYbor/ATPYbBfSFZEIRK0ecCFLl2Qo55z52Hss+UV9CRN7trSeq1zbgx7YDWWg==}
 
   '@types/retry@0.12.2':
     resolution: {integrity: sha512-XISRgDJ2Tc5q4TRqvgJtzsRkFYNJzZrhTdtMoGVBttwzzQJkPnS3WWTFc7kuDRoPtPakl+T+OfdEUjYJj7Jbow==}
@@ -6489,24 +6474,6 @@ snapshots:
       - uglify-js
       - webpack-cli
 
-  '@docusaurus/module-type-aliases@3.9.2(react-dom@19.2.4(react@19.2.5))(react@19.2.5)':
-    dependencies:
-      '@docusaurus/types': 3.9.2(react-dom@19.2.4(react@19.2.5))(react@19.2.5)
-      '@types/history': 4.7.11
-      '@types/react': 19.2.7
-      '@types/react-router-config': 5.0.11
-      '@types/react-router-dom': 5.3.3
-      react: 19.2.5
-      react-dom: 19.2.4(react@19.2.5)
-      react-helmet-async: '@slorber/react-helmet-async@1.3.0(react-dom@19.2.4(react@19.2.5))(react@19.2.5)'
-      react-loadable: '@docusaurus/react-loadable@6.0.0(react@19.2.5)'
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - supports-color
-      - uglify-js
-      - webpack-cli
-
   '@docusaurus/plugin-content-blog@3.10.0(@docusaurus/plugin-content-docs@3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))(react-dom@19.2.4(react@19.2.5))(react@19.2.5)(typescript@5.9.3))(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))(react-dom@19.2.4(react@19.2.5))(react@19.2.5)(typescript@5.9.3)':
     dependencies:
       '@docusaurus/core': 3.10.0(@mdx-js/react@3.1.1(@types/react@19.2.14)(react@19.2.5))(react-dom@19.2.4(react@19.2.5))(react@19.2.5)(typescript@5.9.3)
@@ -6981,27 +6948,6 @@ snapshots:
   '@docusaurus/tsconfig@3.10.0': {}
 
   '@docusaurus/types@3.10.0(react-dom@19.2.4(react@19.2.5))(react@19.2.5)':
-    dependencies:
-      '@mdx-js/mdx': 3.1.1
-      '@types/history': 4.7.11
-      '@types/mdast': 4.0.4
-      '@types/react': 19.2.14
-      commander: 5.1.0
-      joi: 17.13.3
-      react: 19.2.5
-      react-dom: 19.2.4(react@19.2.5)
-      react-helmet-async: '@slorber/react-helmet-async@1.3.0(react-dom@19.2.4(react@19.2.5))(react@19.2.5)'
-      utility-types: 3.11.0
-      webpack: 5.106.1
-      webpack-merge: 5.10.0
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - supports-color
-      - uglify-js
-      - webpack-cli
-
-  '@docusaurus/types@3.9.2(react-dom@19.2.4(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@mdx-js/mdx': 3.1.1
       '@types/history': 4.7.11
@@ -7661,10 +7607,6 @@ snapshots:
       '@types/react': 19.2.14
 
   '@types/react@19.2.14':
-    dependencies:
-      csstype: 3.2.3
-
-  '@types/react@19.2.7':
     dependencies:
       csstype: 3.2.3
 
