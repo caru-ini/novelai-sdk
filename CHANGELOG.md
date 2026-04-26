@@ -2,6 +2,241 @@
 
 <!-- version list -->
 
+## v0.8.1 (2026-04-26)
+
+### Bug Fixes
+
+- **image**: Infer size from source when omitted with i2i/inpaint
+  ([#73](https://github.com/caru-ini/novelai-sdk/pull/73),
+  [`0848130`](https://github.com/caru-ini/novelai-sdk/commit/0848130b000d17f1d4e4b6214e4f59288dff7de0))
+
+### Chores
+
+- Install and use node 24 explicitly
+  ([`be937fc`](https://github.com/caru-ini/novelai-sdk/commit/be937fc7021ff2fa7a61e0a00d09fb01afa7cbcc))
+
+- **dependabot**: Add auto-merge workflow
+  ([`92f0220`](https://github.com/caru-ini/novelai-sdk/commit/92f022093368d953d28fb1a8bdd71d0f65e751ab))
+
+- **dependabot**: Ignore major-update
+  ([`38cdbc0`](https://github.com/caru-ini/novelai-sdk/commit/38cdbc0128dc94cd31387db46af33f43448e2cba))
+
+- **deps**: Bump @docusaurus/core from 3.9.2 to 3.10.0 in /website
+  ([#48](https://github.com/caru-ini/novelai-sdk/pull/48),
+  [`6eb3bc0`](https://github.com/caru-ini/novelai-sdk/commit/6eb3bc0624750d6c7d87afc70e3220bb01d40336))
+
+- **deps**: Bump @docusaurus/module-type-aliases in /website
+  ([#50](https://github.com/caru-ini/novelai-sdk/pull/50),
+  [`5a6056d`](https://github.com/caru-ini/novelai-sdk/commit/5a6056d25dcd30ee1c01ab10271b128516e35c3d))
+
+- **deps**: Bump @docusaurus/preset-classic in /website
+  ([#51](https://github.com/caru-ini/novelai-sdk/pull/51),
+  [`daf5ebc`](https://github.com/caru-ini/novelai-sdk/commit/daf5ebc41cde431da5f51e9d256e3632c6ae9243))
+
+- **deps**: Bump @docusaurus/tsconfig from 3.9.2 to 3.10.0 in /website
+  ([#52](https://github.com/caru-ini/novelai-sdk/pull/52),
+  [`f1e284f`](https://github.com/caru-ini/novelai-sdk/commit/f1e284f6da9a1383d7f99a02badbedd981949399))
+
+- **deps**: Bump @docusaurus/types from 3.9.2 to 3.10.0 in /website
+  ([#49](https://github.com/caru-ini/novelai-sdk/pull/49),
+  [`82e800d`](https://github.com/caru-ini/novelai-sdk/commit/82e800d7829207ab6069561424788fec013252e2))
+
+- **deps**: Bump actions/checkout from 4 to 6
+  ([`aa21c3d`](https://github.com/caru-ini/novelai-sdk/commit/aa21c3d598388c74bd71bce5a2494a96f9da63cf))
+
+- **deps**: Bump fastapi from 0.125.0 to 0.135.2
+  ([#26](https://github.com/caru-ini/novelai-sdk/pull/26),
+  [`91b77b2`](https://github.com/caru-ini/novelai-sdk/commit/91b77b2180d067a66917bc9470735539758628f5))
+
+- **deps**: Bump fastapi from 0.135.2 to 0.135.3
+  ([#38](https://github.com/caru-ini/novelai-sdk/pull/38),
+  [`a94199d`](https://github.com/caru-ini/novelai-sdk/commit/a94199d8c180b731b97b3acdb8c25dac84264dda))
+
+- **deps**: Bump fastapi from 0.135.3 to 0.136.0
+  ([#64](https://github.com/caru-ini/novelai-sdk/pull/64),
+  [`d9ef30b`](https://github.com/caru-ini/novelai-sdk/commit/d9ef30be817e2a94463295bdc4e7c7562247831b))
+
+- **deps**: Bump fastapi from 0.136.0 to 0.136.1
+  ([#71](https://github.com/caru-ini/novelai-sdk/pull/71),
+  [`6351b02`](https://github.com/caru-ini/novelai-sdk/commit/6351b026da6bc487cf0be516e4ea25c554bc8a65))
+
+- **deps**: Bump follow-redirects
+  ([`c4c69bb`](https://github.com/caru-ini/novelai-sdk/commit/c4c69bb84001f185d5ed9b4aa77fcd6651598292))
+
+- **deps**: Bump lodash ([#41](https://github.com/caru-ini/novelai-sdk/pull/41),
+  [`24e7fad`](https://github.com/caru-ini/novelai-sdk/commit/24e7fad8f363f82cfa7e8aea074b251bd3573377))
+
+- **deps**: Bump opencv-python from 4.12.0.88 to 4.13.0.92
+  ([#14](https://github.com/caru-ini/novelai-sdk/pull/14),
+  [`91676d2`](https://github.com/caru-ini/novelai-sdk/commit/91676d26f4113bae95a2dea4974e2fb496e4c4f2))
+
+- **deps**: Bump pillow from 12.1.1 to 12.2.0
+  ([#40](https://github.com/caru-ini/novelai-sdk/pull/40),
+  [`94b84d6`](https://github.com/caru-ini/novelai-sdk/commit/94b84d6625856497f11f47061dc92267b0e42dcb))
+
+- **deps**: Bump poethepoet from 0.37.0 to 0.42.1
+  ([#21](https://github.com/caru-ini/novelai-sdk/pull/21),
+  [`22b2115`](https://github.com/caru-ini/novelai-sdk/commit/22b2115538291f7128204dff43a749a686f278ec))
+
+- **deps**: Bump poethepoet from 0.42.1 to 0.43.0
+  ([#44](https://github.com/caru-ini/novelai-sdk/pull/44),
+  [`400b06a`](https://github.com/caru-ini/novelai-sdk/commit/400b06a7f5d6eaeeb828d706448d1deb4086babd))
+
+- **deps**: Bump poethepoet from 0.43.0 to 0.44.0
+  ([#45](https://github.com/caru-ini/novelai-sdk/pull/45),
+  [`e2e55fa`](https://github.com/caru-ini/novelai-sdk/commit/e2e55faad54db32e55252a49e2a2308d720c838c))
+
+- **deps**: Bump pre-commit from 4.3.0 to 4.5.1
+  ([#34](https://github.com/caru-ini/novelai-sdk/pull/34),
+  [`35bb43b`](https://github.com/caru-ini/novelai-sdk/commit/35bb43bd68fd2abc9323e83f27d9cebe130e6d35))
+
+- **deps**: Bump pre-commit from 4.5.1 to 4.6.0
+  ([#68](https://github.com/caru-ini/novelai-sdk/pull/68),
+  [`c88c2b6`](https://github.com/caru-ini/novelai-sdk/commit/c88c2b6000b148804fd9e8d9084dd00913f7cc75))
+
+- **deps**: Bump pydantic from 2.12.3 to 2.12.5
+  ([#20](https://github.com/caru-ini/novelai-sdk/pull/20),
+  [`005cab7`](https://github.com/caru-ini/novelai-sdk/commit/005cab7798c32501e0fc9349b448906a3ed54187))
+
+- **deps**: Bump pydantic from 2.12.5 to 2.13.0
+  ([#60](https://github.com/caru-ini/novelai-sdk/pull/60),
+  [`31be832`](https://github.com/caru-ini/novelai-sdk/commit/31be8326c320d2bf1e34ef19d862504343580507))
+
+- **deps**: Bump pydantic from 2.13.0 to 2.13.1
+  ([#62](https://github.com/caru-ini/novelai-sdk/pull/62),
+  [`230c7a6`](https://github.com/caru-ini/novelai-sdk/commit/230c7a60a436c2256e62726e40b6c5374db57a6f))
+
+- **deps**: Bump pydantic from 2.13.1 to 2.13.2
+  ([#66](https://github.com/caru-ini/novelai-sdk/pull/66),
+  [`53295c5`](https://github.com/caru-ini/novelai-sdk/commit/53295c5fc5e0ec0fd7eeed5590f06b1f0ef2d56f))
+
+- **deps**: Bump pydantic from 2.13.2 to 2.13.3
+  ([#67](https://github.com/caru-ini/novelai-sdk/pull/67),
+  [`9849718`](https://github.com/caru-ini/novelai-sdk/commit/984971804e86cec63ca49cba1eee595ef28c27a7))
+
+- **deps**: Bump pyright from 1.1.407 to 1.1.408
+  ([#35](https://github.com/caru-ini/novelai-sdk/pull/35),
+  [`ef642e1`](https://github.com/caru-ini/novelai-sdk/commit/ef642e16726f275b35df9c1326cce561b017c2f5))
+
+- **deps**: Bump pyright from 1.1.408 to 1.1.409
+  ([#70](https://github.com/caru-ini/novelai-sdk/pull/70),
+  [`ea331a9`](https://github.com/caru-ini/novelai-sdk/commit/ea331a9ce435dfab664e8392595c01819ddbb162))
+
+- **deps**: Bump pytest
+  ([`f470030`](https://github.com/caru-ini/novelai-sdk/commit/f470030dd029639b6314f0095fd9f9abd90bfe14))
+
+- **deps**: Bump pytest-cov from 7.0.0 to 7.1.0
+  ([#29](https://github.com/caru-ini/novelai-sdk/pull/29),
+  [`9c362b8`](https://github.com/caru-ini/novelai-sdk/commit/9c362b820c3890e7870c4303f97809334e96a265))
+
+- **deps**: Bump python-dotenv from 1.1.1 to 1.2.2
+  ([#24](https://github.com/caru-ini/novelai-sdk/pull/24),
+  [`5bc5edb`](https://github.com/caru-ini/novelai-sdk/commit/5bc5edb032d967e1f200e0a9af95d75842a6f7fb))
+
+- **deps**: Bump python-semantic-release from 10.4.1 to 10.5.3
+  ([#28](https://github.com/caru-ini/novelai-sdk/pull/28),
+  [`e18a5e9`](https://github.com/caru-ini/novelai-sdk/commit/e18a5e9a7d3320a9d24863c64fd29ac62f94a14a))
+
+- **deps**: Bump python-semantic-release/publish-action
+  ([#15](https://github.com/caru-ini/novelai-sdk/pull/15),
+  [`897e097`](https://github.com/caru-ini/novelai-sdk/commit/897e097fe984d8872aad3080d61f3fe765d37cdf))
+
+- **deps**: Bump python-semantic-release/python-semantic-release
+  ([#19](https://github.com/caru-ini/novelai-sdk/pull/19),
+  [`53e803c`](https://github.com/caru-ini/novelai-sdk/commit/53e803cdc4971efc736d5125444b8f82f8e72528))
+
+- **deps**: Bump react from 19.2.3 to 19.2.4 in /website
+  ([#22](https://github.com/caru-ini/novelai-sdk/pull/22),
+  [`b0ce9a4`](https://github.com/caru-ini/novelai-sdk/commit/b0ce9a4916b3b26f48c577892f789a04e4b87ea6))
+
+- **deps**: Bump react from 19.2.4 to 19.2.5 in /website
+  ([#54](https://github.com/caru-ini/novelai-sdk/pull/54),
+  [`f780a0e`](https://github.com/caru-ini/novelai-sdk/commit/f780a0e1e5fe3442651130128c7a5a587b3c831a))
+
+- **deps**: Bump react-dom from 19.2.3 to 19.2.4 in /website
+  ([#36](https://github.com/caru-ini/novelai-sdk/pull/36),
+  [`d2508a2`](https://github.com/caru-ini/novelai-sdk/commit/d2508a2da31e385f7d4489a2302697f1a4110b5a))
+
+- **deps**: Bump react-dom from 19.2.4 to 19.2.5 in /website
+  ([#58](https://github.com/caru-ini/novelai-sdk/pull/58),
+  [`3d91cfa`](https://github.com/caru-ini/novelai-sdk/commit/3d91cfaf906094957e9af2e162d1d70e8ef9a4e7))
+
+- **deps**: Bump rich from 14.2.0 to 14.3.3 ([#37](https://github.com/caru-ini/novelai-sdk/pull/37),
+  [`2ec2266`](https://github.com/caru-ini/novelai-sdk/commit/2ec22661c03f2bc378cf512657738f820a19fed5))
+
+- **deps**: Bump rich from 14.3.3 to 14.3.4 ([#57](https://github.com/caru-ini/novelai-sdk/pull/57),
+  [`75718bc`](https://github.com/caru-ini/novelai-sdk/commit/75718bc092c789f40806b25efe57c50fa6b2397e))
+
+- **deps**: Bump ruff from 0.14.1 to 0.15.8 ([#31](https://github.com/caru-ini/novelai-sdk/pull/31),
+  [`0c87e44`](https://github.com/caru-ini/novelai-sdk/commit/0c87e44588d3574b9657875416c3a3c92c7c2e86))
+
+- **deps**: Bump ruff from 0.15.10 to 0.15.11
+  ([#65](https://github.com/caru-ini/novelai-sdk/pull/65),
+  [`c963e8a`](https://github.com/caru-ini/novelai-sdk/commit/c963e8ad4271d8ee7778578b8a385e5d378708cf))
+
+- **deps**: Bump ruff from 0.15.8 to 0.15.9 ([#42](https://github.com/caru-ini/novelai-sdk/pull/42),
+  [`9f4d7f3`](https://github.com/caru-ini/novelai-sdk/commit/9f4d7f35aafcbd5522040bc140a97da1d7b74bd2))
+
+- **deps**: Bump ruff from 0.15.9 to 0.15.10
+  ([#55](https://github.com/caru-ini/novelai-sdk/pull/55),
+  [`219128e`](https://github.com/caru-ini/novelai-sdk/commit/219128eefeceee8678c11faa028173514b3ffd5a))
+
+- **deps**: Bump the security-patches group across 1 directory with 5 updates
+  ([#33](https://github.com/caru-ini/novelai-sdk/pull/33),
+  [`87265de`](https://github.com/caru-ini/novelai-sdk/commit/87265de50fab947aa5a9652c72e632c239afe628))
+
+- **deps**: Bump the security-patches group across 1 directory with 8 updates
+  ([`0bdcaf6`](https://github.com/caru-ini/novelai-sdk/commit/0bdcaf612afc1e9e61fe7b79d24a7950ac6f459c))
+
+- **deps**: Bump typescript from 5.6.3 to 5.9.3 in /website
+  ([#32](https://github.com/caru-ini/novelai-sdk/pull/32),
+  [`90c3691`](https://github.com/caru-ini/novelai-sdk/commit/90c36910934e38425ca005f403a6e664bb9b746e))
+
+- **deps**: Bump uv from 0.11.2 to 0.11.3 ([#39](https://github.com/caru-ini/novelai-sdk/pull/39),
+  [`88fbd6f`](https://github.com/caru-ini/novelai-sdk/commit/88fbd6f5f598ba6aaca156b27d3385976bf5e4e3))
+
+- **deps**: Bump uv from 0.11.3 to 0.11.4 ([#47](https://github.com/caru-ini/novelai-sdk/pull/47),
+  [`a649c67`](https://github.com/caru-ini/novelai-sdk/commit/a649c6790663ecbfa50b94484d574725cda5c715))
+
+- **deps**: Bump uv from 0.11.4 to 0.11.5 ([#53](https://github.com/caru-ini/novelai-sdk/pull/53),
+  [`4b46f6c`](https://github.com/caru-ini/novelai-sdk/commit/4b46f6c2b795d2efd9def66bf4a49c0942c690eb))
+
+- **deps**: Bump uv from 0.11.5 to 0.11.6 ([#56](https://github.com/caru-ini/novelai-sdk/pull/56),
+  [`292e797`](https://github.com/caru-ini/novelai-sdk/commit/292e7979696babc0cde0e49f519a9c03d6c65fa4))
+
+- **deps**: Bump uv from 0.11.6 to 0.11.7 ([#63](https://github.com/caru-ini/novelai-sdk/pull/63),
+  [`e4b69d3`](https://github.com/caru-ini/novelai-sdk/commit/e4b69d345c337a4399107eb9ca3925a72fed7225))
+
+- **deps**: Bump uv from 0.9.7 to 0.11.2 ([#25](https://github.com/caru-ini/novelai-sdk/pull/25),
+  [`5046be2`](https://github.com/caru-ini/novelai-sdk/commit/5046be2c0df4b7b3ffe2d6acd44a2a9271725fff))
+
+- **deps**: Bump uvicorn from 0.38.0 to 0.42.0
+  ([#17](https://github.com/caru-ini/novelai-sdk/pull/17),
+  [`fcc7eb8`](https://github.com/caru-ini/novelai-sdk/commit/fcc7eb8759573145b9cdef608caf2c6942ba6e91))
+
+- **deps**: Bump uvicorn from 0.42.0 to 0.43.0
+  ([#43](https://github.com/caru-ini/novelai-sdk/pull/43),
+  [`f0fbb95`](https://github.com/caru-ini/novelai-sdk/commit/f0fbb95d6198f9d67a53ad3c92848a5b5d86dce6))
+
+- **deps**: Bump uvicorn from 0.43.0 to 0.44.0
+  ([#46](https://github.com/caru-ini/novelai-sdk/pull/46),
+  [`b707055`](https://github.com/caru-ini/novelai-sdk/commit/b7070553c8fb23ef6851889effa8f1c6dfe5211d))
+
+- **deps**: Bump uvicorn from 0.44.0 to 0.45.0
+  ([#69](https://github.com/caru-ini/novelai-sdk/pull/69),
+  [`ce689d6`](https://github.com/caru-ini/novelai-sdk/commit/ce689d6070a95b6de9f777a5e4a4a4c864e6640e))
+
+- **deps**: Bump uvicorn from 0.45.0 to 0.46.0
+  ([#72](https://github.com/caru-ini/novelai-sdk/pull/72),
+  [`28d5dfa`](https://github.com/caru-ini/novelai-sdk/commit/28d5dfacfd829f2a6c62a542b9d5cc665a7d9387))
+
+- **website**: Update nav title and tagline
+  ([`cfc0aa0`](https://github.com/caru-ini/novelai-sdk/commit/cfc0aa040550eb56d68f70d6e6c6b856c8c2c259))
+
+- **workflow**: Approve security patch with bot
+  ([`35c1d2e`](https://github.com/caru-ini/novelai-sdk/commit/35c1d2ef834dbd2480edda1672bf45f0c24925fc))
+
+
 ## v0.8.0 (2026-03-28)
 
 ### Chores
