@@ -22,7 +22,7 @@ from pydantic import (
 )
 
 from novelai._utils.converter import convert_user_params_to_api_request
-from novelai._utils.image import image_to_base64
+from novelai._utils.image import image_to_base64, to_pil_image
 from novelai.constants.models import V4_5_FULL, ImageModel
 from novelai.constants.negative_prompts import (
     QUALITY_TAGS,
@@ -236,7 +236,12 @@ class GenerateImageParams(BaseModel):
     )
     size: ImageSize = Field(
         default="portrait",
-        description="Image size as (width, height) tuple or preset name like 'portrait'",
+        description=(
+            "Image size as (width, height) tuple or preset name like 'portrait'. "
+            "If omitted when `i2i`/`inpaint` is provided, it is auto-inferred from "
+            "the source image (rounded to multiples of 64, clamped to 64–1600)."
+        ),
+        validate_default=True,
     )
 
     @field_validator("size", mode="after")
@@ -324,6 +329,49 @@ class GenerateImageParams(BaseModel):
         if self.i2i is not None and self.inpaint is not None:
             raise ValueError("Cannot use both i2i and inpaint at the same time")
 
+        return self
+
+    @model_validator(mode="after")
+    def _infer_size_from_source(self) -> Self:
+        """Auto-infer size from the source image when i2i/inpaint is set
+        and size was not explicitly provided.
+
+        The source aspect ratio is preserved, but the total pixel count is capped
+        at standard-resolution quality (~1024x1024) so users do not silently get
+        bumped into the higher-cost "large" Anlas tier. Dimensions are rounded
+        to multiples of 64 and clamped to the API's valid range (64–1600).
+        """
+        if "size" in self.model_fields_set:
+            return self
+
+        source_image: ImageInput | None = None
+        if self.inpaint is not None:
+            source_image = self.inpaint.image
+        elif self.i2i is not None:
+            source_image = self.i2i.image
+
+        if source_image is None:
+            return self
+
+        # Don't use `with`: if the user passes a PIL.Image directly, `to_pil_image`
+        # returns the same object and closing it would damage their input.
+        src_w, src_h = to_pil_image(source_image).size
+
+        # Single uniform scale factor — aspect ratio is preserved as-is.
+        # Pick the smallest of: no-op (1.0), area cap (~1MP standard tier),
+        # and per-side cap (1600px API limit).
+        standard_pixels = 1024 * 1024
+        max_dim = 1600
+        scale = min(
+            1.0,
+            (standard_pixels / (src_w * src_h)) ** 0.5,
+            max_dim / max(src_w, src_h),
+        )
+
+        # Round to multiples of 64; clamp to [64, max_dim] as a safety net.
+        width = max(64, min(max_dim, round(src_w * scale / 64) * 64))
+        height = max(64, min(max_dim, round(src_h * scale / 64) * 64))
+        self.size = (width, height)
         return self
 
     # Character prompts (V4, V4.5 only)
