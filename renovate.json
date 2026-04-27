@@ -27,5 +27,8 @@
   "vulnerabilityAlerts": {
     "labels": ["security"],
     "automerge": true
+  },
+  "lockFileMaintenance": {
+    "enabled": true
   }
 }
