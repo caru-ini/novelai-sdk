@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.9.0 (2026-05-23)
+
+### Chores
+
+- **deps**: Lock file maintenance
+  ([`1d8a9b8`](https://github.com/caru-ini/novelai-sdk/commit/1d8a9b89e1371c775be2926e19c015a438ff844f))
+
+- **deps**: Use renovate instead of dependabot
+  ([`9421e65`](https://github.com/caru-ini/novelai-sdk/commit/9421e650e1628263602f84db106c78897865045c))
+
+- **renovate**: Enable lockfile management
+  ([`9aab02e`](https://github.com/caru-ini/novelai-sdk/commit/9aab02ec6b3c11e699e98f0cbde96b475bbfac4a))
+
+### Features
+
+- **docs**: Migrate from Docusaurus to Fumadocs
+  ([`73e2c59`](https://github.com/caru-ini/novelai-sdk/commit/73e2c59309698d04f43eabdf440a84df891a2e06))
+
+
 ## v0.8.1 (2026-04-26)
 
 ### Bug Fixes
