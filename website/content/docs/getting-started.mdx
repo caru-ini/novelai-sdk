@@ -1,0 +1,160 @@
+---
+title: Getting Started
+description: From installation to your first image generation.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+Learn how to easily generate images using Python with the NovelAI SDK.
+This guide walks you through the process step-by-step.
+
+<Steps>
+
+<Step>
+
+## Installation
+
+First, install `novelai-sdk`.
+
+<Callout type="info">
+Python 3.10 or higher is required.
+</Callout>
+
+```bash
+pip install novelai-sdk
+```
+
+If you are using `uv` (recommended):
+
+```bash
+uv add novelai-sdk
+```
+
+</Step>
+
+<Step>
+
+## Prepare an API Key
+
+You need a **NovelAI API Key** to use the SDK.
+
+1. Log in to [NovelAI](https://novelai.net/).
+2. Open Settings (gear icon).
+3. Go to the "Account" tab and click "Get API Key".
+
+### Method A: `.env` (Recommended)
+
+Create a `.env` file in your project directory:
+
+```bash
+NOVELAI_API_KEY=pst-your-api-key-here
+```
+
+### Method B: Direct (testing only)
+
+```python
+client = NovelAI(api_key="pst-your-api-key-here")
+```
+
+</Step>
+
+<Step>
+
+## Generate Your First Image
+
+Save the following as `generate.py`:
+
+```python title="generate.py"
+from novelai import NovelAI
+from novelai.types import GenerateImageParams
+
+# 1. Initialize Client
+# No arguments needed if NOVELAI_API_KEY env var is set
+client = NovelAI()
+
+# 2. Configure Generation
+params = GenerateImageParams(
+    # Prompt
+    prompt="1girl, cat ears, masterpiece, best quality",
+    # Model (using V4)
+    model="nai-diffusion-4-5-full",
+    # Size
+    size="portrait",
+    # Steps
+    steps=28,
+    # Scale
+    scale=5.0,
+)
+
+# 3. Generate
+print("Generating image...")
+images = client.image.generate(params)
+
+# 4. Save
+if images:
+    filename = "output.png"
+    images[0].save(filename)
+    print(f"Saved to: {filename}")
+else:
+    print("Generation failed")
+```
+
+Run it:
+
+```bash
+python generate.py
+```
+
+</Step>
+
+<Step>
+
+## CLI Quick Start
+
+The SDK also provides a CLI via `python -m novelai`.
+
+```bash
+# Basic generation
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# Interactive mode
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# Generate from a request JSON
+python -m novelai --request-json examples/request_user.json -o output
+```
+
+</Step>
+
+<Step>
+
+## Estimate Anlas Beforehand
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` is a best-effort estimate based on the current web UI and
+official documentation. It is useful for previews, but not guaranteed to be a
+100% accurate billing source of truth.
+
+</Step>
+
+</Steps>
+
+## Next Steps
+
+- [Authentication](/docs/authentication) — more about API key handling
+- [Examples](/docs/examples) — Character references, poses, etc.
+- [Anlas Calculation](/docs/anlas-calculation) — details of the current estimate logic

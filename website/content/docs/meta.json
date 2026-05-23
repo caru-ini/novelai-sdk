@@ -1,0 +1,12 @@
+{
+  "title": "NovelAI SDK",
+  "pages": [
+    "index",
+    "getting-started",
+    "authentication",
+    "anlas-calculation",
+    "examples",
+    "---",
+    "development"
+  ]
+}

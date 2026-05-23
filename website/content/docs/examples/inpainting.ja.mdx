@@ -1,0 +1,53 @@
+---
+title: インペインティング
+description: 画像のマスク領域だけを再生成する。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+既存の画像のマスクで指定した領域を再生成します。
+マスク画像を使って画像の一部だけを再生成し、残りはそのまま保持できます。
+
+## 基本的な使い方
+
+```python
+from novelai.types import GenerateImageParams, InpaintParams
+
+inpaint_params = InpaintParams(
+    image="source.png",   # 元画像 (ファイルパス、Base64、PIL Image)
+    mask="mask.png",      # マスク画像 (白=再生成、黒=保持)
+    strength=1.0,
+)
+
+# モデルは自動的にインペインティング用バリアントに切り替えられます
+# (例: nai-diffusion-4-5-full -> nai-diffusion-4-5-full-inpainting)
+params = GenerateImageParams(
+    prompt="1girl, standing, smile",
+    model="nai-diffusion-4-5-full",
+    inpaint=inpaint_params,
+)
+
+# images = client.image.generate(params)
+```
+
+## マスクの形式
+
+- **白** (`#FFFFFF`): 再生成する領域 (インペイント)
+- **黒** (`#000000`): そのまま保持する領域
+
+マスクは API 要件に合わせて自動的に前処理 (二値化・リサイズ) されます。
+
+## パラメータ
+
+- **`image`** (必須): 元画像
+- **`mask`** (必須): インペイント領域を定義するマスク画像
+- **`strength`**: 強度 (`0.01`–`1.0`、デフォルト: `1.0`)
+- **`seed`**: ランダムシード (省略時自動生成)
+
+<Callout type="info">
+モデルは自動的にインペインティング用バリアントに切り替わります (例: `nai-diffusion-4-5-full` → `nai-diffusion-4-5-full-inpainting`)。手動で指定する必要はありません。
+</Callout>
+
+<Callout type="info" title="Tip">
+変更したい領域より少し大きめにマスクを作るとブレンドが自然になります。
+</Callout>

@@ -1,0 +1,75 @@
+---
+title: FastAPI Integration
+description: Wrap the NovelAI SDK in a FastAPI web service.
+---
+
+This example demonstrates how to integrate the NovelAI SDK into a [FastAPI](https://fastapi.tiangolo.com/) web application.
+
+Integrating with FastAPI allows you to build web interfaces or API wrappers around NovelAI's services using asynchronous communication.
+
+## Implementation Overview
+
+- **Lifecycle Management**: Use FastAPI's `lifespan` to initialize the `AsyncNovelAI` client at startup and close it at shutdown.
+- **Asynchronous Execution**: Use the SDK's async methods to handle multiple requests efficiently.
+- **Image Response**: Return generated images directly to the client as a PNG response.
+
+## Example Code
+
+Full source: [`examples/10_fastapi_integration.py`](https://github.com/caru-ini/novelai-sdk/blob/main/examples/10_fastapi_integration.py).
+
+```python
+import io
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import Response
+from novelai import AsyncNovelAI
+from novelai.types import GenerateImageParams
+
+client: AsyncNovelAI | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    global client
+    # API key is loaded from environment variable NOVELAI_API_KEY automatically
+    client = AsyncNovelAI()
+    yield
+    # Cleanup
+    if client:
+        await client.close()
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.get("/generate")
+async def generate_image(prompt: str):
+    if client is None:
+        raise HTTPException(status_code=500, detail="Client not initialized")
+
+    params = GenerateImageParams(
+        prompt=prompt,
+        model="nai-diffusion-4-5-full",
+        size="portrait",
+    )
+
+    images = await client.image.generate(params)
+    if not images:
+        raise HTTPException(status_code=500, detail="No image generated")
+
+    # Convert PIL Image to bytes
+    buf = io.BytesIO()
+    images[0].save(buf, format="PNG")
+    return Response(content=buf.getvalue(), media_type="image/png")
+```
+
+## Running the Server
+
+```bash
+pip install fastapi uvicorn
+python examples/10_fastapi_integration.py
+```
+
+Then open: `http://localhost:8000/generate?prompt=1girl%2C%20cute%2C%20cat%20ears%2C%20maid`

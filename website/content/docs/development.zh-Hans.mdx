@@ -1,0 +1,50 @@
+---
+title: 开发
+description: 为 novelai-sdk 做贡献。
+---
+
+感谢您对 `novelai-sdk` 的贡献兴趣。
+
+## 准备
+
+```bash
+git clone https://github.com/caru-ini/novelai-sdk.git
+cd novelai-sdk
+uv sync
+```
+
+## 代码质量
+
+使用 `ruff` 和 `pyright` 维护代码质量。`poethepoet` (由 uv 安装) 可以方便地运行所有检查。
+
+```bash
+# 格式化
+uv run poe fmt
+
+# Lint
+uv run poe lint
+
+# 类型检查
+uv run poe check
+
+# 提交前的所有检查
+uv run poe pre-commit
+```
+
+## 测试
+
+```bash
+uv run pytest
+```
+
+## 贡献
+
+1. Fork 仓库
+2. 创建功能分支 (`git checkout -b feature/amazing-feature`)
+3. 使用 [Conventional Commits](https://www.conventionalcommits.org/) 提交
+4. 确保 `uv run poe pre-commit` 通过
+5. 开启 Pull Request
+
+## 许可证
+
+MIT License.

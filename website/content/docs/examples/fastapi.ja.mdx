@@ -1,0 +1,75 @@
+---
+title: FastAPI 連携
+description: NovelAI SDK を FastAPI サービスに組み込む。
+---
+
+この例では、NovelAI SDK を [FastAPI](https://fastapi.tiangolo.com/) Web フレームワークと統合する方法を紹介します。
+
+FastAPI と組み合わせれば、非同期通信を活用した NovelAI サービスの Web インターフェースや API ラッパーを簡単に構築できます。
+
+## 実装の概要
+
+- **ライフサイクル管理**: FastAPI の `lifespan` でサーバ起動時に `AsyncNovelAI` を初期化、停止時にクローズ
+- **非同期実行**: SDK の async メソッドで複数リクエストを効率処理
+- **画像レスポンス**: 生成画像を PNG として直接返却
+
+## サンプルコード
+
+完全なソース: [`examples/10_fastapi_integration.py`](https://github.com/caru-ini/novelai-sdk/blob/main/examples/10_fastapi_integration.py)
+
+```python
+import io
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import Response
+from novelai import AsyncNovelAI
+from novelai.types import GenerateImageParams
+
+client: AsyncNovelAI | None = None
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    global client
+    # API キーは環境変数 NOVELAI_API_KEY から自動的に読み込まれます
+    client = AsyncNovelAI()
+    yield
+    # クリーンアップ
+    if client:
+        await client.close()
+
+
+app = FastAPI(lifespan=lifespan)
+
+
+@app.get("/generate")
+async def generate_image(prompt: str):
+    if client is None:
+        raise HTTPException(status_code=500, detail="クライアントが初期化されていません")
+
+    params = GenerateImageParams(
+        prompt=prompt,
+        model="nai-diffusion-4-5-full",
+        size="portrait",
+    )
+
+    images = await client.image.generate(params)
+    if not images:
+        raise HTTPException(status_code=500, detail="画像が生成されませんでした")
+
+    # PIL Image を bytes に変換
+    buf = io.BytesIO()
+    images[0].save(buf, format="PNG")
+    return Response(content=buf.getvalue(), media_type="image/png")
+```
+
+## サーバーの起動
+
+```bash
+pip install fastapi uvicorn
+python examples/10_fastapi_integration.py
+```
+
+ブラウザで: `http://localhost:8000/generate?prompt=1girl%2C%20cute%2C%20cat%20ears%2C%20maid`

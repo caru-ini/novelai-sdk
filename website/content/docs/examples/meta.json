@@ -1,0 +1,13 @@
+{
+  "title": "Examples",
+  "pages": [
+    "index",
+    "character-reference",
+    "multi-character",
+    "controlnet",
+    "image-to-image",
+    "inpainting",
+    "streaming",
+    "fastapi"
+  ]
+}

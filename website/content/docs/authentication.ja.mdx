@@ -1,0 +1,55 @@
+---
+title: 認証
+description: NovelAI API キーの安全な設定方法。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+NovelAI API を利用するには認証が必要です。
+`novelai-sdk` は複数の認証方法をサポートしています。
+
+## 環境変数 (推奨)
+
+セキュリティのベストプラクティスとして、API キーをコードにハードコードせず、環境変数を使用することを強く推奨します。
+
+```bash
+export NOVELAI_API_KEY="pst-..."
+```
+
+Python コード:
+
+```python
+from novelai import NovelAI
+
+client = NovelAI()  # 自動的に環境変数を読み込みます
+```
+
+## `.env` ファイル
+
+`python-dotenv` などを利用して `.env` から読み込む方法も一般的です。
+
+```bash title=".env"
+NOVELAI_API_KEY=pst-your-api-key-here
+```
+
+```python
+from dotenv import load_dotenv
+from novelai import NovelAI
+
+load_dotenv()
+client = NovelAI()
+```
+
+## 直接指定
+
+テストや簡単なスクリプトの場合：
+
+```python
+from novelai import NovelAI
+
+client = NovelAI(api_key="pst-your-api-key-here")
+```
+
+<Callout type="warn">
+API キーを GitHub などの公開リポジトリにコミットしないように注意してください。
+</Callout>
