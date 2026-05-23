@@ -20,6 +20,10 @@ wheels/
 .installed.cfg
 *.egg
 
+# Allow the Next.js docs site to keep its lib/ folder
+!website/lib/
+!website/lib/**
+
 # Virtual environments
 .venv/
 venv/

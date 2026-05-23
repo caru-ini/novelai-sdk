@@ -1,0 +1,68 @@
+---
+title: 概要
+description: NovelAI 画像生成 API のための型安全な Python SDK。
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+![intro](/images/intro.png)
+
+[![PyPI version](https://img.shields.io/pypi/v/novelai-sdk.svg)](https://pypi.org/project/novelai-sdk/)
+[![Python Version](https://img.shields.io/pypi/pyversions/novelai-sdk.svg)](https://pypi.org/project/novelai-sdk/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/caru-ini/novelai-sdk/blob/main/LICENSE)
+[![Code style: ruff](https://img.shields.io/badge/code%20style-ruff-000000.svg)](https://github.com/astral-sh/ruff)
+
+NovelAI の画像生成 API のための、モダンで型安全な Python SDK です。
+Pydantic v2 による堅牢なバリデーションと完全な型ヒントを備え、開発者体験 (DX) を重視して設計されています。
+
+## 主な機能
+
+- **完全な型安全性**: Python 3.10+ 対応、Pydantic v2 による厳格なバリデーション。
+- **高レベル API**: 直感的で使いやすいインターフェース。
+- **最新機能への対応**: V4 モデル、精密参照 (キャラクター参照)、ControlNet などをサポート。
+- **便利なユーティリティ**: PIL/Pillow 統合、SSE ストリーミングなど。
+
+## 他ライブラリとの比較
+
+| 機能                          | novelai-sdk | [novelai-api](https://github.com/Aedial/novelai-api) | [novelai-python](https://github.com/LlmKira/novelai-python) |
+| ----------------------------- | :---------: | :--------------------------------------------------: | :---------------------------------------------------------: |
+| 型安全 (Pydantic v2)          |      ✅      |                          ❌                           |                              ✅                              |
+| 非同期サポート                |      ✅      |                          ✅                           |                              ✅                              |
+| 画像生成                      |      ✅      |                          ✅                           |                              ✅                              |
+| テキスト生成                  |      🚧      |                          ✅                           |                              ✅                              |
+| **精密参照 (キャラ参照)**     |      ✅      |                          ❌                           |                              ❌                              |
+| **マルチキャラクター配置**    |      ✅      |                          ❌                           |                              ✅                              |
+| ControlNet / Vibe Transfer    |      ✅      |                          ❌                           |                              ✅                              |
+| SSE ストリーミング            |      ✅      |                          ❌                           |                              ✅                              |
+| Python 3.10+                  |      ✅      |                          ❌                           |                              ❌                              |
+| アクティブメンテナンス        |      ✅      |                          ✅                           |                              ⚠️                              |
+
+✅ 対応 · ❌ 未対応 · 🚧 予定 · ⚠️ 限定的なメンテナンス
+
+## データモデル・アーキテクチャ
+
+このライブラリは、2 つの異なるデータモデル層で設計されています。
+
+![モデルアーキテクチャ](/images/model-architecture.png)
+
+1. **User Model (推奨)**: 適切なデフォルト値と自動バリデーションを備えた、ユーザーフレンドリーなモデル。
+2. **API Model**: NovelAI の API エンドポイントと 1 対 1 で対応する、主に内部で使用されるモデル。
+
+## どこから始めますか？
+
+<Cards>
+  <Card title="はじめに" href="/docs/getting-started" description="インストールから最初の画像生成まで。" />
+  <Card title="認証" href="/docs/authentication" description="API キーの設定方法。" />
+  <Card title="機能例" href="/docs/examples" description="キャラ参照・ポーズ・ストリーミング。" />
+</Cards>
+
+## リンク
+
+- [GitHub リポジトリ](https://github.com/caru-ini/novelai-sdk)
+- [PyPI](https://pypi.org/project/novelai-sdk/)
+- [NovelAI 公式サイト](https://novelai.net/)
+
+## 免責事項
+
+これは非公式のクライアントライブラリです。NovelAI とは提携していません。
+利用には有効な NovelAI サブスクリプションが必要です。

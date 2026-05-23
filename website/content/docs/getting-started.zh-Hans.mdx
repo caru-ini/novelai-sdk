@@ -1,0 +1,162 @@
+---
+title: 快速开始
+description: 从安装到生成第一张图像。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+了解如何使用 Python 和 NovelAI SDK 轻松生成图像。
+
+<Steps>
+
+<Step>
+
+## 安装
+
+<Callout type="info">
+需要 Python 3.10 或更高版本。
+</Callout>
+
+```bash
+pip install novelai-sdk
+```
+
+使用 `uv` (推荐):
+
+```bash
+uv add novelai-sdk
+```
+
+</Step>
+
+<Step>
+
+## 准备 API 密钥
+
+1. 登录 [NovelAI](https://novelai.net/)
+2. 前往 **Settings (齿轮图标) → Account**
+3. 点击 **Get API Key**
+
+强烈建议使用环境变量管理密钥：
+
+```bash
+export NOVELAI_API_KEY="pst-..."
+```
+
+SDK 会自动检测此环境变量。
+
+</Step>
+
+<Step>
+
+## 生成第一张图像
+
+```python title="generate.py"
+from novelai import NovelAI
+from novelai.types import GenerateImageParams
+
+# 如果你没有设置环境变量，可以直接传递 api_key="pst-..."
+client = NovelAI()
+
+# 定义参数
+params = GenerateImageParams(
+    prompt="1girl, cat ears, masterpiece, best quality",
+    model="nai-diffusion-4-5-full",
+    size="portrait",
+    steps=28,
+    scale=5.0,
+)
+
+# 生成图像
+# 返回 (image_bytes, metadata) 的列表
+images = client.image.generate(params)
+
+# 即使只请求了一张图像，它也会返回一个列表
+if images:
+    # 第一个元素是 PIL Image 对象
+    image = images[0]
+
+    # 保存图像
+    image.save("output.png")
+    print("图像已保存为 output.png")
+```
+
+```bash
+python generate.py
+```
+
+</Step>
+
+<Step>
+
+## 异步用法
+
+对于 web 应用或高性能脚本，使用 `AsyncNovelAI`：
+
+```python
+import asyncio
+from novelai import AsyncNovelAI
+from novelai.types import GenerateImageParams
+
+
+async def main():
+    async with AsyncNovelAI() as client:
+        params = GenerateImageParams(
+            prompt="1boy, holding a sword, fantasy",
+            model="nai-diffusion-4-5-full",
+        )
+        images = await client.image.generate(params)
+        if images:
+            images[0].save("async_output.png")
+
+
+asyncio.run(main())
+```
+
+</Step>
+
+<Step>
+
+## CLI 快速开始
+
+```bash
+# 基本生成
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# 交互模式
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# 从请求 JSON 生成
+python -m novelai --request-json examples/request_user.json -o output
+```
+
+</Step>
+
+<Step>
+
+## 估算 Anlas 消耗
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+</Step>
+
+</Steps>
+
+## 下一步
+
+- [认证](/docs/authentication) — API Key 的处理方式
+- [示例](/docs/examples) — Character Reference、ControlNet 等
+- [Anlas 计算](/docs/anlas-calculation) — 估算逻辑细节

@@ -1,0 +1,44 @@
+---
+title: 開発
+description: novelai-sdk への貢献ガイド。
+---
+
+`novelai-sdk` への貢献に興味を持っていただきありがとうございます。
+
+## セットアップ
+
+```bash
+git clone https://github.com/caru-ini/novelai-sdk.git
+cd novelai-sdk
+uv sync
+```
+
+## コード品質ツール
+
+このプロジェクトでは `ruff` と `pyright` を使用してコード品質を維持しています。
+`poethepoet` (uv と一緒にインストールされます) を使って簡単に実行できます。
+
+```bash
+# フォーマット
+uv run poe fmt
+
+# リント
+uv run poe lint
+
+# 型チェック
+uv run poe check
+
+# コミット前の全チェック
+uv run poe pre-commit
+```
+
+## プルリクエスト
+
+新機能の追加やバグ修正の際は、まず Issue を立てて議論することを推奨します。
+
+- コミットメッセージは [Conventional Commits](https://www.conventionalcommits.org/) に従ってください
+- `uv run poe pre-commit` がパスすることを確認してください
+
+## ライセンス
+
+MIT ライセンス。

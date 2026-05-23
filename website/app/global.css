@@ -1,0 +1,204 @@
+@import 'tailwindcss';
+@import 'fumadocs-ui/css/neutral.css';
+@import 'fumadocs-ui/css/preset.css';
+
+@source '../node_modules/fumadocs-ui/dist/**/*.js';
+
+/* ---------------------------------------------------------------------------
+ * NovelAI-inspired theme
+ *
+ * Strategy: lean on Fumadocs' `--color-fd-*` tokens for everything that
+ * needs to flip between light/dark. Only the brand accents (iris purple,
+ * cream highlight) are defined as raw HSL — and we redefine them per
+ * theme so contrast stays sane in both modes.
+ * ------------------------------------------------------------------------- */
+
+:root {
+  --nai-iris: 240 60% 52%;        /* primary indigo, light mode */
+  --nai-iris-soft: 240 60% 96%;   /* light wash for backgrounds */
+  --nai-cream: 47 85% 38%;        /* amber/gold, light mode (readable on white) */
+  --nai-cream-glow: 47 85% 50%;
+  --nai-on-primary: 0 0% 100%;    /* white text on primary button */
+}
+
+.dark {
+  --nai-iris: 240 65% 70%;        /* lighter indigo in dark mode */
+  --nai-iris-soft: 240 30% 18%;
+  --nai-cream: 53 96% 83%;        /* #fefaa8 cream for dark mode */
+  --nai-cream-glow: 53 96% 75%;
+  --nai-on-primary: 232 33% 9%;   /* deep ink text on primary button */
+}
+
+/* Wire fumadocs tokens to the brand */
+:root {
+  --color-fd-primary: hsl(var(--nai-iris));
+  --color-fd-primary-foreground: hsl(var(--nai-on-primary));
+  --color-fd-accent: hsl(var(--nai-iris-soft));
+  --color-fd-accent-foreground: hsl(var(--nai-iris));
+  --color-fd-ring: hsl(var(--nai-iris));
+}
+
+.dark {
+  --color-fd-background: hsl(232 33% 9%);
+  --color-fd-foreground: hsl(230 20% 95%);
+  --color-fd-card: hsl(230 28% 14%);
+  --color-fd-popover: hsl(230 28% 14%);
+  --color-fd-muted: hsl(228 22% 19%);
+  --color-fd-muted-foreground: hsl(226 18% 70%);
+  --color-fd-border: hsl(228 18% 22%);
+  --color-fd-primary: hsl(var(--nai-iris));
+  --color-fd-primary-foreground: hsl(var(--nai-on-primary));
+  --color-fd-accent: hsl(var(--nai-iris-soft));
+  --color-fd-accent-foreground: hsl(230 20% 95%);
+  --color-fd-ring: hsl(var(--nai-iris));
+}
+
+/* Body — fixed ambient gradient via pseudo, so it never bleeds into cards */
+body {
+  background-color: var(--color-fd-background);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background-image:
+    radial-gradient(70rem 36rem at 12% -10%, hsl(var(--nai-iris) / 0.07), transparent 60%),
+    radial-gradient(60rem 30rem at 100% 0%, hsl(var(--nai-iris) / 0.05), transparent 60%);
+}
+
+.dark body::before {
+  background-image:
+    radial-gradient(70rem 36rem at 10% -10%, hsl(var(--nai-iris) / 0.14), transparent 60%),
+    radial-gradient(60rem 30rem at 95% 0%, hsl(232 25% 47% / 0.14), transparent 60%);
+}
+
+/* ---------------------------------------------------------------------------
+ * Display typography
+ * ------------------------------------------------------------------------- */
+
+.nai-display {
+  font-family: var(--font-display), 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  font-feature-settings: 'liga', 'kern';
+  letter-spacing: -0.015em;
+}
+
+.nai-accent-cream {
+  color: hsl(var(--nai-cream));
+  text-shadow: 0 0 24px hsl(var(--nai-cream-glow) / 0.25);
+}
+
+/* ---------------------------------------------------------------------------
+ * Buttons
+ * ------------------------------------------------------------------------- */
+
+.nai-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  border-radius: 0.75rem;
+  color: var(--color-fd-primary-foreground);
+  background: var(--color-fd-primary);
+  box-shadow:
+    0 8px 24px -10px hsl(var(--nai-iris) / 0.45),
+    inset 0 1px 0 0 hsl(0 0% 100% / 0.18);
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nai-cta:hover {
+  transform: translateY(-1px);
+  background: hsl(var(--nai-iris) / 0.92);
+}
+
+.nai-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.5rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-card);
+  color: var(--color-fd-foreground);
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.nai-cta-secondary:hover {
+  border-color: var(--color-fd-primary);
+  color: var(--color-fd-primary);
+  transform: translateY(-1px);
+}
+
+/* ---------------------------------------------------------------------------
+ * Cards
+ * ------------------------------------------------------------------------- */
+
+.nai-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  border: 1px solid var(--color-fd-border);
+  background: var(--color-fd-card);
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.nai-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    hsl(var(--nai-iris) / 0.6),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.nai-card:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--nai-iris) / 0.55);
+  box-shadow: 0 12px 30px -16px hsl(var(--nai-iris) / 0.25);
+}
+
+.nai-card:hover::before {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * Shiki dual-theme — toggles via the `.dark` class on <html>
+ * ------------------------------------------------------------------------- */
+
+html:not(.dark) .shiki,
+html:not(.dark) .shiki span {
+  color: var(--shiki-light) !important;
+  background-color: transparent !important;
+  font-style: var(--shiki-light-font-style) !important;
+  font-weight: var(--shiki-light-font-weight) !important;
+  text-decoration: var(--shiki-light-text-decoration) !important;
+}
+
+html.dark .shiki,
+html.dark .shiki span {
+  color: var(--shiki-dark) !important;
+  background-color: transparent !important;
+  font-style: var(--shiki-dark-font-style) !important;
+  font-weight: var(--shiki-dark-font-weight) !important;
+  text-decoration: var(--shiki-dark-text-decoration) !important;
+}
+
+.nai-code-block .shiki {
+  padding: 1.25rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+  overflow-x: auto;
+  background: transparent;
+}

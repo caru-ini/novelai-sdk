@@ -2,43 +2,45 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'website/**'
+      - '.github/workflows/web.yaml'
+  workflow_dispatch:
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: website
     steps:
       - uses: actions/checkout@v6
 
-      - uses: pnpm/action-setup@v4
-        name: Install pnpm
+      - uses: oven-sh/setup-bun@v2
         with:
-          version: 10
-
-      - uses: actions/setup-node@v4
-        name: Set up Node.js
-        with:
-          node-version: 24
-          cache: pnpm
-          cache-dependency-path: website/pnpm-lock.yaml
+          bun-version: latest
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-        working-directory: website
+        run: bun install --frozen-lockfile
 
-      - name: Build website
-        run: pnpm run build
-        working-directory: website
+      - name: Build (Next.js static export)
+        run: bun run build
+        env:
+          NODE_ENV: production
 
-      - name: Upload static files as artifact
-        id: deployment
-        uses: actions/upload-pages-artifact@v4
+      - name: Ensure .nojekyll
+        run: touch out/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          path: website/build
+          path: website/out
 
   deploy:
     name: Deploy to GitHub Pages

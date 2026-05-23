@@ -1,0 +1,13 @@
+{
+  "title": "機能例",
+  "pages": [
+    "index",
+    "character-reference",
+    "multi-character",
+    "controlnet",
+    "image-to-image",
+    "inpainting",
+    "streaming",
+    "fastapi"
+  ]
+}

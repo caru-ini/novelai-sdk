@@ -1,41 +1,43 @@
-# Website
+# NovelAI SDK Documentation
 
-This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
+Powered by [Fumadocs](https://fumadocs.dev/) (Next.js + MDX).
+Deployed to GitHub Pages: <https://caru-ini.github.io/novelai-sdk/>.
 
-## Installation
-
-```bash
-yarn
-```
-
-## Local Development
+## Develop
 
 ```bash
-yarn start
+bun install
+bun run dev
 ```
 
-This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+Then open http://localhost:3000.
 
-## Build
+## Build (static export for GH Pages)
 
 ```bash
-yarn build
+bun run build
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
+Output is in `./out/`.
 
-## Deployment
+## Structure
 
-Using SSH:
-
-```bash
-USE_SSH=true yarn deploy
+```
+website/
+├─ app/                     Next.js App Router
+│  ├─ [lang]/               i18n root (en, ja, zh-Hans)
+│  │  ├─ (home)/            Landing page
+│  │  └─ docs/[[...slug]]/  Docs catch-all
+│  ├─ llms.txt/             llms.txt for AI tools
+│  └─ llms-full.txt/        Full text dump for LLMs
+├─ content/docs/            MDX content per locale
+├─ lib/                     i18n, source loader, layout
+├─ public/                  Static assets
+└─ source.config.ts         fumadocs-mdx config
 ```
 
-Not using SSH:
+## AI accessibility
 
-```bash
-GIT_USER=<Your GitHub username> yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+The site exposes `/llms.txt` (index) and `/llms-full.txt` (full content)
+so that AI dev tools (Claude Code, Cursor, Copilot, etc.) can ingest
+the documentation. See <https://llmstxt.org/>.

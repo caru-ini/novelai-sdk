@@ -1,0 +1,154 @@
+---
+title: はじめに
+description: インストールから最初の画像生成まで。
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+import { Step, Steps } from 'fumadocs-ui/components/steps';
+
+NovelAI SDK を使って、Python で簡単に画像を生成する方法を解説します。
+ステップバイステップで説明します。
+
+<Steps>
+
+<Step>
+
+## インストール
+
+まずは `novelai-sdk` をインストールしましょう。
+
+<Callout type="info">
+Python 3.10 以上が必要です。
+</Callout>
+
+```bash
+pip install novelai-sdk
+```
+
+`uv` を使っている場合 (推奨)：
+
+```bash
+uv add novelai-sdk
+```
+
+</Step>
+
+<Step>
+
+## API キーの準備
+
+NovelAI の機能を使うには **API キー** が必要です。
+
+1. [NovelAI](https://novelai.net/) にログイン。
+2. 設定画面 (歯車アイコン) を開く。
+3. 「Account」タブの「Get API Key」をクリック。
+
+### 方法 A: `.env` ファイル (推奨)
+
+```bash
+NOVELAI_API_KEY=pst-あなたのAPIキーをここに
+```
+
+### 方法 B: 直接コードに書く (テスト用)
+
+```python
+client = NovelAI(api_key="pst-あなたのAPIキー")
+```
+
+</Step>
+
+<Step>
+
+## 最初の画像を生成する
+
+`generate.py` という名前で保存して実行してください。
+
+```python title="generate.py"
+from novelai import NovelAI
+from novelai.types import GenerateImageParams
+
+# 1. クライアントを作ります
+# 環境変数 NOVELAI_API_KEY が設定されていれば、引数は不要です
+client = NovelAI()
+
+# 2. 生成の設定をします
+params = GenerateImageParams(
+    # プロンプト（描きたいもの）
+    prompt="1girl, cat ears, masterpiece, best quality",
+    # モデルの選択（ここでは最新の V4 を使用）
+    model="nai-diffusion-4-5-full",
+    # 画像サイズ（portrait, landscape, square など）
+    size="portrait",
+    # ステップ数（28 くらいがおすすめ）
+    steps=28,
+    # プロンプトへの従順さ（5.0〜6.0 くらいが標準）
+    scale=5.0,
+)
+
+# 3. 画像を生成します
+print("画像を生成中...")
+images = client.image.generate(params)
+
+# 4. 保存します
+if images:
+    filename = "output.png"
+    images[0].save(filename)
+    print(f"保存しました: {filename}")
+else:
+    print("生成に失敗しました")
+```
+
+```bash
+python generate.py
+```
+
+</Step>
+
+<Step>
+
+## CLI クイックスタート
+
+```bash
+# 基本生成
+python -m novelai "1girl, cat ears, maid" -o output.png
+
+# 対話モード
+python -m novelai --interactive --model nai-diffusion-4-5-full
+
+# リクエスト JSON から生成
+python -m novelai --request-json examples/request_user.json -o output
+```
+
+</Step>
+
+<Step>
+
+## Anlas 消費量を見積もる
+
+```python
+from novelai.types import GenerateImageParams
+
+params = GenerateImageParams(
+    prompt="1girl, night city",
+    model="nai-diffusion-4-5-full",
+    size=(1024, 1024),
+    steps=28,
+)
+
+estimate = params.calculate_anlas(is_opus=True)
+print(estimate.total_anlas)
+```
+
+`calculate_anlas()` は現在の WebUI と公式ドキュメントを元にした best-effort
+な推定値です。プレビュー用途には使えますが、課金額を 100% 保証するものでは
+ありません。
+
+</Step>
+
+</Steps>
+
+## 次のステップ
+
+- [認証の詳細](/docs/authentication) — API キーの扱い方
+- [機能例](/docs/examples) — 特定のキャラを出したり、ポーズを指定する場合
+- [Anlas 計算](/docs/anlas-calculation) — 現在の見積もりロジックの詳細
