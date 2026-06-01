@@ -1,6 +1,10 @@
 import type { JSX } from 'react';
 import Image from 'next/image';
 
+// next/image does not apply basePath to an absolute string src, so on the
+// GitHub Pages project page (/novelai-sdk) a bare /images/... path 404s.
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+
 type Locale = 'en' | 'ja' | 'zh-Hans';
 
 type Strings = {
@@ -62,7 +66,7 @@ export function ArchitectureSection({ lang }: { lang: string }): JSX.Element {
 
         <div className="mt-12 grid items-center gap-10 md:grid-cols-2">
           <Image
-            src="/images/model-architecture.png"
+            src={`${basePath}/images/model-architecture.png`}
             alt={t.imageAlt}
             width={800}
             height={0}
