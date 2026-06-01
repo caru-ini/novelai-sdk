@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.9.1 (2026-06-01)
+
+### Bug Fixes
+
+- **docs**: Prefix static search API URL with basePath
+  ([`5234a78`](https://github.com/caru-ini/novelai-sdk/commit/5234a78efc764728a4e857ef21341d5e01b0d507))
+
+
 ## v0.9.0 (2026-05-23)
 
 ### Chores
