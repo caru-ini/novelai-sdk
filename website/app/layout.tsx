@@ -2,8 +2,9 @@ import './global.css';
 import { Inter, IBM_Plex_Serif } from 'next/font/google';
 import { RootProvider } from 'fumadocs-ui/provider/next';
 import type { ReactNode } from 'react';
-import { i18nProvider, basePath } from '@/lib/layout.shared';
+import { i18nProvider } from '@/lib/layout.shared';
 import { i18n } from '@/lib/i18n';
+import SearchDialog from '@/components/search-dialog';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const display = IBM_Plex_Serif({
@@ -28,7 +29,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className="flex min-h-screen flex-col font-sans antialiased">
         <RootProvider
           i18n={i18nProvider(i18n.defaultLanguage)}
-          search={{ options: { type: 'static', api: `${basePath}/api/search` } }}
+          search={{ SearchDialog }}
         >
           {children}
         </RootProvider>

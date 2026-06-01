@@ -11,7 +11,7 @@ export const { provider: i18nProvider } = defineI18nUI(i18n, {
   },
 });
 
-export const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? '';
 
 const titleByLocale: Record<string, string> = {
   en: 'NovelAI SDK',
