@@ -1,10 +1,9 @@
 import './global.css';
 import { Inter, IBM_Plex_Serif } from 'next/font/google';
-import { RootProvider } from 'fumadocs-ui/provider/next';
 import type { ReactNode } from 'react';
 import { i18nProvider } from '@/lib/layout.shared';
 import { i18n } from '@/lib/i18n';
-import SearchDialog from '@/components/search-dialog';
+import DocsRootProvider from '@/components/docs-root-provider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 const display = IBM_Plex_Serif({
@@ -27,12 +26,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <body className="flex min-h-screen flex-col font-sans antialiased">
-        <RootProvider
-          i18n={i18nProvider(i18n.defaultLanguage)}
-          search={{ SearchDialog }}
-        >
+        <DocsRootProvider i18n={i18nProvider(i18n.defaultLanguage)}>
           {children}
-        </RootProvider>
+        </DocsRootProvider>
       </body>
     </html>
   );
