@@ -2,6 +2,33 @@
 
 <!-- version list -->
 
+## v0.10.0 (2026-06-10)
+
+### Continuous Integration
+
+- Skip package release for docs-only (website) changes
+  ([`7e52fda`](https://github.com/caru-ini/novelai-sdk/commit/7e52fda4d4b209ddaff04223905aa2549ce67093))
+
+### Documentation
+
+- Add user account page and example
+  ([`3ac022f`](https://github.com/caru-ini/novelai-sdk/commit/3ac022f4dc50f3a848290abb06e874a19c6d9700))
+
+- Fix architecture image 404 by adding basePath
+  ([`7955ea3`](https://github.com/caru-ini/novelai-sdk/commit/7955ea30a4092f4efe01926d7bc690cb9d84f91c))
+
+- Fix i18n static search returning no results
+  ([`9780f26`](https://github.com/caru-ini/novelai-sdk/commit/9780f261aeb96cdc9c0d8004a2ffa4585c262a45))
+
+- Fix language switcher 404 on default locale (English)
+  ([`96f300a`](https://github.com/caru-ini/novelai-sdk/commit/96f300a0736aaa530f4cad48e10fbf5c89efdcc2))
+
+### Features
+
+- Add user subscription and Anlas balance API
+  ([`ed96a60`](https://github.com/caru-ini/novelai-sdk/commit/ed96a60f2b5e10c6ee57c76febc34cf99594300b))
+
+
 ## v0.9.1 (2026-06-01)
 
 ### Bug Fixes
