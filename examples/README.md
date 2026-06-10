@@ -234,6 +234,23 @@ After the server starts, you can generate an image by visiting `http://localhost
 
 ---
 
+### Account Information
+
+#### [`12_user_account.py`](12_user_account.py)
+
+Fetches the subscription state and the actual Anlas balance of your account.
+
+```bash
+python 12_user_account.py
+```
+
+**Key Features:**
+
+- Subscription tier and expiry (`client.user.get_subscription()`)
+- Actual Anlas balance (`client.user.get_anlas()`)
+
+---
+
 ## Common Parameters
 
 ### Model Selection

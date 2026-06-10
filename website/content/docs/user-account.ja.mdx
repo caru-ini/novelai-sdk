@@ -1,0 +1,52 @@
+---
+title: ユーザーアカウント
+description: サブスクリプションの tier と実際の Anlas 残高を取得します。
+---
+
+`client.user` は NovelAI API からアカウントの実際の状態を取得します。
+リクエスト送信前にコストを見積もる [Anlas 計算](/docs/anlas-calculation) と違い、
+こちらはサーバーが返す実際の値です。
+
+## 簡単な例
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    sub = client.user.get_subscription()
+
+    print(sub.tier_name)  # "Opus"
+    print(sub.active)     # True
+    print(sub.anlas)      # 4250
+
+    # 残高だけ欲しい場合のショートカット
+    print(client.user.get_anlas())
+```
+
+async クライアントでも同じように使えます:
+
+```python
+async with AsyncNovelAI() as client:
+    sub = await client.user.get_subscription()
+    balance = await client.user.get_anlas()
+```
+
+## Subscription のフィールド
+
+| 属性 | 説明 |
+| --- | --- |
+| `tier` / `tier_name` | `0` = Paper、`1` = Tablet、`2` = Scroll、`3` = Opus |
+| `active` | サブスクリプションが現在有効かどうか |
+| `expires_at` | 有効期限の Unix timestamp(秒) |
+| `anlas` | Anlas 残高の合計(サブスク付与分 + 購入分) |
+| `training_steps_left` | 残高の内訳。`fixed_training_steps_left`(毎月付与)と `purchased_training_steps`(無期限) |
+| `is_opus` | Opus tier かどうか |
+| `perks.unlimited_image_generation` | 無料画像生成(Opus の perk)が付与されているか |
+
+購入分の Anlas は、サブスク付与分を使い切ってから消費されます。
+
+## 注意点
+
+- `get_subscription()` と `get_anlas()` は呼び出すたびに `/user/subscription`
+  へ 1 リクエスト送ります。複数のフィールドが必要な場合は、繰り返し呼ばずに
+  `Subscription` オブジェクトを保持してください。

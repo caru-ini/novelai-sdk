@@ -1,0 +1,52 @@
+---
+title: User Account
+description: Fetch your subscription tier and actual Anlas balance.
+---
+
+`client.user` reports the actual state of your account from the NovelAI API.
+Unlike [Anlas Calculation](/docs/anlas-calculation), which estimates the cost
+of a request before sending it, these values come straight from the server.
+
+## Quick Example
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    sub = client.user.get_subscription()
+
+    print(sub.tier_name)  # "Opus"
+    print(sub.active)     # True
+    print(sub.anlas)      # 4250
+
+    # Shortcut when you only need the balance
+    print(client.user.get_anlas())
+```
+
+The async client works the same way:
+
+```python
+async with AsyncNovelAI() as client:
+    sub = await client.user.get_subscription()
+    balance = await client.user.get_anlas()
+```
+
+## Subscription Fields
+
+| Attribute | Description |
+| --- | --- |
+| `tier` / `tier_name` | `0` = Paper, `1` = Tablet, `2` = Scroll, `3` = Opus |
+| `active` | Whether the subscription is currently active |
+| `expires_at` | Expiry as a Unix timestamp (seconds) |
+| `anlas` | Total Anlas balance (subscription + purchased) |
+| `training_steps_left` | Balance split into `fixed_training_steps_left` (granted monthly) and `purchased_training_steps` (never expire) |
+| `is_opus` | Whether the account is on the Opus tier |
+| `perks.unlimited_image_generation` | Whether free image generation (the Opus perk) is granted |
+
+Purchased Anlas is only consumed after the subscription portion runs out.
+
+## Notes
+
+- `get_subscription()` and `get_anlas()` each send one request to
+  `/user/subscription`. Keep the `Subscription` object around when you need
+  several fields instead of calling them repeatedly.

@@ -1,0 +1,51 @@
+---
+title: 用户账户
+description: 获取订阅等级与实际的 Anlas 余额。
+---
+
+`client.user` 从 NovelAI API 获取账户的实际状态。
+与发送请求前进行估算的 [Anlas 计算](/docs/anlas-calculation) 不同，
+这里的数值直接来自服务器。
+
+## 简单示例
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    sub = client.user.get_subscription()
+
+    print(sub.tier_name)  # "Opus"
+    print(sub.active)     # True
+    print(sub.anlas)      # 4250
+
+    # 只需要余额时的快捷方法
+    print(client.user.get_anlas())
+```
+
+async 客户端的用法相同:
+
+```python
+async with AsyncNovelAI() as client:
+    sub = await client.user.get_subscription()
+    balance = await client.user.get_anlas()
+```
+
+## Subscription 字段
+
+| 属性 | 说明 |
+| --- | --- |
+| `tier` / `tier_name` | `0` = Paper、`1` = Tablet、`2` = Scroll、`3` = Opus |
+| `active` | 订阅当前是否有效 |
+| `expires_at` | 到期时间的 Unix timestamp(秒) |
+| `anlas` | Anlas 总余额(订阅赠送 + 购买) |
+| `training_steps_left` | 余额明细:`fixed_training_steps_left`(每月发放)与 `purchased_training_steps`(永不过期) |
+| `is_opus` | 是否为 Opus 等级 |
+| `perks.unlimited_image_generation` | 是否拥有免费图片生成(Opus 特权) |
+
+购买的 Anlas 会在订阅赠送部分用完之后才开始消耗。
+
+## 注意事项
+
+- `get_subscription()` 和 `get_anlas()` 每次调用都会向 `/user/subscription`
+  发送一个请求。需要多个字段时,请保留 `Subscription` 对象,避免重复调用。
