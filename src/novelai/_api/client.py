@@ -26,6 +26,7 @@ from ..types.api.image import (
     ImageStreamChunk,
     StreamImageGenerationRequest,
 )
+from ..types.user.user import Subscription
 
 
 class BaseAPIClient:
@@ -185,6 +186,34 @@ class ImageAPI:
             raise NetworkError(f"Network error: {str(e)}") from e
 
 
+class UserAPI:
+    """User account API endpoints"""
+
+    def __init__(self, client: _APIClient):
+        self._client = client
+
+    def get_subscription(self) -> Subscription:
+        """Fetch the account subscription using /user/subscription
+
+        Returns:
+            Subscription with tier, perks, and remaining Anlas balance
+
+        Raises:
+            AuthenticationError: Invalid API key
+            RateLimitError: Rate limit exceeded
+            ServerError: Server-side error
+            NetworkError: Network connection error
+        """
+        try:
+            response = self._client.client.get(
+                f"{self._client.api_base}/user/subscription",
+            )
+            content = self._client.handle_response(response)
+            return Subscription.model_validate_json(content)
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+
 class AsyncImageAPI:
     """Async Image generation API endpoints"""
 
@@ -251,6 +280,24 @@ class AsyncImageAPI:
             raise NetworkError(f"Network error: {str(e)}") from e
 
 
+class AsyncUserAPI:
+    """Async User account API endpoints"""
+
+    def __init__(self, client: _AsyncAPIClient):
+        self._client = client
+
+    async def get_subscription(self) -> Subscription:
+        """Fetch the account subscription using /user/subscription asynchronously"""
+        try:
+            response = await self._client.client.get(
+                f"{self._client.api_base}/user/subscription",
+            )
+            content = self._client.handle_response(response)
+            return Subscription.model_validate_json(content)
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+
 class _APIClient(BaseAPIClient):
     """Low-level client for NovelAI API
 
@@ -298,6 +345,7 @@ class _APIClient(BaseAPIClient):
 
         # API endpoints
         self.image = ImageAPI(image_base, self)
+        self.user = UserAPI(self)
 
     def __enter__(self):
         return self
@@ -347,6 +395,7 @@ class _AsyncAPIClient(BaseAPIClient):
 
         # API endpoints
         self.image = AsyncImageAPI(image_base, self)
+        self.user = AsyncUserAPI(self)
 
     async def __aenter__(self):
         return self

@@ -11,6 +11,12 @@ from .user.image import (
     ImageInput,
     InpaintParams,
 )
+from .user.user import (
+    Subscription,
+    SubscriptionPerks,
+    TrainingStepsLeft,
+    UnlimitedImageGenerationLimit,
+)
 
 __all__ = [
     # High-level user types
@@ -23,4 +29,8 @@ __all__ = [
     "InpaintParams",
     "ControlNet",
     "ControlNetImage",
+    "Subscription",
+    "SubscriptionPerks",
+    "TrainingStepsLeft",
+    "UnlimitedImageGenerationLimit",
 ]

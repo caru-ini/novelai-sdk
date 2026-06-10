@@ -37,6 +37,7 @@ from ..types.api.image import (
     StreamImageGenerationRequest,
 )
 from ..types.user.image import GenerateImageParams, GenerateImageStreamParams
+from ..types.user.user import Subscription
 
 
 class ImageGeneration:
@@ -189,6 +190,64 @@ class ImageGeneration:
         yield from self._client.api_client.image.generate_stream(request)
 
 
+class UserAccount:
+    """High-level user account interface
+
+    This class exposes account information such as the subscription tier and
+    the remaining Anlas balance. Unlike ``GenerateImageParams.calculate_anlas()``,
+    which *estimates* the cost of a generation, these methods report the actual
+    state of the account from NovelAI's API.
+
+    Note:
+        This class is not meant to be instantiated directly. Access it through
+        the NovelAI client's `user` attribute.
+
+    Example:
+        >>> client = NovelAI()
+        >>> client.user.get_anlas()
+        4250
+        >>> client.user.get_subscription().is_opus
+        True
+    """
+
+    def __init__(self, client: NovelAI):
+        self._client = client
+
+    def get_subscription(self) -> Subscription:
+        """Get the current subscription, including Anlas balance and perks
+
+        Returns:
+            Subscription object with tier, active status, expiry, perks, and
+            the remaining Anlas balance (``subscription.anlas``).
+
+        Raises:
+            AuthenticationError: If the API key is invalid
+            RateLimitError: If rate limit is exceeded
+            ServerError: If server returns 5xx error
+            NetworkError: If network connection fails
+
+        Example:
+            >>> sub = client.user.get_subscription()
+            >>> sub.tier, sub.active, sub.anlas
+            (3, True, 4250)
+        """
+        return self._client.api_client.user.get_subscription()
+
+    def get_anlas(self) -> int:
+        """Get the current total Anlas balance (subscription + purchased)
+
+        This is the actual balance reported by NovelAI, not an estimate.
+
+        Returns:
+            Total Anlas available on the account.
+
+        Example:
+            >>> client.user.get_anlas()
+            4250
+        """
+        return self.get_subscription().anlas
+
+
 class NovelAI:
     """High-level client for NovelAI API
 
@@ -271,6 +330,7 @@ class NovelAI:
             timeout=timeout,
         )
         self.image = ImageGeneration(self)
+        self.user = UserAccount(self)
 
     @property
     def api_key(self) -> str:
@@ -390,6 +450,21 @@ class AsyncImageGeneration:
             yield chunk
 
 
+class AsyncUserAccount:
+    """High-level async user account interface"""
+
+    def __init__(self, client: AsyncNovelAI):
+        self._client = client
+
+    async def get_subscription(self) -> Subscription:
+        """Get the current subscription, including Anlas balance and perks"""
+        return await self._client.api_client.user.get_subscription()
+
+    async def get_anlas(self) -> int:
+        """Get the current total Anlas balance (subscription + purchased)"""
+        return (await self.get_subscription()).anlas
+
+
 class AsyncNovelAI:
     """High-level async client for NovelAI API"""
 
@@ -409,6 +484,7 @@ class AsyncNovelAI:
             timeout=timeout,
         )
         self.image = AsyncImageGeneration(self)
+        self.user = AsyncUserAccount(self)
 
     @property
     def api_key(self) -> str:
