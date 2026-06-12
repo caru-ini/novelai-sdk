@@ -1,0 +1,78 @@
+---
+title: Director Tools
+description: 既存画像の変換 — 線画化・スケッチ・着色・表情変更・デクラッター・背景除去。
+---
+
+`client.tools` は `/ai/augment-image` エンドポイント(NovelAI Web UIでいう
+Director Tools)のラッパーです。各ツールは元画像を受け取り、フル生成なしで
+変換後の画像を返します。
+
+## クイック例
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    # 線画を抽出
+    images = client.tools.line_art("illustration.png")
+    images[0].save("lineart.png")
+
+    # キャラクターの表情を変更
+    images = client.tools.emotion("character.png", "happy")
+    images[0].save("happy.png")
+```
+
+非同期クライアントも同じ使い方です:
+
+```python
+async with AsyncNovelAI() as client:
+    images = await client.tools.line_art("illustration.png")
+```
+
+## 利用できるツール
+
+| メソッド | 説明 | 追加オプション |
+| --- | --- | --- |
+| `line_art(image)` | 白黒の線画を抽出 | — |
+| `sketch(image)` | 鉛筆スケッチ風に変換 | — |
+| `colorize(image)` | 線画・グレースケールを着色 | `prompt`, `defry` |
+| `emotion(image, emotion)` | キャラクターの表情を変更 | `prompt`, `defry` |
+| `declutter(image)` | 文字や効果音を除去 | `keep_bubbles` |
+| `remove_background(image)` | 背景を除去 | — |
+
+`image` には画像生成と同じ入力が使えます: ファイルパス、生バイト列、
+base64文字列、PIL Image、numpy配列。画像サイズは自動で推測されます。
+
+## ツールごとのパラメータモデル
+
+各ツールには専用のパラメータモデルがあり、そのツールが受け付けるオプション
+だけを持ちます。ツールにないオプションを渡すと、黙って無視されるのではなく
+バリデーションエラーになります。
+
+```python
+from novelai.types import EmotionParams
+
+params = EmotionParams(
+    image="character.png",
+    emotion="laughing",     # 24種類のムードから選択(型で検証)
+    prompt="open mouth",    # 追加タグ(任意)
+    defry=1,                # 0(最大効果)〜5(最弱)
+)
+images = client.tools.augment(params)
+```
+
+利用できるモデル: `LineArtParams`, `SketchParams`, `ColorizeParams`,
+`EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
+
+## 補足
+
+- `emotion` は `"neutral"`, `"happy"`, `"sad"`, `"angry"`, `"laughing"`,
+  `"smug"` など24種類のムードを受け付けます。全リストは `Emotion` 型から
+  エディタが補完します。
+- `defry`(colorize/emotionのみ)は効果を弱めます: `0` が最大効果、
+  `5` が最弱です。
+- `remove_background` は複数枚(分離レイヤー)を返すことがあるため、
+  すべてのメソッドがリストを返します。
+- Director ToolsのAnlasコスト推定はまだSDKにありません。実際のコストは
+  呼び出し前後に [`client.user.get_anlas()`](/docs/user-account) で
+  残高差分を取って計測してください。

@@ -4,7 +4,6 @@ from .api.tags import (
     JpTagSuggestion,
     TagSuggestion,
 )
-from .user.tags import SuggestTagsParams
 from .user.image import (
     Character,
     CharacterReference,
@@ -15,6 +14,16 @@ from .user.image import (
     I2iParams,
     ImageInput,
     InpaintParams,
+)
+from .user.tags import SuggestTagsParams
+from .user.tools import (
+    BackgroundRemovalParams,
+    ColorizeParams,
+    DeclutterParams,
+    DirectorToolParams,
+    EmotionParams,
+    LineArtParams,
+    SketchParams,
 )
 from .user.user import (
     Subscription,
@@ -34,6 +43,14 @@ __all__ = [
     "InpaintParams",
     "ControlNet",
     "ControlNetImage",
+    # Director Tools
+    "BackgroundRemovalParams",
+    "ColorizeParams",
+    "DeclutterParams",
+    "DirectorToolParams",
+    "EmotionParams",
+    "LineArtParams",
+    "SketchParams",
     # Tag suggestions
     "SuggestTagsParams",
     "TagSuggestion",

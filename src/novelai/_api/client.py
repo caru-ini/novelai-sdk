@@ -32,6 +32,7 @@ from ..types.api.tags import (
     JpTagSuggestion,
     TagSuggestionResponse,
 )
+from ..types.api.tools import AugmentImageRequest
 from ..types.user.user import Subscription
 
 _JP_TAG_LIST_ADAPTER = TypeAdapter(list[JpTagSuggestion])
@@ -141,6 +142,36 @@ class ImageAPI:
         try:
             response = self._client.client.post(
                 f"{self.api_base}/ai/generate-image",
+                content=request.model_dump_json(exclude_none=True),
+            )
+
+            content = self._client.handle_response(response)
+            images = self._client.extract_images_from_zip(content)
+            return images
+
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    def augment(self, request: AugmentImageRequest) -> list[Image.Image]:
+        """Transform an image using /ai/augment-image (Director Tools)
+
+        Args:
+            request: Complete AugmentImageRequest object
+
+        Returns:
+            List of PIL Image objects (some tools, e.g. bg-removal,
+            may return more than one image)
+
+        Raises:
+            AuthenticationError: Invalid API key or insufficient credits
+            InvalidRequestError: Invalid parameters
+            RateLimitError: Rate limit exceeded
+            ServerError: Server-side error
+            NetworkError: Network connection error
+        """
+        try:
+            response = self._client.client.post(
+                f"{self.api_base}/ai/augment-image",
                 content=request.model_dump_json(exclude_none=True),
             )
 
@@ -311,6 +342,21 @@ class AsyncImageAPI:
             # We don't write request.json in async to avoid blocking IO
             response = await self._client.client.post(
                 f"{self.api_base}/ai/generate-image",
+                content=request.model_dump_json(exclude_none=True),
+            )
+
+            content = self._client.handle_response(response)
+            images = self._client.extract_images_from_zip(content)
+            return images
+
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    async def augment(self, request: AugmentImageRequest) -> list[Image.Image]:
+        """Transform an image using /ai/augment-image (Director Tools) asynchronously"""
+        try:
+            response = await self._client.client.post(
+                f"{self.api_base}/ai/augment-image",
                 content=request.model_dump_json(exclude_none=True),
             )
 

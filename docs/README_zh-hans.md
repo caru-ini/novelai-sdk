@@ -21,6 +21,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。具有使用 P
 - 内置 PIL/Pillow 支持，便于图像操作
 - SSE 流式传输，用于实时进度监控
 - 精准参考（角色参考）、ControlNet 和多角色定位
+- Director Tools（线稿提取、草图、上色、表情修改、去除文字、背景移除）
 - 与 Web UI 提示词自动补全一致的标签建议（英文·日文）
 
 ## 与替代方案的比较
@@ -34,6 +35,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。具有使用 P
 | **精准参考（角色参考）**        |      ✅      |                          ❌                           |                              ❌                              |
 | **多角色定位**                  |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
+| Director Tools（线稿提取、表情修改等） |      ✅      |                          ✅                           |                              ✅                              |
 | SSE 流式传输                    |      ✅      |                          ❌                           |                              ✅                              |
 | Python 3.10+                    |      ✅      |                          ❌                           |                              ❌                              |
 | 积极维护                        |      ✅      |                          ✅                           |                              ⚠️                              |

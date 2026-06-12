@@ -1,0 +1,73 @@
+---
+title: Director Tools
+description: 转换现有图像 — 线稿提取、草图、上色、表情修改、去除文字、背景移除。
+---
+
+`client.tools` 封装了 `/ai/augment-image` 端点(即 NovelAI Web UI 中的
+Director Tools)。每个工具接收一张源图像，无需完整生成即可返回转换后的图像。
+
+## 快速示例
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    # 提取线稿
+    images = client.tools.line_art("illustration.png")
+    images[0].save("lineart.png")
+
+    # 修改角色表情
+    images = client.tools.emotion("character.png", "happy")
+    images[0].save("happy.png")
+```
+
+异步客户端用法相同:
+
+```python
+async with AsyncNovelAI() as client:
+    images = await client.tools.line_art("illustration.png")
+```
+
+## 可用工具
+
+| 方法 | 说明 | 额外选项 |
+| --- | --- | --- |
+| `line_art(image)` | 提取黑白线稿 | — |
+| `sketch(image)` | 转换为铅笔草图风格 | — |
+| `colorize(image)` | 为线稿/灰度图上色 | `prompt`, `defry` |
+| `emotion(image, emotion)` | 修改角色表情 | `prompt`, `defry` |
+| `declutter(image)` | 去除文字和音效 | `keep_bubbles` |
+| `remove_background(image)` | 移除背景 | — |
+
+`image` 接受与图像生成相同的输入: 文件路径、原始字节、base64 字符串、
+PIL Image 或 numpy 数组。图像尺寸会自动推断。
+
+## 按工具划分的参数模型
+
+每个工具都有专用的参数模型，只暴露该工具接受的选项。向工具传入它没有的
+选项会产生验证错误，而不是被静默忽略。
+
+```python
+from novelai.types import EmotionParams
+
+params = EmotionParams(
+    image="character.png",
+    emotion="laughing",     # 24 种情绪之一，由类型验证
+    prompt="open mouth",    # 额外标签(可选)
+    defry=1,                # 0(最强效果)到 5(最弱)
+)
+images = client.tools.augment(params)
+```
+
+可用模型: `LineArtParams`, `SketchParams`, `ColorizeParams`,
+`EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
+
+## 说明
+
+- `emotion` 接受 24 种情绪，如 `"neutral"`, `"happy"`, `"sad"`,
+  `"angry"`, `"laughing"`, `"smug"` — 编辑器会根据 `Emotion` 类型
+  自动补全完整列表。
+- `defry`(仅 colorize/emotion)用于减弱效果: `0` 为最强效果，`5` 最弱。
+- `remove_background` 可能返回多张图像(分离的图层)，因此所有方法都返回列表。
+- SDK 尚未提供 Director Tools 的 Anlas 成本估算。请在调用前后使用
+  [`client.user.get_anlas()`](/docs/user-account) 测量账户的实际消耗。

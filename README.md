@@ -21,6 +21,7 @@ Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-curated`
 - Built-in PIL/Pillow support for easy image operations
 - SSE streaming for real-time progress monitoring
 - Precise reference(Character reference), ControlNet, and multi-character positioning
+- Director Tools: line art, sketch, colorize, emotion, declutter, and background removal
 - Tag suggestions (en/jp) matching the web UI's prompt autocomplete
 
 ## Comparison with Alternatives
@@ -34,6 +35,7 @@ Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-curated`
 | **Precise Reference(Character Reference)**         |      ✅      |                          ❌                           |                              ❌                              |
 | **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
+| Director Tools (line art, emotion, etc.) |      ✅      |                          ✅                           |                              ✅                              |
 | SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
 | Python 3.10+                    |      ✅      |                          ❌                           |                              ❌                              |
 | Active Maintenance              |      ✅      |                          ✅                           |                              ⚠️                              |
