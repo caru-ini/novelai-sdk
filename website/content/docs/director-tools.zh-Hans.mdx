@@ -62,6 +62,25 @@ images = client.tools.augment(params)
 可用模型: `LineArtParams`, `SketchParams`, `ColorizeParams`,
 `EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
 
+## Anlas 成本
+
+每个参数模型都提供 `calculate_anlas()`，形式与
+[`GenerateImageParams.calculate_anlas()`](/docs/anlas-calculation) 相同:
+
+```python
+params = LineArtParams(image="illustration.png")
+params.calculate_anlas()                      # 例如 20 Anlas
+params.calculate_anlas(is_opus=True)          # 0 — 有效 Opus 订阅免费
+```
+
+价格只取决于图像面积，与工具种类无关。唯一的例外:
+
+- 在有效的 Opus 订阅下，图像不超过 1024×1024 时免费
+  (更大的图像即使是 Opus 也会计费)。
+- `bg-removal` 的价格是基础价的 3 倍加 5 Anlas，即使 Opus 也**绝不免费**。
+
+该估算通过逆向 Web UI 得出，尚未与实际计费核对，请视为估算值。
+
 ## 说明
 
 - `emotion` 接受 24 种情绪，如 `"neutral"`, `"happy"`, `"sad"`,
@@ -69,5 +88,5 @@ images = client.tools.augment(params)
   自动补全完整列表。
 - `defry`(仅 colorize/emotion)用于减弱效果: `0` 为最强效果，`5` 最弱。
 - `remove_background` 可能返回多张图像(分离的图层)，因此所有方法都返回列表。
-- SDK 尚未提供 Director Tools 的 Anlas 成本估算。请在调用前后使用
-  [`client.user.get_anlas()`](/docs/user-account) 测量账户的实际消耗。
+- 要确认账户的实际扣费，请比较调用前后的
+  [`client.user.get_anlas()`](/docs/user-account)。

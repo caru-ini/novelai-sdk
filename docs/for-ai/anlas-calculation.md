@@ -165,3 +165,54 @@ The public convenience API is intentionally kept small:
 
 `AnlasEstimate` is a Pydantic model and `str(estimate)` returns the total Anlas
 value for compact display. `int(estimate)` returns the same total.
+
+## Director Tools (/ai/augment-image)
+
+Reverse-engineered from the official frontend bundle on 2026-06-13
+(`_next/static/chunks/_app-63a03a4a01166c4c.js`, cost function exported as
+`tY`/`GI`; the image-tools UI lives in chunk `9955-3ce87fd845a9c6af.js`).
+Not yet verified against live billing — validate on a funded account by
+diffing `client.user.get_anlas()` around real calls and comparing with
+`calculate_augment_anlas()`.
+
+The web UI prices every Director Tool by image area only (the tool type does
+not change the base price):
+
+1. Normalize the billed area: scale down so `width * height <= 3145728`
+   (1536x2048, the UI input cap), then scale up so the area is `>= 1048576`.
+   Both scales multiply each dimension by `sqrt(target / area)` and floor.
+2. Price the normalized size as a V3 generation at 28 steps, 1 sample,
+   no SMEA, strength 1: `max(ceil(2.951823174884865e-6 * area +
+   5.753298233447344e-7 * area * 28), 2)`.
+3. On an active Opus subscription the cost is `0` when the billed area stays
+   within 1MP (i.e. only when the source image is at most 1MP).
+4. `bg-removal` is special-cased in the UI: `total = 3 * base + 5`, and the
+   Opus discount is explicitly bypassed — background removal is never free.
+
+Sentinels in the frontend (`-2`/`-3` for "too large") are not reproduced;
+inputs above 3MP are billed at the scaled-down 3MP-equivalent size, matching
+the UI's normalization.
+
+The upscale tool uses a different, bucket-based table
+(`[[1048576, 7], [786432, 5], [524288, 3], [409600, 2], [262144, 1]]`, free on
+Opus up to 409600 px) — not implemented because the SDK does not expose
+upscale yet.
+
+### Price Table
+
+Computed with `calculate_augment_anlas()` at representative boundary sizes.
+"Standard tools" covers every tool except `bg-removal` (the price does not
+depend on the tool type).
+
+| Input size | Billed size | Standard tools | Standard tools (Opus) | bg-removal (any tier) |
+| --- | --- | ---: | ---: | ---: |
+| 512x512 | 1024x1024 | 20 | 0 | 65 |
+| 832x1216 | 847x1237 | 20 | 0 | 65 |
+| 1024x1024 | 1024x1024 | 20 | 0 | 65 |
+| 1536x2048 | 1536x2048 | 60 | 60 | 185 |
+| 2048x2048 | 1773x1773 | 60 | 60 | 185 |
+
+### Estimator API
+
+- `LineArtParams.calculate_anlas(...)` (and the other per-tool params models)
+- `novelai.utils.anlas.calculate_augment_anlas(tool, width, height, ...)`

@@ -64,6 +64,27 @@ images = client.tools.augment(params)
 利用できるモデル: `LineArtParams`, `SketchParams`, `ColorizeParams`,
 `EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
 
+## Anlasコスト
+
+各パラメータモデルには
+[`GenerateImageParams.calculate_anlas()`](/docs/anlas-calculation) と同じ形の
+`calculate_anlas()` があります:
+
+```python
+params = LineArtParams(image="illustration.png")
+params.calculate_anlas()                      # 例: 20 Anlas
+params.calculate_anlas(is_opus=True)          # 0 — 有効なOpusなら無料
+```
+
+価格はツール種別ではなく画像面積だけで決まります。例外は1つ:
+
+- 有効なOpusサブスクリプションなら、画像が1024×1024以内である限り無料です
+  (それより大きい画像はOpusでも課金されます)。
+- `bg-removal` は基本価格の3倍+5 Anlasで、Opusでも**無料になりません**。
+
+この推定はWeb UIからのリバースエンジニアリングで、実課金との照合は
+まだ済んでいません。あくまで推定値として扱ってください。
+
 ## 補足
 
 - `emotion` は `"neutral"`, `"happy"`, `"sad"`, `"angry"`, `"laughing"`,
@@ -73,6 +94,5 @@ images = client.tools.augment(params)
   `5` が最弱です。
 - `remove_background` は複数枚(分離レイヤー)を返すことがあるため、
   すべてのメソッドがリストを返します。
-- Director ToolsのAnlasコスト推定はまだSDKにありません。実際のコストは
-  呼び出し前後に [`client.user.get_anlas()`](/docs/user-account) で
-  残高差分を取って計測してください。
+- 実際の課金額を確認したい場合は、呼び出し前後に
+  [`client.user.get_anlas()`](/docs/user-account) の差分を取ってください。

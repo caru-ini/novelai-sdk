@@ -8,13 +8,17 @@ combinations (e.g. a prompt for line art) are unrepresentable by type.
 from __future__ import annotations
 
 import base64
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
 from novelai._utils.image import ImageInput, image_to_base64, to_pil_image
 from novelai.constants.tools import DirectorTool, Emotion
 from novelai.types.api.tools import AugmentImageRequest
+from novelai.utils.anlas import calculate_augment_anlas
+
+if TYPE_CHECKING:
+    from novelai.utils.anlas import AugmentAnlasEstimate
 
 
 class _BaseAugmentParams(BaseModel):
@@ -51,6 +55,25 @@ class _BaseAugmentParams(BaseModel):
         """API defry for this tool. Only colorize/emotion send one."""
         return None
 
+    def _resolve_size(self, encoded: str | None = None) -> tuple[int, int]:
+        """Explicit `size` if set, otherwise inferred from the image"""
+        if self.size is not None:
+            return self.size
+        if encoded is None:
+            encoded = image_to_base64(self.image)
+        # Decoding our own base64 handles every ImageInput variant uniformly,
+        # including raw base64 strings that `to_pil_image` cannot take directly.
+        return to_pil_image(base64.b64decode(encoded)).size
+
+    def calculate_anlas(self, *, is_opus: bool = False) -> AugmentAnlasEstimate:
+        """Estimate the Anlas cost for this Director Tools request.
+
+        This follows the SDK's reverse-engineered pricing logic and should be
+        treated as an estimate rather than a 100% guaranteed billing value.
+        """
+        width, height = self._resolve_size()
+        return calculate_augment_anlas(self._req_type(), width, height, is_opus=is_opus)
+
     def to_api_request(self) -> AugmentImageRequest:
         """Convert to the low-level /ai/augment-image request
 
@@ -61,13 +84,7 @@ class _BaseAugmentParams(BaseModel):
             AugmentImageRequest for the low-level API
         """
         encoded = image_to_base64(self.image)
-
-        if self.size is not None:
-            width, height = self.size
-        else:
-            # Decoding our own base64 handles every ImageInput variant uniformly,
-            # including raw base64 strings that `to_pil_image` cannot take directly.
-            width, height = to_pil_image(base64.b64decode(encoded)).size
+        width, height = self._resolve_size(encoded)
 
         return AugmentImageRequest(
             req_type=self._req_type(),

@@ -31,10 +31,13 @@ def main():
         for i, layer in enumerate(layers):
             layer.save(f"bg_removed_{i}.png")
 
-        # The same calls are available through per-tool parameter models
-        images = client.tools.augment(
-            EmotionParams(image=SOURCE_IMAGE, emotion="surprised", prompt="wide eyes")
+        # The same calls are available through per-tool parameter models,
+        # which can also estimate the Anlas cost before sending
+        params = EmotionParams(
+            image=SOURCE_IMAGE, emotion="surprised", prompt="wide eyes"
         )
+        print(f"Estimated cost: {params.calculate_anlas()} Anlas")
+        images = client.tools.augment(params)
         images[0].save("surprised.png")
 
 
