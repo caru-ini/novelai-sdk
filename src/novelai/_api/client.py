@@ -187,10 +187,15 @@ class ImageAPI:
 
 
 class UserAPI:
-    """User account API endpoints"""
+    """User account API endpoints
 
-    def __init__(self, client: _APIClient):
+    Served from the image host: NovelAI retired ``/user/*`` on
+    api.novelai.net, which now returns 400 "update to the image URL".
+    """
+
+    def __init__(self, api_base: str, client: _APIClient):
         self._client = client
+        self.api_base = api_base
 
     def get_subscription(self) -> Subscription:
         """Fetch the account subscription using /user/subscription
@@ -206,7 +211,7 @@ class UserAPI:
         """
         try:
             response = self._client.client.get(
-                f"{self._client.api_base}/user/subscription",
+                f"{self.api_base}/user/subscription",
             )
             content = self._client.handle_response(response)
             return Subscription.model_validate_json(content)
@@ -283,14 +288,15 @@ class AsyncImageAPI:
 class AsyncUserAPI:
     """Async User account API endpoints"""
 
-    def __init__(self, client: _AsyncAPIClient):
+    def __init__(self, api_base: str, client: _AsyncAPIClient):
         self._client = client
+        self.api_base = api_base
 
     async def get_subscription(self) -> Subscription:
         """Fetch the account subscription using /user/subscription asynchronously"""
         try:
             response = await self._client.client.get(
-                f"{self._client.api_base}/user/subscription",
+                f"{self.api_base}/user/subscription",
             )
             content = self._client.handle_response(response)
             return Subscription.model_validate_json(content)
@@ -345,7 +351,7 @@ class _APIClient(BaseAPIClient):
 
         # API endpoints
         self.image = ImageAPI(image_base, self)
-        self.user = UserAPI(self)
+        self.user = UserAPI(self.image.api_base, self)
 
     def __enter__(self):
         return self
@@ -395,7 +401,7 @@ class _AsyncAPIClient(BaseAPIClient):
 
         # API endpoints
         self.image = AsyncImageAPI(image_base, self)
-        self.user = AsyncUserAPI(self)
+        self.user = AsyncUserAPI(self.image.api_base, self)
 
     async def __aenter__(self):
         return self

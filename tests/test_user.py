@@ -98,7 +98,7 @@ def test_get_subscription_and_get_anlas_hit_user_subscription() -> None:
         client.close()
 
     assert all(
-        r.url == "https://api.novelai.net/user/subscription" and r.method == "GET"
+        r.url == "https://image.novelai.net/user/subscription" and r.method == "GET"
         for r in captured
     )
     assert captured[0].headers["Authorization"] == "Bearer dummy"
@@ -121,5 +121,5 @@ def test_async_get_anlas() -> None:
             await client.close()
 
     assert asyncio.run(run()) == 4250
-    assert captured[0].url == "https://api.novelai.net/user/subscription"
+    assert captured[0].url == "https://image.novelai.net/user/subscription"
     assert captured[0].headers["Authorization"] == "Bearer dummy"

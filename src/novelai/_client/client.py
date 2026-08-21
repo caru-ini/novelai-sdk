@@ -295,7 +295,8 @@ class NovelAI:
             api_key: NovelAI API key (Bearer token). If None, attempts to load
                 from NOVELAI_API_KEY environment variable. Must be provided
                 via one of these methods before making API requests.
-            image_base: Image API base URL.
+            image_base: Image API base URL. Also serves user account
+                endpoints such as /user/subscription.
                 Default behavior uses NovelAI's official endpoint.
             text_base: Text API base URL.
                 Default behavior uses NovelAI's official endpoint.
