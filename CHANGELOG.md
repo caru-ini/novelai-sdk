@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.11.0 (2026-08-21)
+
+### Features
+
+- **image**: Add NovelAI Diffusion V5 model support
+  ([`ce2d549`](https://github.com/caru-ini/novelai-sdk/commit/ce2d549f98fed2bef6ce707acd049f007dbc3d69))
+
+
 ## v0.10.0 (2026-06-10)
 
 ### Continuous Integration
