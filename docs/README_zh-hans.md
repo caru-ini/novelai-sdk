@@ -11,6 +11,9 @@
 
 NovelAI 图像生成 API 的现代、类型安全的 Python SDK。具有使用 Pydantic v2 进行的强大验证和完整的类型提示。
 
+支持的图像模型包括 `nai-diffusion-5-full`、`nai-diffusion-5-curated`、
+`nai-diffusion-4-5-full` 和 `nai-diffusion-4-5-curated`。
+
 ## 特性
 
 - 支持 Python 3.10+，具有完整的类型提示和 Pydantic v2 验证

@@ -39,6 +39,8 @@ KEY_ALIASES = {
 }
 
 MODEL_LABELS = {
+    "nai-diffusion-5-full": "v5-full",
+    "nai-diffusion-5-curated": "v5-curated",
     "nai-diffusion-4-5-full": "v4.5-full",
     "nai-diffusion-4-5-curated": "v4.5-curated",
     "nai-diffusion-4-full": "v4-full",
