@@ -309,6 +309,15 @@ class GenerateImageParams(BaseModel):
         description="Character reference images with settings (high-level API)",
     )
 
+    # V5 parameters
+    straight_alpha: bool = Field(
+        default=False, description="Generate images with straight alpha channels"
+    )
+    tag_hint_transparent_background: bool = Field(
+        default=False,
+        description="Hint that the image should have a transparent background",
+    )
+
     # misc
     image_format: Literal["webp", "png"] | None = Field(
         default=None, description="Image format (webp is lossless, None to use png)"
@@ -320,6 +329,27 @@ class GenerateImageParams(BaseModel):
         character_references = getattr(self, "character_references", []) or []
         if not self.is_v4_5(self.model) and len(character_references) > 0:
             raise ValueError("Character references are only supported for V4.5 models")
+
+        return self
+
+    @model_validator(mode="after")
+    def _check_controlnet(self) -> Self:
+        """Check if ControlNet is compatible with the model"""
+        if self.is_v5(self.model) and self.controlnet is not None:
+            raise ValueError("Vibe Transfer/ControlNet is not supported for V5 models")
+
+        return self
+
+    @model_validator(mode="after")
+    def _check_v5_parameters(self) -> Self:
+        """Check if V5-only parameters are compatible with the model"""
+        if not self.is_v5(self.model) and (
+            self.straight_alpha or self.tag_hint_transparent_background
+        ):
+            raise ValueError(
+                "straight_alpha and tag_hint_transparent_background are only "
+                "supported for V5 models"
+            )
 
         return self
 
@@ -409,6 +439,10 @@ class GenerateImageParams(BaseModel):
     @staticmethod
     def is_v4(model: ImageModel) -> bool:
         return model in [
+            "nai-diffusion-5-full",
+            "nai-diffusion-5-curated",
+            "nai-diffusion-5-full-inpainting",
+            "nai-diffusion-5-curated-inpainting",
             "nai-diffusion-4-5-full",
             "nai-diffusion-4-5-curated",
             "nai-diffusion-4-full",
@@ -417,6 +451,15 @@ class GenerateImageParams(BaseModel):
             "nai-diffusion-4-5-curated-inpainting",
             "nai-diffusion-4-full-inpainting",
             "nai-diffusion-4-curated-inpainting",
+        ]
+
+    @staticmethod
+    def is_v5(model: ImageModel) -> bool:
+        return model in [
+            "nai-diffusion-5-full",
+            "nai-diffusion-5-curated",
+            "nai-diffusion-5-full-inpainting",
+            "nai-diffusion-5-curated-inpainting",
         ]
 
     @staticmethod

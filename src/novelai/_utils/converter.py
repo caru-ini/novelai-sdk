@@ -289,7 +289,7 @@ def convert_user_params_to_api_params(
 
     # Build ImageParameters with explicit defaults from user params
     generate_params = api_types.ImageParameters(
-        params_version=3,
+        params_version=4 if params.is_v5(params.model) else 3,
         legacy=False,
         legacy_v3_extend=False,
         deliberate_euler_ancestral_bug=False,
@@ -318,6 +318,8 @@ def convert_user_params_to_api_params(
         v4_prompt=v4_prompt,
         v4_negative_prompt=v4_negative_prompt,
         qualityToggle=params.quality,
+        straight_alpha=params.straight_alpha or None,
+        tag_hint_transparent_background=params.tag_hint_transparent_background or None,
         ucPreset=_map_uc_preset_to_int(params.uc_preset),
         cfg_rescale=params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,
@@ -411,7 +413,7 @@ async def async_convert_user_params_to_api_params(
     )
 
     generate_params = api_types.ImageParameters(
-        params_version=3,
+        params_version=4 if params.is_v5(params.model) else 3,
         legacy=False,
         legacy_v3_extend=False,
         deliberate_euler_ancestral_bug=False,
@@ -438,6 +440,8 @@ async def async_convert_user_params_to_api_params(
         v4_prompt=v4_prompt,
         v4_negative_prompt=v4_negative_prompt,
         qualityToggle=params.quality,
+        straight_alpha=params.straight_alpha or None,
+        tag_hint_transparent_background=params.tag_hint_transparent_background or None,
         ucPreset=_map_uc_preset_to_int(params.uc_preset),
         cfg_rescale=params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,

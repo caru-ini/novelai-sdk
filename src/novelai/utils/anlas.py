@@ -1,11 +1,12 @@
 """Anlas estimation helpers for NovelAI image generation.
 
 This module implements an image-generation Anlas estimate reverse-engineered
-from the official web interface and current documentation.
+from the official web interface and current documentation for the V3, V3 Furry,
+V4, V4.5, and V5 model families.
 
-The current implementation matches the V3, V3 Furry, V4, and V4.5 model
-families supported by this SDK, but it is still an estimate and should not be
-treated as a 100% guaranteed billing source of truth.
+The current implementation matches the model families supported by this SDK,
+but it is still an estimate and should not be treated as a 100% guaranteed
+billing source of truth.
 """
 
 from __future__ import annotations
@@ -45,6 +46,10 @@ _SUPPORTED_V4_STYLE_MODELS: Final[frozenset[str]] = frozenset(
         "nai-diffusion-4-5-full-inpainting",
         "nai-diffusion-4-5-curated",
         "nai-diffusion-4-5-curated-inpainting",
+        "nai-diffusion-5-full",
+        "nai-diffusion-5-full-inpainting",
+        "nai-diffusion-5-curated",
+        "nai-diffusion-5-curated-inpainting",
         "custom",
     }
 )
@@ -95,7 +100,7 @@ def _validate_supported_model(model: str) -> str:
     supported = ", ".join(sorted(_SUPPORTED_V4_STYLE_MODELS))
     raise NotImplementedError(
         "Anlas calculation is currently implemented for the SDK's V3/V3 Furry/V4/"
-        f"V4.5 model families. Unsupported model: {model!r}. Supported values: {supported}"
+        f"V4.5/V5 model families. Unsupported model: {model!r}. Supported values: {supported}"
     )
 
 

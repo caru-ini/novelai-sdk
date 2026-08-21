@@ -20,6 +20,7 @@ families:
 - `nai-diffusion-3-furry`
 - `nai-diffusion-4-*`
 - `nai-diffusion-4-5-*`
+- `nai-diffusion-5-*`
 - `custom`
 
 Those models all use the same base generation formula in the bundled frontend.
@@ -115,8 +116,8 @@ reduce the base generation cost to `0` while still leaving Character Reference c
 
 ## Vibe Surcharges
 
-For V4 and higher models, the SDK also adds the two documented Vibe Transfer
-extras:
+For V4 and V4.5 models, the SDK also adds the two documented Vibe Transfer
+extras. V5 is excluded because it does not support Vibe Transfer or ControlNet:
 
 - Each uncached Vibe encoding adds `2` Anlas
 - Each Vibe reference after the fourth adds `2` Anlas
@@ -140,7 +141,8 @@ vibe_reference_anlas = max(vibe_reference_count - 4, 0) * 2
 
 Notes:
 
-- These extras apply only to V4+ models in the current SDK implementation
+- These extras apply only to V4 and V4.5 models in the current SDK implementation;
+  V5 does not support Vibe Transfer or ControlNet
 - High-level `GenerateImageParams.calculate_anlas(...)` can include encoding cost
   because it can inspect `ControlNetImage._vibe_data`
 - Low-level `calculate_anlas(model, ImageParameters)` can only include the

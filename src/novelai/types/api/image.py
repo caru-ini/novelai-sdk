@@ -131,6 +131,19 @@ class ImageParameters(BaseModel):
         default=None, ge=0, le=3, description="Undesired content preset"
     )
     qualityToggle: bool | None = Field(default=None, description="Enable quality tags")
+    straight_alpha: bool | None = Field(
+        default=None, description="Generate images with straight alpha channels"
+    )
+    tag_hint_transparent_background: bool | None = Field(
+        default=None,
+        description="Hint that the image should have a transparent background",
+    )
+    tag_hint_qt: bool | None = Field(
+        default=None, description="Enable quality tags for transparent images"
+    )
+    tag_hint_uc_preset: int | None = Field(
+        default=None, description="Undesired content preset hint"
+    )
 
     # V4 prompts (for v4 model)
     v4_prompt: V4ConditionInput | None = Field(
