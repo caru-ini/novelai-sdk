@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.12.0 (2026-08-21)
+
+### Bug Fixes
+
+- **user**: Use image host for /user/subscription (closes #85)
+  ([`44dc753`](https://github.com/caru-ini/novelai-sdk/commit/44dc7532e3202aaa6f03240af4442100503d1969))
+
+### Features
+
+- **client**: Deprecate api_base and NOVELAI_API_BASE
+  ([`9db6ebe`](https://github.com/caru-ini/novelai-sdk/commit/9db6ebe3043247d89ea9afff28df7979d3a63d54))
+
+
 ## v0.11.0 (2026-08-21)
 
 ### Features
