@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import io
 import os
+import warnings
 import zipfile
 from typing import AsyncIterator, Iterator
 
@@ -333,6 +334,13 @@ class _APIClient(BaseAPIClient):
         self.text_base = (
             text_base or os.getenv("NOVELAI_TEXT_BASE") or "https://text.novelai.net"
         )
+        if api_base is not None or os.getenv("NOVELAI_API_BASE"):
+            warnings.warn(
+                "api_base / NOVELAI_API_BASE is deprecated: no SDK endpoint uses "
+                "api.novelai.net anymore. Use image_base instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         self.api_base = (
             api_base or os.getenv("NOVELAI_API_BASE") or "https://api.novelai.net"
         )
@@ -383,6 +391,13 @@ class _AsyncAPIClient(BaseAPIClient):
         self.text_base = (
             text_base or os.getenv("NOVELAI_TEXT_BASE") or "https://text.novelai.net"
         )
+        if api_base is not None or os.getenv("NOVELAI_API_BASE"):
+            warnings.warn(
+                "api_base / NOVELAI_API_BASE is deprecated: no SDK endpoint uses "
+                "api.novelai.net anymore. Use image_base instead.",
+                DeprecationWarning,
+                stacklevel=2,
+            )
         self.api_base = (
             api_base or os.getenv("NOVELAI_API_BASE") or "https://api.novelai.net"
         )
