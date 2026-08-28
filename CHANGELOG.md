@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.13.0 (2026-08-28)
+
+### Features
+
+- **image**: Add tag suggestion API (en/jp)
+  ([`ee3179c`](https://github.com/caru-ini/novelai-sdk/commit/ee3179cbad1e0461549a8cecd775c0dbeff8eec3))
+
+
 ## v0.12.0 (2026-08-21)
 
 ### Bug Fixes
