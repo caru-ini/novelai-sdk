@@ -31,3 +31,16 @@ class AugmentImageRequest(BaseModel):
         le=5,
         description="Weakens the tool effect (colorize/emotion only, 0 = full effect)",
     )
+
+
+class UpscaleImageRequest(BaseModel):
+    """Request for image upscaling - low-level API model
+
+    This mirrors the NovelAI /ai/upscale REST API exactly.
+    The upscale factor is fixed at 2x and chosen by the server.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    image: str = Field(..., description="Base64 encoded source image")
+    model: str = Field(..., description="Model to upscale with")

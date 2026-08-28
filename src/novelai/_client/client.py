@@ -52,6 +52,7 @@ from ..types.user.tools import (
     EmotionParams,
     LineArtParams,
     SketchParams,
+    UpscaleParams,
 )
 from ..types.user.user import Subscription
 
@@ -254,7 +255,8 @@ class DirectorTools:
 
     Director Tools transform an existing image via the /ai/augment-image
     endpoint: line art extraction, sketch conversion, colorization, emotion
-    change, decluttering, and background removal.
+    change, decluttering, and background removal. The 2x upscale
+    (/ai/upscale) is also exposed here, matching the web UI grouping.
 
     All methods return a list of PIL Images. Most tools return a single image,
     but background removal returns three (masked, generated, blend).
@@ -362,6 +364,22 @@ class DirectorTools:
         return self.augment(
             EmotionParams(image=image, emotion=emotion, prompt=prompt, defry=defry)
         )
+
+    def upscale(self, params: UpscaleParams) -> list[Image.Image]:
+        """Upscale the image to twice its size
+
+        Unlike the other tools this uses /ai/upscale, and the upscale
+        factor is fixed at 2x by the API.
+
+        Args:
+            params: Upscale parameters (source image and model).
+
+        Example:
+            >>> from novelai.types import UpscaleParams
+            >>> images = client.tools.upscale(UpscaleParams(image="illustration.png"))
+            >>> images[0].save("upscaled.png")
+        """
+        return self._client.api_client.image.upscale(params.to_api_request())
 
 
 class UserAccount:
@@ -693,6 +711,10 @@ class AsyncDirectorTools:
         return await self.augment(
             EmotionParams(image=image, emotion=emotion, prompt=prompt, defry=defry)
         )
+
+    async def upscale(self, params: UpscaleParams) -> list[Image.Image]:
+        """Upscale the image to twice its size"""
+        return await self._client.api_client.image.upscale(params.to_api_request())
 
 
 class AsyncUserAccount:

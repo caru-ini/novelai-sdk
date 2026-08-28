@@ -13,8 +13,9 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel, ConfigDict, Field
 
 from novelai._utils.image import ImageInput, image_to_base64, to_pil_image
+from novelai.constants.models import V5_CURATED, ImageModel
 from novelai.constants.tools import DirectorTool, Emotion
-from novelai.types.api.tools import AugmentImageRequest
+from novelai.types.api.tools import AugmentImageRequest, UpscaleImageRequest
 from novelai.utils.anlas import calculate_augment_anlas
 
 if TYPE_CHECKING:
@@ -173,3 +174,25 @@ DirectorToolParams = (
     | EmotionParams
 )
 """Union of all per-tool parameter models, discriminated by the `tool` field."""
+
+
+class UpscaleParams(BaseModel):
+    """Upscale the image to twice its size
+
+    Uses /ai/upscale, a separate endpoint from the other Director Tools,
+    so this model is not part of `DirectorToolParams`. The upscale factor
+    is fixed at 2x; there is no size or strength option.
+    """
+
+    image: ImageInput = Field(..., description="Source image to upscale")
+    model: ImageModel = Field(default=V5_CURATED, description="Model to upscale with")
+
+    model_config = ConfigDict(arbitrary_types_allowed=True, extra="forbid")
+
+    def to_api_request(self) -> UpscaleImageRequest:
+        """Convert to the low-level /ai/upscale request
+
+        Returns:
+            UpscaleImageRequest for the low-level API
+        """
+        return UpscaleImageRequest(image=image_to_base64(self.image), model=self.model)

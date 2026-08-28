@@ -32,7 +32,7 @@ from ..types.api.tags import (
     JpTagSuggestion,
     TagSuggestionResponse,
 )
-from ..types.api.tools import AugmentImageRequest
+from ..types.api.tools import AugmentImageRequest, UpscaleImageRequest
 from ..types.user.user import Subscription
 
 _JP_TAG_LIST_ADAPTER = TypeAdapter(list[JpTagSuggestion])
@@ -172,6 +172,35 @@ class ImageAPI:
         try:
             response = self._client.client.post(
                 f"{self.api_base}/ai/augment-image",
+                content=request.model_dump_json(exclude_none=True),
+            )
+
+            content = self._client.handle_response(response)
+            images = self._client.extract_images_from_zip(content)
+            return images
+
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    def upscale(self, request: UpscaleImageRequest) -> list[Image.Image]:
+        """Upscale an image 2x using /ai/upscale
+
+        Args:
+            request: Complete UpscaleImageRequest object
+
+        Returns:
+            List of PIL Image objects (normally a single image)
+
+        Raises:
+            AuthenticationError: Invalid API key or insufficient credits
+            InvalidRequestError: Invalid parameters
+            RateLimitError: Rate limit exceeded
+            ServerError: Server-side error
+            NetworkError: Network connection error
+        """
+        try:
+            response = self._client.client.post(
+                f"{self.api_base}/ai/upscale",
                 content=request.model_dump_json(exclude_none=True),
             )
 
@@ -357,6 +386,21 @@ class AsyncImageAPI:
         try:
             response = await self._client.client.post(
                 f"{self.api_base}/ai/augment-image",
+                content=request.model_dump_json(exclude_none=True),
+            )
+
+            content = self._client.handle_response(response)
+            images = self._client.extract_images_from_zip(content)
+            return images
+
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    async def upscale(self, request: UpscaleImageRequest) -> list[Image.Image]:
+        """Upscale an image 2x using /ai/upscale asynchronously"""
+        try:
+            response = await self._client.client.post(
+                f"{self.api_base}/ai/upscale",
                 content=request.model_dump_json(exclude_none=True),
             )
 

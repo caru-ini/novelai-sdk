@@ -1,14 +1,14 @@
 """Director Tools example
 
 Director Tools transform an existing image instead of generating a new one.
-This example extracts line art, changes the character's expression, and
-removes the background from a single source image.
+This example extracts line art, changes the character's expression, removes
+the background, and upscales a single source image.
 """
 
 from dotenv import load_dotenv
 
 from novelai import NovelAI
-from novelai.types import EmotionParams
+from novelai.types import EmotionParams, UpscaleParams
 
 load_dotenv()
 
@@ -30,6 +30,10 @@ def main():
         layers = client.tools.remove_background(SOURCE_IMAGE)
         for name, layer in zip(("masked", "generated", "blend"), layers):
             layer.save(f"bg_removed_{name}.png")
+
+        # Upscale to twice the source size (fixed 2x)
+        upscaled = client.tools.upscale(UpscaleParams(image=SOURCE_IMAGE))
+        upscaled[0].save("upscaled.png")
 
         # The same calls are available through per-tool parameter models,
         # which can also estimate the Anlas cost before sending

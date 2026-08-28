@@ -1,6 +1,6 @@
 ---
 title: Director Tools
-description: Transform existing images — line art, sketch, colorize, emotion, declutter, and background removal.
+description: Transform existing images — line art, sketch, colorize, emotion, declutter, background removal, and 2x upscale.
 ---
 
 `client.tools` wraps the `/ai/augment-image` endpoint, known as Director Tools
@@ -39,6 +39,7 @@ async with AsyncNovelAI() as client:
 | `emotion(image, emotion)` | Change the character's expression | `prompt`, `defry` |
 | `declutter(image)` | Remove text and sound effects | `keep_bubbles` |
 | `remove_background(image)` | Remove the background | — |
+| `upscale(UpscaleParams(...))` | Upscale to twice the size | `model` |
 
 `image` accepts the same inputs as image generation: a file path, raw bytes,
 a base64 string, a PIL Image, or a numpy array. The image size is inferred
@@ -64,6 +65,23 @@ images = client.tools.augment(params)
 
 Available models: `LineArtParams`, `SketchParams`, `ColorizeParams`,
 `EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`.
+
+## Upscale
+
+`upscale` uses a separate endpoint (`/ai/upscale`) with a fixed 2x factor —
+there is no size or strength option, only the model. It takes an
+`UpscaleParams`:
+
+```python
+from novelai.types import UpscaleParams
+
+images = client.tools.upscale(UpscaleParams(image="illustration.png"))
+images[0].save("upscaled.png")
+```
+
+Because it is a different endpoint, `UpscaleParams` is not part of
+`DirectorToolParams` and has no `calculate_anlas()` — its pricing has not
+been verified yet.
 
 ## Anlas Cost
 

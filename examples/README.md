@@ -255,10 +255,20 @@ python 12_user_account.py
 
 #### [`13_director_tools.py`](13_director_tools.py)
 
-Transforms an existing image: line art extraction, expression change, and background removal.
+Transforms an existing image: line art extraction, expression change, background removal, and 2x upscale.
 
 ```bash
 python 13_director_tools.py
+```
+
+**Key Features:**
+
+- Per-tool shortcut methods (`client.tools.line_art()`, `client.tools.emotion()`, ...)
+- Per-tool parameter models (`EmotionParams`, `ColorizeParams`, ...) via `client.tools.augment()`
+- 2x upscale (`client.tools.upscale()`)
+
+---
+
 ### Tag Suggestions
 
 #### [`14_tag_suggestions.py`](14_tag_suggestions.py)
@@ -271,8 +281,6 @@ python 14_tag_suggestions.py
 
 **Key Features:**
 
-- Per-tool shortcut methods (`client.tools.line_art()`, `client.tools.emotion()`, ...)
-- Per-tool parameter models (`EmotionParams`, `ColorizeParams`, ...) via `client.tools.augment()`
 - English tag completion (`client.image.suggest_tags()`)
 - Japanese query to English tag mapping (`client.image.suggest_tags_jp()`)
 

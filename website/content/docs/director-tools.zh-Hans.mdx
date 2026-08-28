@@ -1,6 +1,6 @@
 ---
 title: Director Tools
-description: 转换现有图像 — 线稿提取、草图、上色、表情修改、去除文字、背景移除。
+description: 转换现有图像 — 线稿提取、草图、上色、表情修改、去除文字、背景移除、2 倍放大。
 ---
 
 `client.tools` 封装了 `/ai/augment-image` 端点(即 NovelAI Web UI 中的
@@ -38,6 +38,7 @@ async with AsyncNovelAI() as client:
 | `emotion(image, emotion)` | 修改角色表情 | `prompt`, `defry` |
 | `declutter(image)` | 去除文字和音效 | `keep_bubbles` |
 | `remove_background(image)` | 移除背景 | — |
+| `upscale(UpscaleParams(...))` | 放大到两倍尺寸 | `model` |
 
 `image` 接受与图像生成相同的输入: 文件路径、原始字节、base64 字符串、
 PIL Image 或 numpy 数组。图像尺寸会自动推断。
@@ -61,6 +62,21 @@ images = client.tools.augment(params)
 
 可用模型: `LineArtParams`, `SketchParams`, `ColorizeParams`,
 `EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
+
+## 放大
+
+`upscale` 使用单独的端点(`/ai/upscale`)，放大倍率固定为 2 倍。
+没有尺寸或强度选项，只能指定模型。参数为 `UpscaleParams`:
+
+```python
+from novelai.types import UpscaleParams
+
+images = client.tools.upscale(UpscaleParams(image="illustration.png"))
+images[0].save("upscaled.png")
+```
+
+由于端点不同，`UpscaleParams` 不属于 `DirectorToolParams`，
+也没有 `calculate_anlas()`(其计费尚未验证)。
 
 ## Anlas 成本
 

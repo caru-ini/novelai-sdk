@@ -19,6 +19,7 @@ from novelai.types import (
     EmotionParams,
     LineArtParams,
     SketchParams,
+    UpscaleParams,
 )
 
 
@@ -214,3 +215,78 @@ def test_async_colorize() -> None:
     assert body["req_type"] == "colorize"
     assert body["prompt"] == "vivid colors"
     assert body["defry"] == 0
+
+
+# --- Upscale (/ai/upscale) ---------------------------------------------------
+
+
+def test_upscale_params_default_model() -> None:
+    request = UpscaleParams(image=_png_bytes()).to_api_request()
+
+    assert request.model == "nai-diffusion-5-curated"
+    # The image must round-trip as valid base64
+    Image.open(io.BytesIO(base64.b64decode(request.image)))
+
+
+def test_upscale_hits_upscale_endpoint() -> None:
+    captured: list[httpx.Request] = []
+    client = _patched_client(captured)
+
+    try:
+        params = UpscaleParams(image=_png_bytes(), model="nai-diffusion-4-5-full")
+        images = client.tools.upscale(params)
+    finally:
+        client.close()
+
+    assert len(images) == 1
+    assert captured[0].url == "https://image.novelai.net/ai/upscale"
+    assert captured[0].method == "POST"
+
+    body = json.loads(captured[0].content)
+    assert body["model"] == "nai-diffusion-4-5-full"
+    assert set(body) == {"image", "model"}
+
+
+def test_upscale_accepts_raw_image_response() -> None:
+    # The upscale endpoint's response is not guaranteed to be a ZIP;
+    # a bare image body must decode too.
+    captured: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.append(request)
+        return httpx.Response(200, content=_png_bytes(size=(128, 96)))
+
+    client = NovelAI(api_key="dummy")
+    api = client.api_client
+    headers = api.client.headers
+    api.client.close()
+    api.client = httpx.Client(transport=httpx.MockTransport(handler), headers=headers)
+
+    try:
+        images = client.tools.upscale(UpscaleParams(image=_png_bytes()))
+    finally:
+        client.close()
+
+    assert images[0].size == (128, 96)
+
+
+def test_async_upscale() -> None:
+    captured: list[httpx.Request] = []
+
+    async def run() -> int:
+        client = AsyncNovelAI(api_key="dummy")
+        api = client.api_client
+        headers = api.client.headers
+        await api.client.aclose()
+        api.client = httpx.AsyncClient(
+            transport=_mock_handler(captured), headers=headers
+        )
+        try:
+            images = await client.tools.upscale(UpscaleParams(image=_png_bytes()))
+            return len(images)
+        finally:
+            await client.close()
+
+    assert asyncio.run(run()) == 1
+    assert captured[0].url == "https://image.novelai.net/ai/upscale"
+    assert json.loads(captured[0].content)["model"] == "nai-diffusion-5-curated"

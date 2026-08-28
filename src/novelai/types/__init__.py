@@ -24,6 +24,7 @@ from .user.tools import (
     EmotionParams,
     LineArtParams,
     SketchParams,
+    UpscaleParams,
 )
 from .user.user import (
     Subscription,
@@ -51,6 +52,7 @@ __all__ = [
     "EmotionParams",
     "LineArtParams",
     "SketchParams",
+    "UpscaleParams",
     # Tag suggestions
     "SuggestTagsParams",
     "TagSuggestion",
