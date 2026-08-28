@@ -1,0 +1,108 @@
+---
+title: Director Tools
+description: 转换现有图像 — 线稿提取、草图、上色、表情修改、去除文字、背景移除、2 倍放大。
+---
+
+`client.tools` 封装了 `/ai/augment-image` 端点(即 NovelAI Web UI 中的
+Director Tools)。每个工具接收一张源图像，无需完整生成即可返回转换后的图像。
+
+## 快速示例
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    # 提取线稿
+    images = client.tools.line_art("illustration.png")
+    images[0].save("lineart.png")
+
+    # 修改角色表情
+    images = client.tools.emotion("character.png", "happy")
+    images[0].save("happy.png")
+```
+
+异步客户端用法相同:
+
+```python
+async with AsyncNovelAI() as client:
+    images = await client.tools.line_art("illustration.png")
+```
+
+## 可用工具
+
+| 方法 | 说明 | 额外选项 |
+| --- | --- | --- |
+| `line_art(image)` | 提取黑白线稿 | — |
+| `sketch(image)` | 转换为铅笔草图风格 | — |
+| `colorize(image)` | 为线稿/灰度图上色 | `prompt`, `defry` |
+| `emotion(image, emotion)` | 修改角色表情 | `prompt`, `defry` |
+| `declutter(image)` | 去除文字和音效 | `keep_bubbles` |
+| `remove_background(image)` | 移除背景 | — |
+| `upscale(UpscaleParams(...))` | 放大到两倍尺寸 | `model` |
+
+`image` 接受与图像生成相同的输入: 文件路径、原始字节、base64 字符串、
+PIL Image 或 numpy 数组。图像尺寸会自动推断。
+
+## 按工具划分的参数模型
+
+每个工具都有专用的参数模型，只暴露该工具接受的选项。向工具传入它没有的
+选项会产生验证错误，而不是被静默忽略。
+
+```python
+from novelai.types import EmotionParams
+
+params = EmotionParams(
+    image="character.png",
+    emotion="laughing",     # 24 种情绪之一，由类型验证
+    prompt="open mouth",    # 额外标签(可选)
+    defry=1,                # 0(最强效果)到 5(最弱)
+)
+images = client.tools.augment(params)
+```
+
+可用模型: `LineArtParams`, `SketchParams`, `ColorizeParams`,
+`EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
+
+## 放大
+
+`upscale` 使用单独的端点(`/ai/upscale`)，放大倍率固定为 2 倍。
+没有尺寸或强度选项，只能指定模型。参数为 `UpscaleParams`:
+
+```python
+from novelai.types import UpscaleParams
+
+images = client.tools.upscale(UpscaleParams(image="illustration.png"))
+images[0].save("upscaled.png")
+```
+
+由于端点不同，`UpscaleParams` 不属于 `DirectorToolParams`，
+也没有 `calculate_anlas()`(其计费尚未验证)。
+
+## Anlas 成本
+
+每个参数模型都提供 `calculate_anlas()`，形式与
+[`GenerateImageParams.calculate_anlas()`](/docs/anlas-calculation) 相同:
+
+```python
+params = LineArtParams(image="illustration.png")
+params.calculate_anlas()                      # 例如 20 Anlas
+params.calculate_anlas(is_opus=True)          # 0 — 有效 Opus 订阅免费
+```
+
+价格只取决于图像面积，与工具种类无关。唯一的例外:
+
+- 在有效的 Opus 订阅下，图像不超过 1024×1024 时免费
+  (更大的图像即使是 Opus 也会计费)。
+- `bg-removal` 的价格是基础价的 3 倍加 5 Anlas，即使 Opus 也**绝不免费**。
+
+该估算通过逆向 Web UI 得出，尚未与实际计费核对，请视为估算值。
+
+## 说明
+
+- `emotion` 接受 24 种情绪，如 `"neutral"`, `"happy"`, `"sad"`,
+  `"angry"`, `"laughing"`, `"smug"` — 编辑器会根据 `Emotion` 类型
+  自动补全完整列表。
+- `defry`(仅 colorize/emotion)用于减弱效果: `0` 为最强效果，`5` 最弱。
+- `remove_background` 返回三张图像(蒙版、生成结果、合成)，因此所有方法都返回列表。
+- 要确认账户的实际扣费，请比较调用前后的
+  [`client.user.get_anlas()`](/docs/user-account)。

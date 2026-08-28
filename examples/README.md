@@ -251,6 +251,24 @@ python 12_user_account.py
 
 ---
 
+### Director Tools
+
+#### [`13_director_tools.py`](13_director_tools.py)
+
+Transforms an existing image: line art extraction, expression change, background removal, and 2x upscale.
+
+```bash
+python 13_director_tools.py
+```
+
+**Key Features:**
+
+- Per-tool shortcut methods (`client.tools.line_art()`, `client.tools.emotion()`, ...)
+- Per-tool parameter models (`EmotionParams`, `ColorizeParams`, ...) via `client.tools.augment()`
+- 2x upscale (`client.tools.upscale()`)
+
+---
+
 ### Tag Suggestions
 
 #### [`14_tag_suggestions.py`](14_tag_suggestions.py)

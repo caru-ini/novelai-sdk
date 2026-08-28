@@ -1,0 +1,49 @@
+"""Director Tools example
+
+Director Tools transform an existing image instead of generating a new one.
+This example extracts line art, changes the character's expression, removes
+the background, and upscales a single source image.
+"""
+
+from dotenv import load_dotenv
+
+from novelai import NovelAI
+from novelai.types import EmotionParams, UpscaleParams
+
+load_dotenv()
+
+SOURCE_IMAGE = "input.png"
+
+
+def main():
+    # API key is loaded from environment variable NOVELAI_API_KEY
+    with NovelAI() as client:
+        # Each tool has a dedicated shortcut method
+        line_art = client.tools.line_art(SOURCE_IMAGE)
+        line_art[0].save("lineart.png")
+
+        # colorize/emotion take a prompt and a defry level (0 = full effect)
+        smiling = client.tools.emotion(SOURCE_IMAGE, "happy", defry=1)
+        smiling[0].save("happy.png")
+
+        # Background removal returns three images: masked, generated, blend
+        layers = client.tools.remove_background(SOURCE_IMAGE)
+        for name, layer in zip(("masked", "generated", "blend"), layers):
+            layer.save(f"bg_removed_{name}.png")
+
+        # Upscale to twice the source size (fixed 2x)
+        upscaled = client.tools.upscale(UpscaleParams(image=SOURCE_IMAGE))
+        upscaled[0].save("upscaled.png")
+
+        # The same calls are available through per-tool parameter models,
+        # which can also estimate the Anlas cost before sending
+        params = EmotionParams(
+            image=SOURCE_IMAGE, emotion="surprised", prompt="wide eyes"
+        )
+        print(f"Estimated cost: {params.calculate_anlas()} Anlas")
+        images = client.tools.augment(params)
+        images[0].save("surprised.png")
+
+
+if __name__ == "__main__":
+    main()

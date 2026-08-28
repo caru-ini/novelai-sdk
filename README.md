@@ -21,6 +21,7 @@ Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-curated`
 - Built-in PIL/Pillow support for easy image operations
 - SSE streaming for real-time progress monitoring
 - Precise reference(Character reference), ControlNet, and multi-character positioning
+- Director Tools: line art, sketch, colorize, emotion, declutter, background removal, and 2x upscale
 - Tag suggestions (en/jp) matching the web UI's prompt autocomplete
 
 ## Comparison with Alternatives
@@ -34,6 +35,7 @@ Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-curated`
 | **Precise Reference(Character Reference)**         |      ✅      |                          ❌                           |                              ❌                              |
 | **Multi-Character Positioning** |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer      |      ✅      |                          ❌                           |                              ✅                              |
+| Director Tools (line art, emotion, etc.) |      ✅      |                          ✅                           |                              ✅                              |
 | SSE Streaming                   |      ✅      |                          ❌                           |                              ✅                              |
 | Python 3.10+                    |      ✅      |                          ❌                           |                              ❌                              |
 | Active Maintenance              |      ✅      |                          ✅                           |                              ⚠️                              |
@@ -293,6 +295,7 @@ For practical usage examples, see the [Examples Documentation](https://caru-ini.
 - [x] FastAPI integration example
 - [ ] Vibe transfer file support (`.naiv4vibe`, `.naiv4vibebundle`)
 - [x] Anlas consumption calculator
+- [x] Director Tools (`/ai/augment-image`) and 2x upscale (`/ai/upscale`)
 - [x] Tag suggestions (`/ai/generate-image/suggest-tags`, en/jp)
 - [ ] Image metadata extraction
 - [ ] Text generation API support

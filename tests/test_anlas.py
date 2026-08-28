@@ -10,7 +10,7 @@ from novelai.types import (
     I2iParams,
 )
 from novelai.types.api.image import ImageParameters
-from novelai.utils.anlas import calculate_anlas
+from novelai.utils.anlas import calculate_anlas, calculate_augment_anlas
 
 
 def test_high_level_estimate_matches_v4_formula() -> None:
@@ -215,3 +215,72 @@ def test_unsupported_models_raise_not_implemented() -> None:
 
     with pytest.raises(NotImplementedError):
         calculate_anlas("nai-diffusion-2", params)
+
+
+# --- Director Tools (/ai/augment-image) --------------------------------------
+
+
+def test_augment_cost_at_one_megapixel() -> None:
+    estimate = calculate_augment_anlas("lineart", 1024, 1024)
+
+    assert estimate.total_anlas == 20
+    assert estimate.billed_size == (1024, 1024)
+    assert estimate.opus_discount_applied is False
+    assert str(estimate) == "20"
+    assert int(estimate) == 20
+
+
+def test_augment_is_free_on_opus_within_one_megapixel() -> None:
+    estimate = calculate_augment_anlas("lineart", 1024, 1024, is_opus=True)
+
+    assert estimate.total_anlas == 0
+    assert estimate.base_anlas == 20
+    assert estimate.opus_discount_applied is True
+
+
+def test_augment_small_image_is_billed_at_scaled_up_area() -> None:
+    estimate = calculate_augment_anlas("emotion", 512, 512)
+
+    assert estimate.billed_size == (1024, 1024)
+    assert estimate.total_anlas == 20
+    assert calculate_augment_anlas("emotion", 512, 512, is_opus=True).total_anlas == 0
+
+
+def test_augment_above_one_megapixel_is_not_free_on_opus() -> None:
+    estimate = calculate_augment_anlas("sketch", 1536, 2048, is_opus=True)
+
+    assert estimate.total_anlas == 60
+    assert estimate.opus_discount_applied is False
+
+
+def test_augment_oversized_image_is_billed_at_scaled_down_area() -> None:
+    estimate = calculate_augment_anlas("declutter", 4096, 4096)
+
+    assert estimate.billed_size == (1773, 1773)
+    assert estimate.total_anlas == 60
+
+
+def test_bg_removal_is_triple_plus_five_and_never_free() -> None:
+    estimate = calculate_augment_anlas("bg-removal", 1024, 1024)
+
+    assert estimate.base_anlas == 20
+    assert estimate.total_anlas == 65
+    assert (
+        calculate_augment_anlas("bg-removal", 1024, 1024, is_opus=True).total_anlas
+        == 65
+    )
+
+
+def test_augment_params_calculate_anlas_infers_size() -> None:
+    import io
+
+    from PIL import Image
+
+    from novelai.types import ColorizeParams
+
+    buffer = io.BytesIO()
+    Image.new("RGB", (64, 48)).save(buffer, format="PNG")
+    estimate = ColorizeParams(image=buffer.getvalue()).calculate_anlas()
+
+    assert estimate.billed_size == (1182, 886)
+    assert estimate.total_anlas == 20

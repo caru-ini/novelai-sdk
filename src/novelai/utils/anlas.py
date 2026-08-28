@@ -11,12 +11,13 @@ billing source of truth.
 
 from __future__ import annotations
 
-from math import ceil
+from math import ceil, floor
 from typing import TYPE_CHECKING, Final
 
 from pydantic import BaseModel, ConfigDict
 
 if TYPE_CHECKING:
+    from novelai.constants.tools import DirectorTool
     from novelai.types.api.image import ImageParameters
     from novelai.types.user.image import GenerateImageParams, GenerateImageStreamParams
 
@@ -29,6 +30,14 @@ _LIGHTWEIGHT_OPUS_MAX_PIXELS: Final[int] = 1_048_576
 _LIGHTWEIGHT_OPUS_MAX_STEPS: Final[int] = 28
 _VIBE_EXTRA_ANLAS: Final[int] = 2
 _CHARACTER_REFERENCE_EXTRA_ANLAS: Final[int] = 5
+
+# Director Tools (/ai/augment-image): the web UI normalizes the billed area
+# into [1MP, 3MP] and prices the result as a V3 generation at 28 steps.
+_AUGMENT_MAX_AREA: Final[int] = 3_145_728  # 1536 x 2048, the UI input cap
+_AUGMENT_MIN_AREA: Final[int] = 1_048_576
+_AUGMENT_STEPS: Final[int] = 28
+_BG_REMOVAL_MULTIPLIER: Final[int] = 3
+_BG_REMOVAL_FLAT_EXTRA: Final[int] = 5
 
 _SUPPORTED_V4_STYLE_MODELS: Final[frozenset[str]] = frozenset(
     {
@@ -91,6 +100,92 @@ class AnlasEstimate(BaseModel):
 
     def __int__(self) -> int:
         return self.total_anlas
+
+
+class AugmentAnlasEstimate(BaseModel):
+    """Calculated Anlas cost for a single Director Tools request."""
+
+    tool: str
+    total_anlas: int
+    base_anlas: int
+    billed_size: tuple[int, int]
+    opus_discount_applied: bool
+
+    model_config = ConfigDict(frozen=True)
+
+    def __str__(self) -> str:
+        return str(self.total_anlas)
+
+    def __int__(self) -> int:
+        return self.total_anlas
+
+
+def _scale_to_max_area(width: int, height: int, max_area: int) -> tuple[int, int]:
+    area = width * height
+    if area <= max_area:
+        return width, height
+    factor = (max_area / area) ** 0.5
+    return floor(width * factor), floor(height * factor)
+
+
+def _scale_to_min_area(width: int, height: int, min_area: int) -> tuple[int, int]:
+    area = width * height
+    if area >= min_area:
+        return width, height
+    factor = (min_area / area) ** 0.5
+    return floor(width * factor), floor(height * factor)
+
+
+def calculate_augment_anlas(
+    tool: DirectorTool,
+    width: int,
+    height: int,
+    *,
+    is_opus: bool = False,
+) -> AugmentAnlasEstimate:
+    """Estimate Anlas for a Director Tools (/ai/augment-image) request.
+
+    Mirrors the current web UI pricing: the billed area is normalized into
+    [1MP, 3MP], priced as a V3 generation at 28 steps with no extras, free on
+    an active Opus subscription when the billed area stays within 1MP.
+    `bg-removal` is special-cased: it costs three times the base plus 5 Anlas
+    and is never free, even on Opus.
+
+    Args:
+        tool: Director tool (the API req_type).
+        width: Source image width in pixels.
+        height: Source image height in pixels.
+        is_opus: Whether the account has an active Opus subscription.
+
+    Returns:
+        AugmentAnlasEstimate with the total and the normalized billed size.
+    """
+    billed = _scale_to_max_area(width, height, _AUGMENT_MAX_AREA)
+    billed = _scale_to_min_area(*billed, _AUGMENT_MIN_AREA)
+    area = billed[0] * billed[1]
+
+    base_anlas = max(
+        ceil(_AREA_COEFFICIENT * area + _STEP_AREA_COEFFICIENT * area * _AUGMENT_STEPS),
+        2,
+    )
+
+    if tool == "bg-removal":
+        return AugmentAnlasEstimate(
+            tool=tool,
+            total_anlas=_BG_REMOVAL_MULTIPLIER * base_anlas + _BG_REMOVAL_FLAT_EXTRA,
+            base_anlas=base_anlas,
+            billed_size=billed,
+            opus_discount_applied=False,
+        )
+
+    opus_discount_applied = bool(is_opus and area <= _LIGHTWEIGHT_OPUS_MAX_PIXELS)
+    return AugmentAnlasEstimate(
+        tool=tool,
+        total_anlas=0 if opus_discount_applied else base_anlas,
+        base_anlas=base_anlas,
+        billed_size=billed,
+        opus_discount_applied=opus_discount_applied,
+    )
 
 
 def _validate_supported_model(model: str) -> str:
@@ -303,6 +398,8 @@ def calculate_anlas_from_params(
 
 __all__ = [
     "AnlasEstimate",
+    "AugmentAnlasEstimate",
     "calculate_anlas",
     "calculate_anlas_from_params",
+    "calculate_augment_anlas",
 ]

@@ -21,6 +21,7 @@ NovelAIの画像生成APIのための、モダンで型安全なPython SDKです
 - 簡単な画像操作のためのPIL/Pillow組み込みサポート
 - リアルタイム進捗監視のためのSSEストリーミング
 - 精密参照（キャラクター参照）、ControlNet、マルチキャラクターポジショニング
+- Director Tools（線画化・スケッチ・着色・表情変更・デクラッター・背景除去・2倍アップスケール）
 - Web UIのプロンプト補完と同じタグ補完（英語・日本語）
 
 ## 他ライブラリとの比較
@@ -34,6 +35,7 @@ NovelAIの画像生成APIのための、モダンで型安全なPython SDKです
 | **精密参照(キャラクター参照)** |      ✅      |                          ❌                           |                              ❌                              |
 | **マルチキャラクター配置**   |      ✅      |                          ❌                           |                              ✅                              |
 | ControlNet / Vibe Transfer   |      ✅      |                          ❌                           |                              ✅                              |
+| Director Tools（線画化・表情変更など） |      ✅      |                          ✅                           |                              ✅                              |
 | SSEストリーミング            |      ✅      |                          ❌                           |                              ✅                              |
 | Python 3.10+                 |      ✅      |                          ❌                           |                              ❌                              |
 | アクティブメンテナンス       |      ✅      |                          ✅                           |                              ⚠️                              |
@@ -293,6 +295,7 @@ best-effort な推定値です。プレビュー用途には使えますが、�
 - [x] FastAPI統合サンプル
 - [ ] Vibe transferファイルサポート（`.naiv4vibe`、`.naiv4vibebundle`）
 - [x] Anlas消費量計算機
+- [x] Director Tools（`/ai/augment-image`）と2倍アップスケール（`/ai/upscale`）
 - [x] タグ補完（`/ai/generate-image/suggest-tags`、英語・日本語）
 - [ ] 画像メタデータ抽出
 - [ ] テキスト生成APIサポート

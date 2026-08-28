@@ -1,0 +1,115 @@
+---
+title: Director Tools
+description: 既存画像の変換 — 線画化・スケッチ・着色・表情変更・デクラッター・背景除去・2倍アップスケール。
+---
+
+`client.tools` は `/ai/augment-image` エンドポイント(NovelAI Web UIでいう
+Director Tools)のラッパーです。各ツールは元画像を受け取り、フル生成なしで
+変換後の画像を返します。
+
+## クイック例
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    # 線画を抽出
+    images = client.tools.line_art("illustration.png")
+    images[0].save("lineart.png")
+
+    # キャラクターの表情を変更
+    images = client.tools.emotion("character.png", "happy")
+    images[0].save("happy.png")
+```
+
+非同期クライアントも同じ使い方です:
+
+```python
+async with AsyncNovelAI() as client:
+    images = await client.tools.line_art("illustration.png")
+```
+
+## 利用できるツール
+
+| メソッド | 説明 | 追加オプション |
+| --- | --- | --- |
+| `line_art(image)` | 白黒の線画を抽出 | — |
+| `sketch(image)` | 鉛筆スケッチ風に変換 | — |
+| `colorize(image)` | 線画・グレースケールを着色 | `prompt`, `defry` |
+| `emotion(image, emotion)` | キャラクターの表情を変更 | `prompt`, `defry` |
+| `declutter(image)` | 文字や効果音を除去 | `keep_bubbles` |
+| `remove_background(image)` | 背景を除去 | — |
+| `upscale(UpscaleParams(...))` | 2倍にアップスケール | `model` |
+
+`image` には画像生成と同じ入力が使えます: ファイルパス、生バイト列、
+base64文字列、PIL Image、numpy配列。画像サイズは自動で推測されます。
+
+## ツールごとのパラメータモデル
+
+各ツールには専用のパラメータモデルがあり、そのツールが受け付けるオプション
+だけを持ちます。ツールにないオプションを渡すと、黙って無視されるのではなく
+バリデーションエラーになります。
+
+```python
+from novelai.types import EmotionParams
+
+params = EmotionParams(
+    image="character.png",
+    emotion="laughing",     # 24種類のムードから選択(型で検証)
+    prompt="open mouth",    # 追加タグ(任意)
+    defry=1,                # 0(最大効果)〜5(最弱)
+)
+images = client.tools.augment(params)
+```
+
+利用できるモデル: `LineArtParams`, `SketchParams`, `ColorizeParams`,
+`EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`。
+
+## アップスケール
+
+`upscale` は別エンドポイント(`/ai/upscale`)を使い、倍率は2倍固定です。
+サイズや強度のオプションはなく、モデルだけ指定できます。引数には
+`UpscaleParams` を渡します:
+
+```python
+from novelai.types import UpscaleParams
+
+images = client.tools.upscale(UpscaleParams(image="illustration.png"))
+images[0].save("upscaled.png")
+```
+
+エンドポイントが異なるため `UpscaleParams` は `DirectorToolParams` には
+含まれず、`calculate_anlas()` もありません(料金体系が未検証のためです)。
+
+## Anlasコスト
+
+各パラメータモデルには
+[`GenerateImageParams.calculate_anlas()`](/docs/anlas-calculation) と同じ形の
+`calculate_anlas()` があります:
+
+```python
+params = LineArtParams(image="illustration.png")
+params.calculate_anlas()                      # 例: 20 Anlas
+params.calculate_anlas(is_opus=True)          # 0 — 有効なOpusなら無料
+```
+
+価格はツール種別ではなく画像面積だけで決まります。例外は1つ:
+
+- 有効なOpusサブスクリプションなら、画像が1024×1024以内である限り無料です
+  (それより大きい画像はOpusでも課金されます)。
+- `bg-removal` は基本価格の3倍+5 Anlasで、Opusでも**無料になりません**。
+
+この推定はWeb UIからのリバースエンジニアリングで、実課金との照合は
+まだ済んでいません。あくまで推定値として扱ってください。
+
+## 補足
+
+- `emotion` は `"neutral"`, `"happy"`, `"sad"`, `"angry"`, `"laughing"`,
+  `"smug"` など24種類のムードを受け付けます。全リストは `Emotion` 型から
+  エディタが補完します。
+- `defry`(colorize/emotionのみ)は効果を弱めます: `0` が最大効果、
+  `5` が最弱です。
+- `remove_background` はマスク・生成結果・合成の3枚を返すため、
+  すべてのメソッドがリストを返します。
+- 実際の課金額を確認したい場合は、呼び出し前後に
+  [`client.user.get_anlas()`](/docs/user-account) の差分を取ってください。

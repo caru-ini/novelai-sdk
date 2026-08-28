@@ -1,0 +1,117 @@
+---
+title: Director Tools
+description: Transform existing images — line art, sketch, colorize, emotion, declutter, background removal, and 2x upscale.
+---
+
+`client.tools` wraps the `/ai/augment-image` endpoint, known as Director Tools
+in the NovelAI web UI. Each tool takes a source image and returns transformed
+images, without running a full generation.
+
+## Quick Example
+
+```python
+from novelai import NovelAI
+
+with NovelAI() as client:
+    # Extract line art
+    images = client.tools.line_art("illustration.png")
+    images[0].save("lineart.png")
+
+    # Change the character's expression
+    images = client.tools.emotion("character.png", "happy")
+    images[0].save("happy.png")
+```
+
+The async client works the same way:
+
+```python
+async with AsyncNovelAI() as client:
+    images = await client.tools.line_art("illustration.png")
+```
+
+## Available Tools
+
+| Method | Description | Extra options |
+| --- | --- | --- |
+| `line_art(image)` | Extract black-and-white line art | — |
+| `sketch(image)` | Convert into a pencil-sketch style | — |
+| `colorize(image)` | Colorize line art / grayscale | `prompt`, `defry` |
+| `emotion(image, emotion)` | Change the character's expression | `prompt`, `defry` |
+| `declutter(image)` | Remove text and sound effects | `keep_bubbles` |
+| `remove_background(image)` | Remove the background | — |
+| `upscale(UpscaleParams(...))` | Upscale to twice the size | `model` |
+
+`image` accepts the same inputs as image generation: a file path, raw bytes,
+a base64 string, a PIL Image, or a numpy array. The image size is inferred
+automatically.
+
+## Per-Tool Parameter Models
+
+Each tool has a dedicated parameter model exposing exactly the options that
+tool accepts — passing an option a tool does not have is a validation error,
+not a silently ignored field.
+
+```python
+from novelai.types import EmotionParams
+
+params = EmotionParams(
+    image="character.png",
+    emotion="laughing",     # one of 24 moods, validated by type
+    prompt="open mouth",    # extra tags (optional)
+    defry=1,                # 0 (full effect) to 5 (weakest)
+)
+images = client.tools.augment(params)
+```
+
+Available models: `LineArtParams`, `SketchParams`, `ColorizeParams`,
+`EmotionParams`, `DeclutterParams`, `BackgroundRemovalParams`.
+
+## Upscale
+
+`upscale` uses a separate endpoint (`/ai/upscale`) with a fixed 2x factor —
+there is no size or strength option, only the model. It takes an
+`UpscaleParams`:
+
+```python
+from novelai.types import UpscaleParams
+
+images = client.tools.upscale(UpscaleParams(image="illustration.png"))
+images[0].save("upscaled.png")
+```
+
+Because it is a different endpoint, `UpscaleParams` is not part of
+`DirectorToolParams` and has no `calculate_anlas()` — its pricing has not
+been verified yet.
+
+## Anlas Cost
+
+Every parameter model has `calculate_anlas()`, mirroring
+[`GenerateImageParams.calculate_anlas()`](/docs/anlas-calculation):
+
+```python
+params = LineArtParams(image="illustration.png")
+params.calculate_anlas()                      # e.g. 20 Anlas
+params.calculate_anlas(is_opus=True)          # 0 — free on active Opus
+```
+
+The price depends only on the image area, not the tool — with one exception:
+
+- Free on an active Opus subscription while the image stays within
+  1024×1024 (larger images are billed even on Opus).
+- `bg-removal` costs three times the base price plus 5 Anlas and is
+  **never free**, even on Opus.
+
+This estimate is reverse-engineered from the web UI and not yet verified
+against live billing; treat it as an estimate.
+
+## Notes
+
+- `emotion` accepts 24 moods such as `"neutral"`, `"happy"`, `"sad"`,
+  `"angry"`, `"laughing"`, `"smug"` — your editor will autocomplete the
+  full list from the `Emotion` type.
+- `defry` (colorize/emotion only) weakens the effect: `0` is full effect,
+  `5` is the weakest.
+- `remove_background` returns three images — masked, generated, and blend —
+  so all methods return a list.
+- To confirm the actual billed cost on your account, compare
+  [`client.user.get_anlas()`](/docs/user-account) before and after a call.
