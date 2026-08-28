@@ -11,6 +11,7 @@ from typing import AsyncIterator, Iterator
 
 import httpx
 from PIL import Image
+from pydantic import TypeAdapter
 
 from ..exceptions import (
     AuthenticationError,
@@ -27,7 +28,13 @@ from ..types.api.image import (
     ImageStreamChunk,
     StreamImageGenerationRequest,
 )
+from ..types.api.tags import (
+    JpTagSuggestion,
+    TagSuggestionResponse,
+)
 from ..types.user.user import Subscription
+
+_JP_TAG_LIST_ADAPTER = TypeAdapter(list[JpTagSuggestion])
 
 
 class BaseAPIClient:
@@ -186,6 +193,63 @@ class ImageAPI:
         except httpx.RequestError as e:
             raise NetworkError(f"Network error: {str(e)}") from e
 
+    def suggest_tags(self, model: str, prompt: str) -> TagSuggestionResponse:
+        """Get tag suggestions using /ai/generate-image/suggest-tags
+
+        Args:
+            model: Image model (e.g. nai-diffusion-4-5-full)
+            prompt: Incomplete tag query
+
+        Returns:
+            TagSuggestionResponse with the suggested tags
+
+        Raises:
+            AuthenticationError: Invalid API key
+            InvalidRequestError: Invalid parameters
+            RateLimitError: Rate limit exceeded
+            ServerError: Server-side error
+            NetworkError: Network connection error
+        """
+        try:
+            response = self._client.client.get(
+                f"{self.api_base}/ai/generate-image/suggest-tags",
+                params={"model": model, "prompt": prompt},
+            )
+            content = self._client.handle_response(response)
+            return TagSuggestionResponse.model_validate_json(content)
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    def suggest_tags_jp(self, model: str, prompt: str) -> list[JpTagSuggestion]:
+        """Get Japanese tag suggestions (lang=jp) with English tag mapping
+
+        The jp variant returns a bare JSON array with a different shape
+        than the English response.
+
+        Args:
+            model: Image model (e.g. nai-diffusion-4-5-full)
+            prompt: Incomplete tag query in Japanese
+
+        Returns:
+            List of JpTagSuggestion
+
+        Raises:
+            AuthenticationError: Invalid API key
+            InvalidRequestError: Invalid parameters
+            RateLimitError: Rate limit exceeded
+            ServerError: Server-side error
+            NetworkError: Network connection error
+        """
+        try:
+            response = self._client.client.get(
+                f"{self.api_base}/ai/generate-image/suggest-tags",
+                params={"model": model, "prompt": prompt, "lang": "jp"},
+            )
+            content = self._client.handle_response(response)
+            return _JP_TAG_LIST_ADAPTER.validate_json(content)
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
 
 class UserAPI:
     """User account API endpoints
@@ -282,6 +346,30 @@ class AsyncImageAPI:
                     if chunk and chunk.startswith("data: "):
                         yield ImageStreamChunk.from_text_chunk(chunk)
 
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    async def suggest_tags(self, model: str, prompt: str) -> TagSuggestionResponse:
+        """Get tag suggestions using /ai/generate-image/suggest-tags asynchronously"""
+        try:
+            response = await self._client.client.get(
+                f"{self.api_base}/ai/generate-image/suggest-tags",
+                params={"model": model, "prompt": prompt},
+            )
+            content = self._client.handle_response(response)
+            return TagSuggestionResponse.model_validate_json(content)
+        except httpx.RequestError as e:
+            raise NetworkError(f"Network error: {str(e)}") from e
+
+    async def suggest_tags_jp(self, model: str, prompt: str) -> list[JpTagSuggestion]:
+        """Get Japanese tag suggestions (lang=jp) asynchronously"""
+        try:
+            response = await self._client.client.get(
+                f"{self.api_base}/ai/generate-image/suggest-tags",
+                params={"model": model, "prompt": prompt, "lang": "jp"},
+            )
+            content = self._client.handle_response(response)
+            return _JP_TAG_LIST_ADAPTER.validate_json(content)
         except httpx.RequestError as e:
             raise NetworkError(f"Network error: {str(e)}") from e
 

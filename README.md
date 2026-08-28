@@ -21,6 +21,7 @@ Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-curated`
 - Built-in PIL/Pillow support for easy image operations
 - SSE streaming for real-time progress monitoring
 - Precise reference(Character reference), ControlNet, and multi-character positioning
+- Tag suggestions (en/jp) matching the web UI's prompt autocomplete
 
 ## Comparison with Alternatives
 
@@ -292,6 +293,7 @@ For practical usage examples, see the [Examples Documentation](https://caru-ini.
 - [x] FastAPI integration example
 - [ ] Vibe transfer file support (`.naiv4vibe`, `.naiv4vibebundle`)
 - [x] Anlas consumption calculator
+- [x] Tag suggestions (`/ai/generate-image/suggest-tags`, en/jp)
 - [ ] Image metadata extraction
 - [ ] Text generation API support
 

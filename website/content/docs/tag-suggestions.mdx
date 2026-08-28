@@ -1,0 +1,52 @@
+---
+title: Tag Suggestions
+description: Complete an incomplete tag — the same suggestions as the web UI's prompt box, in English or Japanese.
+---
+
+`client.image.suggest_tags` wraps the `/ai/generate-image/suggest-tags`
+endpoint, which powers the tag autocomplete in the NovelAI web UI.
+Tag suggestions are free — they consume no Anlas.
+
+## Quick Example
+
+```python
+from novelai import NovelAI
+from novelai.types import SuggestTagsParams
+
+with NovelAI() as client:
+    params = SuggestTagsParams(prompt="blue")
+    for suggestion in client.image.suggest_tags(params)[:5]:
+        print(suggestion.tag, suggestion.count, suggestion.confidence)
+```
+
+The async client works the same way:
+
+```python
+async with AsyncNovelAI() as client:
+    suggestions = await client.image.suggest_tags(SuggestTagsParams(prompt="blue"))
+```
+
+Suggestions are model-specific; pass `model` to match the model you
+generate with (default: `nai-diffusion-4-5-full`):
+
+```python
+client.image.suggest_tags(SuggestTagsParams(prompt="blue", model="nai-diffusion-3"))
+```
+
+## Japanese Queries
+
+`suggest_tags_jp` takes a Japanese query and returns Japanese tags paired
+with the English tags to use in the actual prompt:
+
+```python
+for suggestion in client.image.suggest_tags_jp(SuggestTagsParams(prompt="青"))[:5]:
+    print(f"{suggestion.jp_tag} -> {suggestion.en_tag}")  # 青 -> blue theme
+```
+
+## Notes
+
+- The English response items are `TagSuggestion` (`tag`, `count`,
+  `confidence`); the Japanese ones are `JpTagSuggestion` (`jp_tag`,
+  `en_tag`, `power`). The two variants return different shapes, which is
+  why they are separate methods.
+- `count` and `power` are capped at 10000 by the API.

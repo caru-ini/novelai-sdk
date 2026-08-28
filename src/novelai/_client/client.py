@@ -36,7 +36,9 @@ from ..types.api.image import (
     ImageStreamChunk,
     StreamImageGenerationRequest,
 )
+from ..types.api.tags import JpTagSuggestion, TagSuggestion
 from ..types.user.image import GenerateImageParams, GenerateImageStreamParams
+from ..types.user.tags import SuggestTagsParams
 from ..types.user.user import Subscription
 
 
@@ -188,6 +190,49 @@ class ImageGeneration:
             StreamImageGenerationRequest, params.to_api_request(self._client)
         )
         yield from self._client.api_client.image.generate_stream(request)
+
+    def suggest_tags(self, params: SuggestTagsParams) -> list[TagSuggestion]:
+        """Get tag completion suggestions for an incomplete tag
+
+        Tag suggestions are free — they consume no Anlas.
+
+        Args:
+            params: Tag suggestion parameters (query and model).
+
+        Returns:
+            List of TagSuggestion with tag, count, and confidence.
+
+        Example:
+            >>> from novelai.types import SuggestTagsParams
+            >>> suggestions = client.image.suggest_tags(SuggestTagsParams(prompt="blue"))
+            >>> suggestions[0].tag
+            'blue archive'
+        """
+        return self._client.api_client.image.suggest_tags(
+            params.model, params.prompt
+        ).tags
+
+    def suggest_tags_jp(self, params: SuggestTagsParams) -> list[JpTagSuggestion]:
+        """Get Japanese tag suggestions with English tag mapping
+
+        The API returns Japanese tags paired with the English tags to use
+        in the actual prompt.
+
+        Args:
+            params: Tag suggestion parameters (Japanese query and model).
+
+        Returns:
+            List of JpTagSuggestion with jp_tag, en_tag, and power.
+
+        Example:
+            >>> from novelai.types import SuggestTagsParams
+            >>> suggestions = client.image.suggest_tags_jp(SuggestTagsParams(prompt="青"))
+            >>> suggestions[0].en_tag
+            'blue theme'
+        """
+        return self._client.api_client.image.suggest_tags_jp(
+            params.model, params.prompt
+        )
 
 
 class UserAccount:
@@ -450,6 +495,20 @@ class AsyncImageGeneration:
         )
         async for chunk in self._client.api_client.image.generate_stream(request):
             yield chunk
+
+    async def suggest_tags(self, params: SuggestTagsParams) -> list[TagSuggestion]:
+        """Get tag completion suggestions for an incomplete tag asynchronously"""
+        return (
+            await self._client.api_client.image.suggest_tags(
+                params.model, params.prompt
+            )
+        ).tags
+
+    async def suggest_tags_jp(self, params: SuggestTagsParams) -> list[JpTagSuggestion]:
+        """Get Japanese tag suggestions with English tag mapping asynchronously"""
+        return await self._client.api_client.image.suggest_tags_jp(
+            params.model, params.prompt
+        )
 
 
 class AsyncUserAccount:
