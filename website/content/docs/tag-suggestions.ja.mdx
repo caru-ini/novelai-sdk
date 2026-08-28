@@ -1,0 +1,51 @@
+---
+title: Tag Suggestions
+description: 不完全なタグの補完 — Web UIのプロンプト欄と同じ候補を英語・日本語で取得。
+---
+
+`client.image.suggest_tags` は `/ai/generate-image/suggest-tags`
+エンドポイント(NovelAI Web UIのタグ補完で使われているもの)のラッパーです。
+タグ補完は無料で、Anlasを消費しません。
+
+## クイック例
+
+```python
+from novelai import NovelAI
+from novelai.types import SuggestTagsParams
+
+with NovelAI() as client:
+    params = SuggestTagsParams(prompt="blue")
+    for suggestion in client.image.suggest_tags(params)[:5]:
+        print(suggestion.tag, suggestion.count, suggestion.confidence)
+```
+
+非同期クライアントでも同じように使えます:
+
+```python
+async with AsyncNovelAI() as client:
+    suggestions = await client.image.suggest_tags(SuggestTagsParams(prompt="blue"))
+```
+
+候補はモデルごとに異なります。生成に使うモデルに合わせて `model` を
+指定してください(デフォルト: `nai-diffusion-4-5-full`):
+
+```python
+client.image.suggest_tags(SuggestTagsParams(prompt="blue", model="nai-diffusion-3"))
+```
+
+## 日本語クエリ
+
+`suggest_tags_jp` は日本語クエリを受け取り、実際のプロンプトに使う
+英語タグとの対応を返します:
+
+```python
+for suggestion in client.image.suggest_tags_jp(SuggestTagsParams(prompt="青"))[:5]:
+    print(f"{suggestion.jp_tag} -> {suggestion.en_tag}")  # 青 -> blue theme
+```
+
+## 補足
+
+- 英語のレスポンスは `TagSuggestion`(`tag`, `count`, `confidence`)、
+  日本語は `JpTagSuggestion`(`jp_tag`, `en_tag`, `power`)です。
+  2つはレスポンスの形が異なるため、別メソッドになっています。
+- `count` と `power` はAPI側で10000が上限です。

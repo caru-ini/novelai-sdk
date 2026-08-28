@@ -1,0 +1,51 @@
+---
+title: Tag Suggestions
+description: 补全不完整的标签 — 获取与 Web UI 提示词框相同的建议，支持英文和日文。
+---
+
+`client.image.suggest_tags` 封装了 `/ai/generate-image/suggest-tags`
+端点(NovelAI Web UI 的标签自动补全所使用的接口)。
+标签建议是免费的，不消耗 Anlas。
+
+## 快速示例
+
+```python
+from novelai import NovelAI
+from novelai.types import SuggestTagsParams
+
+with NovelAI() as client:
+    params = SuggestTagsParams(prompt="blue")
+    for suggestion in client.image.suggest_tags(params)[:5]:
+        print(suggestion.tag, suggestion.count, suggestion.confidence)
+```
+
+异步客户端用法相同:
+
+```python
+async with AsyncNovelAI() as client:
+    suggestions = await client.image.suggest_tags(SuggestTagsParams(prompt="blue"))
+```
+
+建议因模型而异；请传入与生成时一致的 `model`
+(默认: `nai-diffusion-4-5-full`):
+
+```python
+client.image.suggest_tags(SuggestTagsParams(prompt="blue", model="nai-diffusion-3"))
+```
+
+## 日文查询
+
+`suggest_tags_jp` 接受日文查询，返回日文标签与实际提示词中使用的
+英文标签的对应关系:
+
+```python
+for suggestion in client.image.suggest_tags_jp(SuggestTagsParams(prompt="青"))[:5]:
+    print(f"{suggestion.jp_tag} -> {suggestion.en_tag}")  # 青 -> blue theme
+```
+
+## 说明
+
+- 英文响应项为 `TagSuggestion`(`tag`, `count`, `confidence`)，
+  日文为 `JpTagSuggestion`(`jp_tag`, `en_tag`, `power`)。
+  两者响应结构不同，因此是两个独立的方法。
+- `count` 和 `power` 由 API 限制在 10000 以内。

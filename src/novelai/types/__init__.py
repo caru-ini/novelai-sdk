@@ -1,5 +1,10 @@
 """Type definitions for NovelAI API"""
 
+from .api.tags import (
+    JpTagSuggestion,
+    TagSuggestion,
+)
+from .user.tags import SuggestTagsParams
 from .user.image import (
     Character,
     CharacterReference,
@@ -29,6 +34,10 @@ __all__ = [
     "InpaintParams",
     "ControlNet",
     "ControlNetImage",
+    # Tag suggestions
+    "SuggestTagsParams",
+    "TagSuggestion",
+    "JpTagSuggestion",
     "Subscription",
     "SubscriptionPerks",
     "TrainingStepsLeft",

@@ -251,6 +251,23 @@ python 12_user_account.py
 
 ---
 
+### Tag Suggestions
+
+#### [`14_tag_suggestions.py`](14_tag_suggestions.py)
+
+Completes an incomplete tag like the web UI's prompt autocomplete. Free — no Anlas consumed.
+
+```bash
+python 14_tag_suggestions.py
+```
+
+**Key Features:**
+
+- English tag completion (`client.image.suggest_tags()`)
+- Japanese query to English tag mapping (`client.image.suggest_tags_jp()`)
+
+---
+
 ## Common Parameters
 
 ### Model Selection

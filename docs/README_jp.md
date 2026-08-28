@@ -21,6 +21,7 @@ NovelAIの画像生成APIのための、モダンで型安全なPython SDKです
 - 簡単な画像操作のためのPIL/Pillow組み込みサポート
 - リアルタイム進捗監視のためのSSEストリーミング
 - 精密参照（キャラクター参照）、ControlNet、マルチキャラクターポジショニング
+- Web UIのプロンプト補完と同じタグ補完（英語・日本語）
 
 ## 他ライブラリとの比較
 
@@ -292,6 +293,7 @@ best-effort な推定値です。プレビュー用途には使えますが、�
 - [x] FastAPI統合サンプル
 - [ ] Vibe transferファイルサポート（`.naiv4vibe`、`.naiv4vibebundle`）
 - [x] Anlas消費量計算機
+- [x] タグ補完（`/ai/generate-image/suggest-tags`、英語・日本語）
 - [ ] 画像メタデータ抽出
 - [ ] テキスト生成APIサポート
 

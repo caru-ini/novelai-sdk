@@ -21,6 +21,7 @@ NovelAI 图像生成 API 的现代、类型安全的 Python SDK。具有使用 P
 - 内置 PIL/Pillow 支持，便于图像操作
 - SSE 流式传输，用于实时进度监控
 - 精准参考（角色参考）、ControlNet 和多角色定位
+- 与 Web UI 提示词自动补全一致的标签建议（英文·日文）
 
 ## 与替代方案的比较
 
@@ -270,6 +271,7 @@ for i, img in enumerate(images):
 - [x] FastAPI 集成示例
 - [ ] Vibe transfer 文件支持 (`.naiv4vibe`, `.naiv4vibebundle`)
 - [ ] Anlas 消耗计算器
+- [x] 标签建议 (`/ai/generate-image/suggest-tags`，英文/日文)
 - [ ] 图像元数据提取
 - [ ] 文本生成 API 支持
 
