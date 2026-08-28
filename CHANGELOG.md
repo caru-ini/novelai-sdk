@@ -2,6 +2,25 @@
 
 <!-- version list -->
 
+## v0.14.0 (2026-08-28)
+
+### Documentation
+
+- **tools**: Document bg-removal's three output layers
+  ([`ad93477`](https://github.com/caru-ini/novelai-sdk/commit/ad9347720625a5fc8be1ec269c5ba251840f460c))
+
+### Features
+
+- Add Anlas cost estimation for Director Tools
+  ([`29daea9`](https://github.com/caru-ini/novelai-sdk/commit/29daea98915f6d2f9c45cdba94782fe6d18fafb6))
+
+- Add Director Tools image augmentation API
+  ([`2c7ade8`](https://github.com/caru-ini/novelai-sdk/commit/2c7ade82872599bcde5937c74061e2087c5f49ed))
+
+- **tools**: Add 2x image upscale via /ai/upscale
+  ([`3278c41`](https://github.com/caru-ini/novelai-sdk/commit/3278c41609634142a773c1cc5e0226afc68c7f1d))
+
+
 ## v0.13.0 (2026-08-28)
 
 ### Features
