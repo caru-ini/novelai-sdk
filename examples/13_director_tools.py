@@ -26,10 +26,10 @@ def main():
         smiling = client.tools.emotion(SOURCE_IMAGE, "happy", defry=1)
         smiling[0].save("happy.png")
 
-        # Background removal may return multiple images (separated layers)
+        # Background removal returns three images: masked, generated, blend
         layers = client.tools.remove_background(SOURCE_IMAGE)
-        for i, layer in enumerate(layers):
-            layer.save(f"bg_removed_{i}.png")
+        for name, layer in zip(("masked", "generated", "blend"), layers):
+            layer.save(f"bg_removed_{name}.png")
 
         # The same calls are available through per-tool parameter models,
         # which can also estimate the Anlas cost before sending

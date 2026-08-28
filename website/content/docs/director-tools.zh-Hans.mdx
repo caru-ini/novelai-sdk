@@ -87,6 +87,6 @@ params.calculate_anlas(is_opus=True)          # 0 — 有效 Opus 订阅免费
   `"angry"`, `"laughing"`, `"smug"` — 编辑器会根据 `Emotion` 类型
   自动补全完整列表。
 - `defry`(仅 colorize/emotion)用于减弱效果: `0` 为最强效果，`5` 最弱。
-- `remove_background` 可能返回多张图像(分离的图层)，因此所有方法都返回列表。
+- `remove_background` 返回三张图像(蒙版、生成结果、合成)，因此所有方法都返回列表。
 - 要确认账户的实际扣费，请比较调用前后的
   [`client.user.get_anlas()`](/docs/user-account)。

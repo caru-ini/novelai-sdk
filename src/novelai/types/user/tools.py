@@ -111,7 +111,7 @@ class SketchParams(_BaseAugmentParams):
 class BackgroundRemovalParams(_BaseAugmentParams):
     """Remove the background, keeping the subject
 
-    The API may return multiple images (e.g. separated layers).
+    The API returns three images: masked, generated, and blend.
     """
 
     tool: Literal["bg-removal"] = "bg-removal"

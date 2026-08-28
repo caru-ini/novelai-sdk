@@ -93,7 +93,7 @@ against live billing; treat it as an estimate.
   full list from the `Emotion` type.
 - `defry` (colorize/emotion only) weakens the effect: `0` is full effect,
   `5` is the weakest.
-- `remove_background` may return multiple images (separated layers), so all
-  methods return a list.
+- `remove_background` returns three images — masked, generated, and blend —
+  so all methods return a list.
 - To confirm the actual billed cost on your account, compare
   [`client.user.get_anlas()`](/docs/user-account) before and after a call.

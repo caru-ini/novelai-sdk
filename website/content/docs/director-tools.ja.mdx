@@ -92,7 +92,7 @@ params.calculate_anlas(is_opus=True)          # 0 — 有効なOpusなら無料
   エディタが補完します。
 - `defry`(colorize/emotionのみ)は効果を弱めます: `0` が最大効果、
   `5` が最弱です。
-- `remove_background` は複数枚(分離レイヤー)を返すことがあるため、
+- `remove_background` はマスク・生成結果・合成の3枚を返すため、
   すべてのメソッドがリストを返します。
 - 実際の課金額を確認したい場合は、呼び出し前後に
   [`client.user.get_anlas()`](/docs/user-account) の差分を取ってください。

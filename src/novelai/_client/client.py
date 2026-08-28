@@ -257,7 +257,7 @@ class DirectorTools:
     change, decluttering, and background removal.
 
     All methods return a list of PIL Images. Most tools return a single image,
-    but some (e.g. background removal) may return several.
+    but background removal returns three (masked, generated, blend).
 
     Note:
         This class is not meant to be instantiated directly. Access it through
@@ -312,8 +312,7 @@ class DirectorTools:
     def remove_background(self, image: ImageInput) -> list[Image.Image]:
         """Remove the background, keeping the subject
 
-        The API may return multiple images (e.g. separated layers),
-        hence the list return type.
+        The API returns three images in order: masked, generated, and blend.
         """
         return self.augment(BackgroundRemovalParams(image=image))
 
@@ -663,7 +662,7 @@ class AsyncDirectorTools:
         return await self.augment(SketchParams(image=image))
 
     async def remove_background(self, image: ImageInput) -> list[Image.Image]:
-        """Remove the background, keeping the subject"""
+        """Remove the background; returns masked, generated, and blend images"""
         return await self.augment(BackgroundRemovalParams(image=image))
 
     async def declutter(
