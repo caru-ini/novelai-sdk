@@ -191,6 +191,8 @@ params = GenerateImageParams(
 )
 ```
 
+Omit `position` on every character to let the AI decide the placement. Grid presets like `"C3"` are also accepted.
+
 ### ControlNet (Vibe Transfer)
 
 Control composition and pose with reference images:

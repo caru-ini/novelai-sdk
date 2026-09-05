@@ -30,3 +30,9 @@ params = GenerateImageParams(
     characters=characters,
 )
 ```
+
+Positions are only enforced when at least one character sets `position`.
+Leave it out on every character to let the AI place them (the web UI's "AI's Choice").
+If only some characters have a position, the others are centered.
+
+`position` accepts `(x, y)` in the 0.0–1.0 range or a 5x5 grid preset from `"A1"` to `"E5"` (`"C3"` is the center).

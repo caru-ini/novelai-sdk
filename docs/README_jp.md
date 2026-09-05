@@ -191,6 +191,8 @@ params = GenerateImageParams(
 )
 ```
 
+すべてのキャラクターで `position` を省略すると、配置は AI に任されます。`"C3"` のようなグリッドプリセットも指定できます。
+
 ### ControlNet（Vibe Transfer）
 
 リファレンス画像で構図やポーズを制御:

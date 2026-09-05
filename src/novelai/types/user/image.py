@@ -31,7 +31,7 @@ from novelai.constants.negative_prompts import (
     UCPreset,
 )
 from novelai.constants.noise_schedules import NOISE_KARRAS, NoiseSchedule
-from novelai.constants.positions import Position, PositionPreset
+from novelai.constants.positions import Position
 from novelai.constants.samplers import K_EULER_ANCESTRAL, Sampler
 from novelai.constants.sizes import PRESET_MAP, ImageSize
 from novelai.types.api.image import EncodeVibeRequest
@@ -61,17 +61,23 @@ class Character(BaseModel):
     negative_prompt: str = Field(
         default="", description="Character-specific negative prompt"
     )
-    position: tuple[float, float] | PositionPreset = Field(
-        default=(0.5, 0.5),
-        description="Character center position as (x, y) coordinates",
+    position: Position | None = Field(
+        default=None,
+        description=(
+            "Character center as (x, y) in 0.0-1.0 or a grid preset like 'C3'. "
+            "Omit it to let the AI decide the placement (the web UI's "
+            '"AI\'s Choice"). Coordinates are only sent when at least one '
+            "character sets a position; characters without one are centered."
+        ),
     )
     enabled: bool = Field(default=True, description="Enable this character")
 
     @field_validator("position", mode="after")
     @classmethod
-    def _parse_position(cls, v: Position) -> tuple[float, float]:
-        """Parse position and cache for internal use"""
-        # Get size preset
+    def _parse_position(cls, v: Position | None) -> tuple[float, float] | None:
+        """Normalize a grid preset to (x, y); None keeps the AI's Choice"""
+        if v is None:
+            return None
         if isinstance(v, str):
             if len(v) != 2:
                 raise ValueError("Invalid position preset")

@@ -35,6 +35,22 @@ def _map_uc_preset_to_int(uc_preset: user_types.UCPreset) -> int:
     }[uc_preset]
 
 
+def _character_center(char: user_types.Character) -> api_types.CenterPoint:
+    """Center point for the API; characters without a position sit in the middle"""
+    x, y = char.position if char.position is not None else (0.5, 0.5)
+    return api_types.CenterPoint(x=float(x), y=float(y))
+
+
+def _uses_coords(characters: list[user_types.Character] | None) -> bool:
+    """Whether to send use_coords=True
+
+    The API ignores character centers unless use_coords is set, so this mirrors
+    the web UI: coordinates are enforced once any enabled character has an
+    explicit position, otherwise placement is left to the AI ("AI's Choice").
+    """
+    return any(char.enabled and char.position is not None for char in characters or [])
+
+
 def _convert_characters_to_char_prompts(
     characters: list[user_types.Character] | None,
 ) -> list[api_types.CharacterPrompt] | None:
@@ -46,9 +62,7 @@ def _convert_characters_to_char_prompts(
         api_types.CharacterPrompt(
             prompt=char.prompt,
             uc=char.negative_prompt,
-            center=api_types.CenterPoint(
-                x=float(char.position[0]), y=float(char.position[1])
-            ),
+            center=_character_center(char),
             enabled=char.enabled,
         )
         for char in characters
@@ -71,11 +85,7 @@ def _convert_characters_to_char_captions(
     return [
         api_types.V4CharacterCaption(
             char_caption=char.negative_prompt if is_negative else char.prompt,
-            centers=[
-                api_types.CenterPoint(
-                    x=float(char.position[0]), y=float(char.position[1])
-                )
-            ],
+            centers=[_character_center(char)],
         )
         for char in characters
         if char.enabled
@@ -86,6 +96,7 @@ def _create_v4_prompts(
     processed_prompt: str,
     processed_negative: str,
     characters: list[user_types.Character] | None = None,
+    use_coords: bool = False,
 ) -> tuple[api_types.V4ConditionInput, api_types.V4ConditionInput]:
     """Create V4 prompt structures from processed prompts and characters"""
     v4_prompt = api_types.V4ConditionInput(
@@ -95,7 +106,7 @@ def _create_v4_prompts(
                 characters, is_negative=False
             ),
         ),
-        use_coords=False,
+        use_coords=use_coords,
         use_order=True,
     )
 
@@ -232,11 +243,12 @@ def convert_user_params_to_api_params(
 
     processed_prompt = params.processed_prompt
     processed_negative = params.processed_negative_prompt
+    use_coords = _uses_coords(params.characters)
 
     # For V4 models, create V4 prompt structures
     if params.is_v4(params.model):
         v4_prompt, v4_negative_prompt = _create_v4_prompts(
-            processed_prompt, processed_negative, params.characters
+            processed_prompt, processed_negative, params.characters, use_coords
         )
 
         prompt_field = None
@@ -301,7 +313,7 @@ def convert_user_params_to_api_params(
         dynamic_thresholding=False,
         legacy_uc=False,
         inpaintImg2ImgStrength=source_strength,
-        use_coords=False,
+        use_coords=use_coords,
         normalize_reference_strength_multiple=False,
         # Basic parameters
         width=width,
@@ -360,10 +372,11 @@ async def async_convert_user_params_to_api_params(
 
     processed_prompt = params.processed_prompt
     processed_negative = params.processed_negative_prompt
+    use_coords = _uses_coords(params.characters)
 
     if params.is_v4(params.model):
         v4_prompt, v4_negative_prompt = _create_v4_prompts(
-            processed_prompt, processed_negative, params.characters
+            processed_prompt, processed_negative, params.characters, use_coords
         )
         prompt_field = None
     else:
@@ -425,7 +438,7 @@ async def async_convert_user_params_to_api_params(
         dynamic_thresholding=False,
         legacy_uc=False,
         inpaintImg2ImgStrength=source_strength,
-        use_coords=False,
+        use_coords=use_coords,
         normalize_reference_strength_multiple=False,
         width=width,
         height=height,

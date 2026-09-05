@@ -30,3 +30,9 @@ params = GenerateImageParams(
     characters=characters,
 )
 ```
+
+只有当至少一个角色设置了 `position` 时，位置才会生效。
+所有角色都省略时，布局交由 AI 决定 (相当于 Web UI 的 "AI's Choice")。
+如果只有部分角色设置了位置，其余角色会居中放置。
+
+`position` 接受 0.0–1.0 范围内的 `(x, y)`，或 `"A1"` 到 `"E5"` 的 5x5 网格预设 (`"C3"` 为中心)。

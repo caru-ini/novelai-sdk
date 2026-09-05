@@ -191,6 +191,8 @@ params = GenerateImageParams(
 )
 ```
 
+所有角色都省略 `position` 时，布局交由 AI 决定。也可以使用 `"C3"` 这样的网格预设。
+
 ### ControlNet (Vibe Transfer)
 
 使用参考图像控制构图和姿势：
