@@ -13,12 +13,12 @@ characters = [
     Character(
         prompt="1girl, red hair, blue eyes, school uniform",
         enabled=True,
-        position=(0.2, 0.5),  # Left (X: 0.2, Y: 0.5)
+        position=(0.3, 0.5),  # Left (X: 0.3, Y: 0.5), same as "B3"
     ),
     Character(
         prompt="1boy, black hair, green eyes, casual clothes",
         enabled=True,
-        position=(0.8, 0.5),  # Right (X: 0.8, Y: 0.5)
+        position=(0.7, 0.5),  # Right (X: 0.7, Y: 0.5), same as "D3"
     ),
 ]
 
@@ -36,3 +36,5 @@ Leave it out on every character to let the AI place them (the web UI's "AI's Cho
 If only some characters have a position, the others are centered.
 
 `position` accepts `(x, y)` in the 0.0–1.0 range or a 5x5 grid preset from `"A1"` to `"E5"` (`"C3"` is the center).
+On V4/V4.5 the coordinates are snapped to the center of their 5x5 grid cell (0.1, 0.3, 0.5, 0.7, 0.9) before sending, like the web UI does, so `(0.2, 0.5)` is sent as `(0.3, 0.5)`.
+V5 supports free-form positioning and sends the coordinates as given.

@@ -13,12 +13,12 @@ characters = [
     Character(
         prompt="1girl, red hair, blue eyes, school uniform",
         enabled=True,
-        position=(0.2, 0.5),  # 左 (X: 0.2, Y: 0.5)
+        position=(0.3, 0.5),  # 左 (X: 0.3, Y: 0.5)，等同于 "B3"
     ),
     Character(
         prompt="1boy, black hair, green eyes, casual clothes",
         enabled=True,
-        position=(0.8, 0.5),  # 右 (X: 0.8, Y: 0.5)
+        position=(0.7, 0.5),  # 右 (X: 0.7, Y: 0.5)，等同于 "D3"
     ),
 ]
 
@@ -36,3 +36,5 @@ params = GenerateImageParams(
 如果只有部分角色设置了位置，其余角色会居中放置。
 
 `position` 接受 0.0–1.0 范围内的 `(x, y)`，或 `"A1"` 到 `"E5"` 的 5x5 网格预设 (`"C3"` 为中心)。
+在 V4/V4.5 上，坐标会像 Web UI 一样先吸附到所在 5x5 网格单元的中心 (0.1, 0.3, 0.5, 0.7, 0.9) 再发送，例如 `(0.2, 0.5)` 会作为 `(0.3, 0.5)` 发送。
+V5 支持自由定位，坐标按原样发送。

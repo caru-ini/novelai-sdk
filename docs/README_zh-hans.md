@@ -175,12 +175,12 @@ characters = [
     Character(
         prompt="1girl, red hair, blue eyes",
         enabled=True,
-        position=(0.2, 0.5),
+        position=(0.3, 0.5),
     ),
     Character(
         prompt="1boy, black hair, green eyes",
         enabled=True,
-        position=(0.8, 0.5),
+        position=(0.7, 0.5),
     ),
 ]
 
@@ -191,7 +191,7 @@ params = GenerateImageParams(
 )
 ```
 
-所有角色都省略 `position` 时，布局交由 AI 决定。也可以使用 `"C3"` 这样的网格预设。
+所有角色都省略 `position` 时，布局交由 AI 决定。也可以使用 `"C3"` 这样的网格预设。在 V4/V4.5 上坐标会像 Web UI 一样吸附到 5x5 网格后发送，V5 则按原样发送。
 
 ### ControlNet (Vibe Transfer)
 

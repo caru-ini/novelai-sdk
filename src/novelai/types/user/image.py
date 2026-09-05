@@ -67,7 +67,9 @@ class Character(BaseModel):
             "Character center as (x, y) in 0.0-1.0 or a grid preset like 'C3'. "
             "Omit it to let the AI decide the placement (the web UI's "
             '"AI\'s Choice"). Coordinates are only sent when at least one '
-            "character sets a position; characters without one are centered."
+            "character sets a position; characters without one are centered. "
+            "V4/V4.5 snap coordinates to the 5x5 grid like the web UI; "
+            "V5 keeps them as given."
         ),
     )
     enabled: bool = Field(default=True, description="Enable this character")

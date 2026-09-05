@@ -175,12 +175,12 @@ characters = [
     Character(
         prompt="1girl, red hair, blue eyes",
         enabled=True,
-        position=(0.2, 0.5),
+        position=(0.3, 0.5),
     ),
     Character(
         prompt="1boy, black hair, green eyes",
         enabled=True,
-        position=(0.8, 0.5),
+        position=(0.7, 0.5),
     ),
 ]
 
@@ -191,7 +191,7 @@ params = GenerateImageParams(
 )
 ```
 
-Omit `position` on every character to let the AI decide the placement. Grid presets like `"C3"` are also accepted.
+Omit `position` on every character to let the AI decide the placement. Grid presets like `"C3"` are also accepted. On V4/V4.5 the coordinates are snapped to the 5x5 grid like the web UI; V5 sends them as given.
 
 ### ControlNet (Vibe Transfer)
 

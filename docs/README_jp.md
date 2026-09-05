@@ -175,12 +175,12 @@ characters = [
     Character(
         prompt="1girl, red hair, blue eyes",
         enabled=True,
-        position=(0.2, 0.5),
+        position=(0.3, 0.5),
     ),
     Character(
         prompt="1boy, black hair, green eyes",
         enabled=True,
-        position=(0.8, 0.5),
+        position=(0.7, 0.5),
     ),
 ]
 
@@ -191,7 +191,7 @@ params = GenerateImageParams(
 )
 ```
 
-すべてのキャラクターで `position` を省略すると、配置は AI に任されます。`"C3"` のようなグリッドプリセットも指定できます。
+すべてのキャラクターで `position` を省略すると、配置は AI に任されます。`"C3"` のようなグリッドプリセットも指定できます。V4/V4.5 では Web UI と同様に座標を 5x5 グリッドにスナップして送信し、V5 はそのまま送信します。
 
 ### ControlNet（Vibe Transfer）
 

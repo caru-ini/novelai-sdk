@@ -21,6 +21,7 @@ base_prompt = "2girls, standing, park background, very aesthetic, masterpiece"
 Pro tip:
 You can specify a grid preset (like A1, B2, etc.) instead of (x, y) coordinates.
 Omit `position` on every character to let the AI decide the placement.
+On V4/V4.5, (x, y) is snapped to the 5x5 grid like the web UI; V5 keeps it as given.
 | A1 | B1 | C1 | D1 | E1 |
 | A2 | B2 | C2 | D2 | E2 |
 | A3 | B3 | C3 | D3 | E3 |

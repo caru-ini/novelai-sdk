@@ -13,10 +13,12 @@ from novelai.types import Character, GenerateImageParams
 from novelai.types.api.image import ImageParameters
 
 
-def _convert(characters: list[Character] | None) -> ImageParameters:
+def _convert(
+    characters: list[Character] | None, model: str = "nai-diffusion-4-5-full"
+) -> ImageParameters:
     params = GenerateImageParams(
         prompt="2girls, standing",
-        model="nai-diffusion-4-5-full",
+        model=model,  # type: ignore[arg-type]
         characters=characters,
     )
     return convert_user_params_to_api_params(params, None)  # type: ignore[arg-type]
@@ -42,8 +44,8 @@ def _prompt_centers(api_params: ImageParameters) -> list[tuple[float, float]]:
 def test_explicit_positions_enable_use_coords() -> None:
     api_params = _convert(
         [
-            Character(prompt="1girl, red hair", position=(0.2, 0.5)),
-            Character(prompt="1boy, black hair", position=(0.8, 0.5)),
+            Character(prompt="1girl, red hair", position=(0.3, 0.5)),
+            Character(prompt="1boy, black hair", position=(0.7, 0.5)),
         ]
     )
 
@@ -51,8 +53,8 @@ def test_explicit_positions_enable_use_coords() -> None:
     assert api_params.v4_prompt is not None
     assert api_params.v4_prompt.use_coords is True
     assert api_params.v4_prompt.use_order is True
-    assert _caption_centers(api_params) == [(0.2, 0.5), (0.8, 0.5)]
-    assert _prompt_centers(api_params) == [(0.2, 0.5), (0.8, 0.5)]
+    assert _caption_centers(api_params) == [(0.3, 0.5), (0.7, 0.5)]
+    assert _prompt_centers(api_params) == [(0.3, 0.5), (0.7, 0.5)]
 
 
 def test_omitted_positions_leave_placement_to_the_ai() -> None:
@@ -99,20 +101,20 @@ def test_grid_preset_is_converted_to_coordinates(
 def test_unpositioned_character_is_centered_when_others_have_positions() -> None:
     api_params = _convert(
         [
-            Character(prompt="1girl, red hair", position=(0.2, 0.5)),
+            Character(prompt="1girl, red hair", position=(0.3, 0.5)),
             Character(prompt="1boy, black hair"),
         ]
     )
 
     assert api_params.use_coords is True
-    assert _caption_centers(api_params) == [(0.2, 0.5), (0.5, 0.5)]
+    assert _caption_centers(api_params) == [(0.3, 0.5), (0.5, 0.5)]
 
 
 def test_disabled_character_does_not_enable_use_coords() -> None:
     api_params = _convert(
         [
             Character(prompt="1girl, red hair"),
-            Character(prompt="1boy, black hair", position=(0.8, 0.5), enabled=False),
+            Character(prompt="1boy, black hair", position=(0.9, 0.5), enabled=False),
         ]
     )
 
@@ -124,7 +126,7 @@ def test_disabled_character_does_not_enable_use_coords() -> None:
     assert _caption_centers(api_params) == [(0.5, 0.5)]
     assert api_params.characterPrompts is not None
     assert [c.enabled for c in api_params.characterPrompts] == [True, False]
-    assert _prompt_centers(api_params) == [(0.5, 0.5), (0.8, 0.5)]
+    assert _prompt_centers(api_params) == [(0.5, 0.5), (0.9, 0.5)]
 
 
 def test_async_converter_enables_use_coords() -> None:
@@ -147,3 +149,41 @@ def test_async_converter_enables_use_coords() -> None:
 def test_invalid_position_is_rejected(position: object) -> None:
     with pytest.raises(ValidationError):
         Character(prompt="1girl", position=position)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("position", "expected"),
+    [
+        ((0.2, 0.5), (0.3, 0.5)),  # 0.2 sits on a cell edge; floor(5x) picks cell 1
+        ((0.19, 0.99), (0.1, 0.9)),
+        ((0.0, 1.0), (0.1, 0.9)),
+        ((0.55, 0.45), (0.5, 0.5)),
+    ],
+)
+def test_v4_positions_are_snapped_to_the_grid(
+    position: tuple[float, float], expected: tuple[float, float]
+) -> None:
+    api_params = _convert([Character(prompt="1girl", position=position)])
+
+    assert api_params.use_coords is True
+    assert _caption_centers(api_params)[0] == pytest.approx(expected)
+    assert _prompt_centers(api_params)[0] == pytest.approx(expected)
+
+
+def test_v5_positions_are_sent_as_given() -> None:
+    api_params = _convert(
+        [Character(prompt="1girl", position=(0.19, 0.99))],
+        model="nai-diffusion-5-full",
+    )
+
+    assert api_params.use_coords is True
+    assert _caption_centers(api_params) == [(0.19, 0.99)]
+    assert _prompt_centers(api_params) == [(0.19, 0.99)]
+
+
+def test_snapping_does_not_mutate_user_characters() -> None:
+    character = Character(prompt="1girl", position=(0.2, 0.5))
+
+    _convert([character])
+
+    assert character.position == (0.2, 0.5)

@@ -35,6 +35,36 @@ def _map_uc_preset_to_int(uc_preset: user_types.UCPreset) -> int:
     }[uc_preset]
 
 
+_GRID_CELL_CENTERS = (0.1, 0.3, 0.5, 0.7, 0.9)
+
+
+def _snap_to_grid(value: float) -> float:
+    """Snap a 0.0-1.0 coordinate to the center of its 5x5 grid cell"""
+    return _GRID_CELL_CENTERS[min(4, int(value * 5))]
+
+
+def _snap_characters_to_grid(
+    characters: list[user_types.Character] | None,
+) -> list[user_types.Character] | None:
+    """Move explicit positions onto the 5x5 grid
+
+    V4/V4.5 only ever receive grid-cell centers from the web UI (its canvas
+    snaps with the same floor(5x) rule before sending), so off-grid coordinates
+    are normalized the same way. Characters without a position are left alone.
+    """
+    if characters is None:
+        return None
+
+    snapped: list[user_types.Character] = []
+    for char in characters:
+        if char.position is None:
+            snapped.append(char)
+            continue
+        x, y = (_snap_to_grid(float(v)) for v in char.position)
+        snapped.append(char.model_copy(update={"position": (x, y)}))
+    return snapped
+
+
 def _character_center(char: user_types.Character) -> api_types.CenterPoint:
     """Center point for the API; characters without a position sit in the middle"""
     x, y = char.position if char.position is not None else (0.5, 0.5)
@@ -243,12 +273,18 @@ def convert_user_params_to_api_params(
 
     processed_prompt = params.processed_prompt
     processed_negative = params.processed_negative_prompt
-    use_coords = _uses_coords(params.characters)
+    # V5 accepts free-form positions; older models only know the 5x5 grid
+    characters = (
+        params.characters
+        if params.is_v5(params.model)
+        else _snap_characters_to_grid(params.characters)
+    )
+    use_coords = _uses_coords(characters)
 
     # For V4 models, create V4 prompt structures
     if params.is_v4(params.model):
         v4_prompt, v4_negative_prompt = _create_v4_prompts(
-            processed_prompt, processed_negative, params.characters, use_coords
+            processed_prompt, processed_negative, characters, use_coords
         )
 
         prompt_field = None
@@ -258,7 +294,7 @@ def convert_user_params_to_api_params(
         v4_negative_prompt = None
         prompt_field = processed_prompt
 
-    character_prompts = _convert_characters_to_char_prompts(params.characters)
+    character_prompts = _convert_characters_to_char_prompts(characters)
 
     (
         cr_images,
@@ -372,11 +408,17 @@ async def async_convert_user_params_to_api_params(
 
     processed_prompt = params.processed_prompt
     processed_negative = params.processed_negative_prompt
-    use_coords = _uses_coords(params.characters)
+    # V5 accepts free-form positions; older models only know the 5x5 grid
+    characters = (
+        params.characters
+        if params.is_v5(params.model)
+        else _snap_characters_to_grid(params.characters)
+    )
+    use_coords = _uses_coords(characters)
 
     if params.is_v4(params.model):
         v4_prompt, v4_negative_prompt = _create_v4_prompts(
-            processed_prompt, processed_negative, params.characters, use_coords
+            processed_prompt, processed_negative, characters, use_coords
         )
         prompt_field = None
     else:
@@ -384,7 +426,7 @@ async def async_convert_user_params_to_api_params(
         v4_negative_prompt = None
         prompt_field = processed_prompt
 
-    character_prompts = _convert_characters_to_char_prompts(params.characters)
+    character_prompts = _convert_characters_to_char_prompts(characters)
 
     (
         cr_images,
