@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v0.14.1 (2026-09-05)
+
+### Bug Fixes
+
+- **image**: Enable use_coords for positioned characters (closes #89)
+  ([`b34bd0b`](https://github.com/caru-ini/novelai-sdk/commit/b34bd0b19158d0281ef29edd17d226ac6aec7c48))
+
+- **image**: Snap character positions to the 5x5 grid on V4/V4.5
+  ([`28449ab`](https://github.com/caru-ini/novelai-sdk/commit/28449ab1598830fb154d5ac5e6f8d2ee011d5bd0))
+
+
 ## v0.14.0 (2026-08-28)
 
 ### Documentation
