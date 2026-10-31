@@ -4,10 +4,16 @@ import Image from 'next/image';
 import { i18n, localeHref } from './i18n';
 
 export const { provider: i18nProvider } = defineI18nUI(i18n, {
-  translations: {
-    en: { displayName: 'English' },
-    ja: { displayName: '日本語', search: 'ドキュメント検索' },
-    'zh-Hans': { displayName: '简体中文', search: '搜索文档' },
+  en: { displayName: 'English' },
+  ja: {
+    displayName: '日本語',
+    'Search(search trigger)': 'ドキュメント検索',
+    'Search(search dialog)': 'ドキュメント検索',
+  },
+  'zh-Hans': {
+    displayName: '简体中文',
+    'Search(search trigger)': '搜索文档',
+    'Search(search dialog)': '搜索文档',
   },
 });
 

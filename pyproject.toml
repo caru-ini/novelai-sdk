@@ -58,6 +58,10 @@ test-cov = "pytest --cov=src/novelai"
 pre-commit = ["fmt", "lint", "check"]
 release = "semantic-release publish"
 
+[tool.ruff.lint]
+# Ruff 0.16 expanded the default rule set; keep the pre-0.16 defaults until the new rules are adopted.
+select = ["E4", "E7", "E9", "F"]
+
 [tool.semantic_release]
 version_variables = ["src/novelai/__init__.py:__version__", "pyproject.toml:version"]
 branch = "main"
