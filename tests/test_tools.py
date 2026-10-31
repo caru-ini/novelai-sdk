@@ -3,11 +3,11 @@ from __future__ import annotations
 import asyncio
 import base64
 import io
-import json
 import zipfile
 
 import httpx
 import pytest
+from _multipart import request_json, request_parts
 from PIL import Image
 from pydantic import ValidationError
 
@@ -156,10 +156,12 @@ def test_line_art_hits_augment_image() -> None:
     assert captured[0].method == "POST"
     assert captured[0].headers["Authorization"] == "Bearer dummy"
 
-    body = json.loads(captured[0].content)
+    body = request_json(captured[0])
     assert body["req_type"] == "lineart"
     assert body["width"] == 64
     assert body["height"] == 48
+    assert body["image"] == "image"
+    Image.open(io.BytesIO(request_parts(captured[0])["image"]))
     # exclude_none: unused options must not be sent at all
     assert "prompt" not in body
     assert "defry" not in body
@@ -174,7 +176,7 @@ def test_emotion_sends_mood_prompt_and_defry() -> None:
     finally:
         client.close()
 
-    body = json.loads(captured[0].content)
+    body = request_json(captured[0])
     assert body["req_type"] == "emotion"
     assert body["prompt"] == "laughing;;open mouth"
     assert body["defry"] == 3
@@ -190,7 +192,7 @@ def test_remove_background_returns_all_zip_entries() -> None:
         client.close()
 
     assert len(images) == 3
-    assert json.loads(captured[0].content)["req_type"] == "bg-removal"
+    assert request_json(captured[0])["req_type"] == "bg-removal"
 
 
 def test_async_colorize() -> None:
@@ -211,7 +213,7 @@ def test_async_colorize() -> None:
             await client.close()
 
     assert asyncio.run(run()) == 1
-    body = json.loads(captured[0].content)
+    body = request_json(captured[0])
     assert body["req_type"] == "colorize"
     assert body["prompt"] == "vivid colors"
     assert body["defry"] == 0
@@ -242,9 +244,10 @@ def test_upscale_hits_upscale_endpoint() -> None:
     assert captured[0].url == "https://image.novelai.net/ai/upscale"
     assert captured[0].method == "POST"
 
-    body = json.loads(captured[0].content)
+    body = request_json(captured[0])
     assert body["model"] == "nai-diffusion-4-5-full"
-    assert set(body) == {"image", "model"}
+    assert body["declared_blur_sigma"] == 0
+    assert set(body) == {"image", "model", "declared_blur_sigma"}
 
 
 def test_upscale_accepts_raw_image_response() -> None:
@@ -289,4 +292,4 @@ def test_async_upscale() -> None:
 
     assert asyncio.run(run()) == 1
     assert captured[0].url == "https://image.novelai.net/ai/upscale"
-    assert json.loads(captured[0].content)["model"] == "nai-diffusion-5-curated"
+    assert request_json(captured[0])["model"] == "nai-diffusion-5-curated"

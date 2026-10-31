@@ -17,7 +17,7 @@ The current SDK implementation covers the same pricing branch used for these mod
 families:
 
 - `nai-diffusion-3`
-- `nai-diffusion-3-furry`
+- `nai-diffusion-furry-3`
 - `nai-diffusion-4-*`
 - `nai-diffusion-4-5-*`
 - `nai-diffusion-5-*`
@@ -48,8 +48,11 @@ Given:
 The frontend computes:
 
 ```text
-base = ceil(2.951823174884865e-6 * area + 5.753298233447344e-7 * area * steps)
+base = ceil(2.951823174884865e-6 * area + 5.753298233447344e-7 * area * steps * step_factor)
 ```
+
+`step_factor` is `1 / 1.06521739` for `nai-diffusion-5-full-medium` (and its
+inpainting model) and `1` for every other model. Medium always runs at 14 steps.
 
 Then applies the SMEA multiplier:
 

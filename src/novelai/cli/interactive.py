@@ -40,13 +40,14 @@ KEY_ALIASES = {
 
 MODEL_LABELS = {
     "nai-diffusion-5-full": "v5-full",
+    "nai-diffusion-5-full-medium": "v5-full-medium",
     "nai-diffusion-5-curated": "v5-curated",
     "nai-diffusion-4-5-full": "v4.5-full",
     "nai-diffusion-4-5-curated": "v4.5-curated",
     "nai-diffusion-4-full": "v4-full",
-    "nai-diffusion-4-curated": "v4-curated",
+    "nai-diffusion-4-curated-preview": "v4-curated",
     "nai-diffusion-3": "v3",
-    "nai-diffusion-3-furry": "v3-furry",
+    "nai-diffusion-furry-3": "v3-furry",
 }
 
 

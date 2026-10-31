@@ -195,4 +195,6 @@ class UpscaleParams(BaseModel):
         Returns:
             UpscaleImageRequest for the low-level API
         """
-        return UpscaleImageRequest(image=image_to_base64(self.image), model=self.model)
+        return UpscaleImageRequest(
+            image=image_to_base64(self.image), model=self.model, declared_blur_sigma=0
+        )

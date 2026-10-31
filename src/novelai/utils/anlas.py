@@ -30,6 +30,7 @@ _LIGHTWEIGHT_OPUS_MAX_PIXELS: Final[int] = 1_048_576
 _LIGHTWEIGHT_OPUS_MAX_STEPS: Final[int] = 28
 _VIBE_EXTRA_ANLAS: Final[int] = 2
 _CHARACTER_REFERENCE_EXTRA_ANLAS: Final[int] = 5
+_MEDIUM_STEP_COST_FACTOR: Final[float] = 1 / 1.06521739
 
 # Director Tools (/ai/augment-image): the web UI normalizes the billed area
 # into [1MP, 3MP] and prices the result as a V3 generation at 28 steps.
@@ -43,12 +44,10 @@ _SUPPORTED_V4_STYLE_MODELS: Final[frozenset[str]] = frozenset(
     {
         "nai-diffusion-3",
         "nai-diffusion-3-inpainting",
-        "nai-diffusion-3-furry",
         "nai-diffusion-furry-3",
         "nai-diffusion-furry-3-inpainting",
         "nai-diffusion-4-full",
         "nai-diffusion-4-full-inpainting",
-        "nai-diffusion-4-curated",
         "nai-diffusion-4-curated-preview",
         "nai-diffusion-4-curated-inpainting",
         "nai-diffusion-4-5-full",
@@ -57,16 +56,20 @@ _SUPPORTED_V4_STYLE_MODELS: Final[frozenset[str]] = frozenset(
         "nai-diffusion-4-5-curated-inpainting",
         "nai-diffusion-5-full",
         "nai-diffusion-5-full-inpainting",
+        "nai-diffusion-5-full-medium",
+        "nai-diffusion-5-full-medium-inpainting",
         "nai-diffusion-5-curated",
         "nai-diffusion-5-curated-inpainting",
         "custom",
     }
 )
+_MEDIUM_MODELS: Final[frozenset[str]] = frozenset(
+    {"nai-diffusion-5-full-medium", "nai-diffusion-5-full-medium-inpainting"}
+)
 _V4_PLUS_VIBE_MODELS: Final[frozenset[str]] = frozenset(
     {
         "nai-diffusion-4-full",
         "nai-diffusion-4-full-inpainting",
-        "nai-diffusion-4-curated",
         "nai-diffusion-4-curated-preview",
         "nai-diffusion-4-curated-inpainting",
         "nai-diffusion-4-5-full",
@@ -226,7 +229,11 @@ def _estimate_supported_request(
     if sm:
         multiplier = _SMEA_DYN_MULTIPLIER if sm_dyn else _SMEA_MULTIPLIER
 
-    base_cost = ceil(_AREA_COEFFICIENT * area + _STEP_AREA_COEFFICIENT * area * steps)
+    step_cost_factor = _MEDIUM_STEP_COST_FACTOR if model in _MEDIUM_MODELS else 1.0
+    base_cost = ceil(
+        _AREA_COEFFICIENT * area
+        + _STEP_AREA_COEFFICIENT * area * steps * step_cost_factor
+    )
     per_image_anlas = max(ceil(base_cost * multiplier * strength_factor), 2)
 
     if per_image_anlas > _MAX_PER_IMAGE_ANLAS:

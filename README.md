@@ -11,8 +11,10 @@ English | [日本語](/docs/README_jp.md) | [简体中文](/docs/README_zh-hans.
 
 A modern, type-safe Python SDK for NovelAI's image generation API. Features robust validation with Pydantic v2 and complete type hints.
 
-Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-curated`,
-`nai-diffusion-4-5-full`, and `nai-diffusion-4-5-curated`.
+Supported image models include `nai-diffusion-5-full`, `nai-diffusion-5-full-medium`,
+`nai-diffusion-5-curated`, `nai-diffusion-4-5-full`, and `nai-diffusion-4-5-curated`.
+`nai-diffusion-5-full-medium` (V5 Full, Medium Effort) always runs with 14 steps,
+`k_euler_ancestral`, and the `strong` UC preset, and takes no negative prompts.
 
 ## Features
 

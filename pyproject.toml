@@ -74,6 +74,7 @@ build_command = """
 dist_glob_patterns = ["dist/*"]
 tag_format = "v{version}"
 allow_zero_version = true
+major_on_zero = false
 
 [tool.semantic_release.commit_parser_options]
 allowed_tags = ["feat", "fix", "docs", "style", "refactor", "perf", "test", "chore", "build", "ci"]

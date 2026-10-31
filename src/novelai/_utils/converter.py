@@ -10,6 +10,7 @@ from .._utils.image import (
     mask_to_base64,
     resize_base64,
 )
+from ..constants.models import INPAINTING_MODELS, V5_FULL_MEDIUM
 from ..constants.negative_prompts import (
     UC_FURRY_FOCUS,
     UC_HUMAN_FOCUS,
@@ -24,15 +25,14 @@ if TYPE_CHECKING:
     from .._client.client import AsyncNovelAI, NovelAI
 
 
-def _map_uc_preset_to_int(uc_preset: user_types.UCPreset) -> int:
-    """Map UC preset to integer"""
-    return {
-        UC_STRONG: 0,
-        UC_LIGHT: 1,
-        UC_FURRY_FOCUS: 2,
-        UC_HUMAN_FOCUS: 3,
-        UC_NONE: 4,
-    }[uc_preset]
+_UC_TAG_HINTS: dict[user_types.UCPreset, int] = {
+    UC_NONE: 0,
+    UC_STRONG: 2,
+    UC_LIGHT: 3,
+    UC_HUMAN_FOCUS: 4,
+    UC_FURRY_FOCUS: 5,
+}
+_QUALITY_TAG_HINT = 1
 
 
 _GRID_CELL_CENTERS = (0.1, 0.3, 0.5, 0.7, 0.9)
@@ -365,11 +365,11 @@ def convert_user_params_to_api_params(
         negative_prompt=processed_negative,
         v4_prompt=v4_prompt,
         v4_negative_prompt=v4_negative_prompt,
-        qualityToggle=params.quality,
         straight_alpha=params.straight_alpha or None,
         tag_hint_transparent_background=params.tag_hint_transparent_background or None,
-        ucPreset=_map_uc_preset_to_int(params.uc_preset),
-        cfg_rescale=params.cfg_rescale,
+        tag_hint_qt=_QUALITY_TAG_HINT if params.quality else 0,
+        tag_hint_uc_preset=_UC_TAG_HINTS[params.uc_preset],
+        cfg_rescale=None if params.model == V5_FULL_MEDIUM else params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,
         # i2i / inpaint
         image=source_image,
@@ -494,11 +494,11 @@ async def async_convert_user_params_to_api_params(
         negative_prompt=processed_negative,
         v4_prompt=v4_prompt,
         v4_negative_prompt=v4_negative_prompt,
-        qualityToggle=params.quality,
         straight_alpha=params.straight_alpha or None,
         tag_hint_transparent_background=params.tag_hint_transparent_background or None,
-        ucPreset=_map_uc_preset_to_int(params.uc_preset),
-        cfg_rescale=params.cfg_rescale,
+        tag_hint_qt=_QUALITY_TAG_HINT if params.quality else 0,
+        tag_hint_uc_preset=_UC_TAG_HINTS[params.uc_preset],
+        cfg_rescale=None if params.model == V5_FULL_MEDIUM else params.cfg_rescale,
         skip_cfg_above_sigma=58 if params.variety_boost else None,
         # i2i / inpaint
         image=source_image,
@@ -543,13 +543,12 @@ def _resolve_inpaint_model(
 ) -> str:
     """Auto-resolve inpainting model variant internally.
 
-    All models have an inpainting variant (e.g. nai-diffusion-4-5-full-inpainting).
     Like the webui, inpainting models are hidden from the user — they always specify
-    a standard model, and the SDK automatically appends '-inpainting' when inpaint
-    params are present.
+    a standard model, and the SDK swaps in its inpainting model when inpaint params
+    are present.
     """
     if params.inpaint is not None:
-        return params.model + "-inpainting"
+        return INPAINTING_MODELS[params.model]
     return params.model
 
 
@@ -580,7 +579,7 @@ def convert_user_params_to_api_request(
         )
         return api_types.StreamImageGenerationRequest(
             action=action,
-            input=params.prompt,
+            input=params.processed_prompt,
             model=resolved_model,
             parameters=stream_params,
             use_new_shared_trial=True,
@@ -588,7 +587,7 @@ def convert_user_params_to_api_request(
 
     return api_types.ImageGenerationRequest(
         action=action,
-        input=params.prompt,
+        input=params.processed_prompt,
         model=resolved_model,
         parameters=generate_params,
         use_new_shared_trial=True,
@@ -611,7 +610,7 @@ async def async_convert_user_params_to_api_request(
         )
         return api_types.StreamImageGenerationRequest(
             action=action,
-            input=params.prompt,
+            input=params.processed_prompt,
             model=resolved_model,
             parameters=stream_params,
             use_new_shared_trial=True,
@@ -619,7 +618,7 @@ async def async_convert_user_params_to_api_request(
 
     return api_types.ImageGenerationRequest(
         action=action,
-        input=params.prompt,
+        input=params.processed_prompt,
         model=resolved_model,
         parameters=generate_params,
         use_new_shared_trial=True,

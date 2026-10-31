@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import base64
+import copy
+import hashlib
+import hmac
 import io
+import json
 import os
 import warnings
 import zipfile
-from typing import AsyncIterator, Iterator
+from typing import Any, AsyncIterator, Iterator
 
 import httpx
 from PIL import Image
-from pydantic import TypeAdapter
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 from ..exceptions import (
     AuthenticationError,
@@ -23,6 +27,7 @@ from ..exceptions import (
     ServerError,
 )
 from ..types.api.image import (
+    BaseImageGenerationRequest,
     EncodeVibeRequest,
     ImageGenerationRequest,
     ImageStreamChunk,
@@ -36,10 +41,121 @@ from ..types.api.tools import AugmentImageRequest, UpscaleImageRequest
 from ..types.user.user import Subscription
 
 _JP_TAG_LIST_ADAPTER = TypeAdapter(list[JpTagSuggestion])
+_MultipartFiles = dict[str, tuple[str, bytes, str]]
+
+
+class _CacheKeyErrorDetails(BaseModel):
+    invalidKeys: list[str] = []
+
+
+class _CacheKeyError(BaseModel):
+    message: str | None = None
+    details: _CacheKeyErrorDetails = _CacheKeyErrorDetails()
 
 
 class BaseAPIClient:
     """Base class containing shared logic for both sync and async clients"""
+
+    _cache_secret: bytes
+    _cached_image_keys: set[str]
+
+    @staticmethod
+    def multipart_files(body: dict[str, Any]) -> _MultipartFiles:
+        """Encode a request body as multipart parts with each image as its own part
+
+        The body is modified in place: image fields are replaced by part names.
+        """
+        files: _MultipartFiles = {}
+        part_names: dict[str, str] = {}
+
+        def attach(data: str, name: str) -> str:
+            if data not in part_names:
+                part_names[data] = name
+                files[name] = ("blob", base64.b64decode(data), "image/png")
+            return part_names[data]
+
+        for field in ("image", "mask"):
+            if body.get(field):
+                body[field] = attach(body[field], field)
+
+        parameters: dict[str, Any] = body.get("parameters") or {}
+        for field in ("image", "mask", "reference_image"):
+            if parameters.get(field):
+                parameters[field] = attach(parameters[field], field)
+        for field, part_prefix in (
+            ("reference_image_multiple_cached", "ref_multiple"),
+            ("director_reference_images_cached", "director_ref"),
+        ):
+            entries: list[dict[str, str]] = parameters.get(field) or []
+            for index, entry in enumerate(entries):
+                if entry.get("data"):
+                    entry["data"] = attach(entry["data"], f"{part_prefix}_{index}")
+
+        request_json = json.dumps(body, ensure_ascii=False, separators=(",", ":"))
+        files["request"] = ("blob", request_json.encode(), "application/json")
+        return files
+
+    def cache_images(self, parameters: dict[str, Any]) -> set[str]:
+        """Replace images the server already holds with their cache keys
+
+        Returns:
+            Keys of the images sent for the first time
+        """
+        new_keys: set[str] = set()
+
+        def cache_key(data: str) -> tuple[str, bool]:
+            key = hmac.new(self._cache_secret, data.encode(), hashlib.sha256)
+            digest = key.hexdigest()
+            if digest in self._cached_image_keys:
+                return digest, True
+            self._cached_image_keys.add(digest)
+            new_keys.add(digest)
+            return digest, False
+
+        for field in ("image", "mask", "reference_image"):
+            data: str | None = parameters.get(field)
+            if data:
+                key, cached = cache_key(data)
+                parameters[f"{field}_cache_secret_key"] = key
+                if cached:
+                    del parameters[field]
+
+        for field in ("reference_image_multiple", "director_reference_images"):
+            images: list[str] | None = parameters.get(field)
+            if not images:
+                continue
+            entries: list[dict[str, str]] = []
+            for data in images:
+                key, cached = cache_key(data)
+                entries.append(
+                    {"cache_secret_key": key}
+                    if cached
+                    else {"cache_secret_key": key, "data": data}
+                )
+            parameters[f"{field}_cached"] = entries
+            del parameters[field]
+
+        return new_keys
+
+    def _generation_files(
+        self, body: dict[str, Any]
+    ) -> tuple[_MultipartFiles, set[str]]:
+        sent = copy.deepcopy(body)
+        new_keys = self.cache_images(sent["parameters"])
+        return self.multipart_files(sent), new_keys
+
+    @staticmethod
+    def invalid_cache_keys(response: httpx.Response) -> set[str] | None:
+        """Cache keys the server no longer holds, if that is why the request failed"""
+        if response.status_code != 400:
+            return None
+        try:
+            error = _CacheKeyError.model_validate_json(response.content)
+        except ValidationError:
+            return None
+        if error.message != "INVALID_CACHE_KEYS":
+            return None
+        return set(error.details.invalidKeys)
 
     @staticmethod
     def handle_response(response: httpx.Response) -> bytes:
@@ -114,9 +230,8 @@ class ImageAPI:
             NetworkError: Network connection error
         """
         try:
-            response = self._client.client.post(
-                f"{self.api_base}/ai/encode-vibe",
-                content=request.model_dump_json(exclude_none=True),
+            response = self._client.post_multipart(
+                f"{self.api_base}/ai/encode-vibe", request
             )
             content = self._client.handle_response(response)
             return base64.b64encode(content).decode("utf-8")
@@ -140,9 +255,8 @@ class ImageAPI:
             NetworkError: Network connection error
         """
         try:
-            response = self._client.client.post(
-                f"{self.api_base}/ai/generate-image",
-                content=request.model_dump_json(exclude_none=True),
+            response = self._client.post_generation(
+                f"{self.api_base}/ai/generate-image", request
             )
 
             content = self._client.handle_response(response)
@@ -170,9 +284,8 @@ class ImageAPI:
             NetworkError: Network connection error
         """
         try:
-            response = self._client.client.post(
-                f"{self.api_base}/ai/augment-image",
-                content=request.model_dump_json(exclude_none=True),
+            response = self._client.post_multipart(
+                f"{self.api_base}/ai/augment-image", request
             )
 
             content = self._client.handle_response(response)
@@ -199,9 +312,8 @@ class ImageAPI:
             NetworkError: Network connection error
         """
         try:
-            response = self._client.client.post(
-                f"{self.api_base}/ai/upscale",
-                content=request.model_dump_json(exclude_none=True),
+            response = self._client.post_multipart(
+                f"{self.api_base}/ai/upscale", request
             )
 
             content = self._client.handle_response(response)
@@ -230,25 +342,19 @@ class ImageAPI:
             NetworkError: Network connection error
         """
         try:
-            with self._client.client.stream(
-                "POST",
-                f"{self.api_base}/ai/generate-image-stream",
-                content=request.model_dump_json(exclude_none=True),
-            ) as response:
+            response = self._client.post_generation(
+                f"{self.api_base}/ai/generate-image-stream", request, stream=True
+            )
+            try:
                 if response.status_code not in (200, 201):
-                    # Read full response for error handling
-                    content = response.read()
-                    temp_response = httpx.Response(
-                        status_code=response.status_code,
-                        content=content,
-                        request=response.request,
-                    )
-                    self._client.handle_response(temp_response)
+                    response.read()
+                    self._client.handle_response(response)
 
-                # Stream chunks
                 for chunk in response.iter_lines():
                     if chunk and chunk.startswith("data: "):
                         yield ImageStreamChunk.from_text_chunk(chunk)
+            finally:
+                response.close()
 
         except httpx.RequestError as e:
             raise NetworkError(f"Network error: {str(e)}") from e
@@ -356,9 +462,8 @@ class AsyncImageAPI:
     async def encode_vibe(self, request: EncodeVibeRequest):
         """Generate vibe-transfer data from base64 image asynchronously"""
         try:
-            response = await self._client.client.post(
-                f"{self.api_base}/ai/encode-vibe",
-                content=request.model_dump_json(exclude_none=True),
+            response = await self._client.post_multipart(
+                f"{self.api_base}/ai/encode-vibe", request
             )
             content = self._client.handle_response(response)
             return base64.b64encode(content).decode("utf-8")
@@ -368,10 +473,8 @@ class AsyncImageAPI:
     async def generate(self, request: ImageGenerationRequest) -> list[Image.Image]:
         """Generate image(s) using /ai/generate-image endpoint asynchronously"""
         try:
-            # We don't write request.json in async to avoid blocking IO
-            response = await self._client.client.post(
-                f"{self.api_base}/ai/generate-image",
-                content=request.model_dump_json(exclude_none=True),
+            response = await self._client.post_generation(
+                f"{self.api_base}/ai/generate-image", request
             )
 
             content = self._client.handle_response(response)
@@ -384,9 +487,8 @@ class AsyncImageAPI:
     async def augment(self, request: AugmentImageRequest) -> list[Image.Image]:
         """Transform an image using /ai/augment-image (Director Tools) asynchronously"""
         try:
-            response = await self._client.client.post(
-                f"{self.api_base}/ai/augment-image",
-                content=request.model_dump_json(exclude_none=True),
+            response = await self._client.post_multipart(
+                f"{self.api_base}/ai/augment-image", request
             )
 
             content = self._client.handle_response(response)
@@ -399,9 +501,8 @@ class AsyncImageAPI:
     async def upscale(self, request: UpscaleImageRequest) -> list[Image.Image]:
         """Upscale an image 2x using /ai/upscale asynchronously"""
         try:
-            response = await self._client.client.post(
-                f"{self.api_base}/ai/upscale",
-                content=request.model_dump_json(exclude_none=True),
+            response = await self._client.post_multipart(
+                f"{self.api_base}/ai/upscale", request
             )
 
             content = self._client.handle_response(response)
@@ -416,25 +517,19 @@ class AsyncImageAPI:
     ) -> AsyncIterator[ImageStreamChunk]:
         """Generate image(s) using /ai/generate-image-stream endpoint asynchronously"""
         try:
-            async with self._client.client.stream(
-                "POST",
-                f"{self.api_base}/ai/generate-image-stream",
-                content=request.model_dump_json(exclude_none=True),
-            ) as response:
+            response = await self._client.post_generation(
+                f"{self.api_base}/ai/generate-image-stream", request, stream=True
+            )
+            try:
                 if response.status_code not in (200, 201):
-                    # Read full response for error handling
-                    content = await response.aread()
-                    temp_response = httpx.Response(
-                        status_code=response.status_code,
-                        content=content,
-                        request=response.request,
-                    )
-                    self._client.handle_response(temp_response)
+                    await response.aread()
+                    self._client.handle_response(response)
 
-                # Stream chunks
                 async for chunk in response.aiter_lines():
                     if chunk and chunk.startswith("data: "):
                         yield ImageStreamChunk.from_text_chunk(chunk)
+            finally:
+                await response.aclose()
 
         except httpx.RequestError as e:
             raise NetworkError(f"Network error: {str(e)}") from e
@@ -529,15 +624,44 @@ class _APIClient(BaseAPIClient):
         self.timeout = timeout
         self.client = httpx.Client(
             timeout=timeout,
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            },
+            headers={"Authorization": f"Bearer {self.api_key}"},
         )
+        self._cache_secret = os.urandom(32)
+        self._cached_image_keys = set()
 
         # API endpoints
         self.image = ImageAPI(image_base, self)
         self.user = UserAPI(self.image.api_base, self)
+
+    def post_multipart(self, url: str, request: BaseModel) -> httpx.Response:
+        """POST a request as multipart form data, like the web UI"""
+        body = request.model_dump(mode="json", exclude_none=True)
+        return self.client.post(url, files=self.multipart_files(body))
+
+    def post_generation(
+        self, url: str, request: BaseImageGenerationRequest, *, stream: bool = False
+    ) -> httpx.Response:
+        """POST a generation request, resending cached images once if they expired"""
+        body = request.model_dump(mode="json", exclude_none=True)
+        response = self._send_generation(url, body, stream)
+        if response.status_code == 400:
+            response.read()
+            invalid_keys = self.invalid_cache_keys(response)
+            if invalid_keys is not None:
+                response.close()
+                self._cached_image_keys -= invalid_keys
+                response = self._send_generation(url, body, stream)
+        return response
+
+    def _send_generation(
+        self, url: str, body: dict[str, Any], stream: bool
+    ) -> httpx.Response:
+        files, new_keys = self._generation_files(body)
+        request = self.client.build_request("POST", url, files=files)
+        response = self.client.send(request, stream=stream)
+        if response.status_code not in (200, 201):
+            self._cached_image_keys -= new_keys
+        return response
 
     def __enter__(self):
         return self
@@ -586,15 +710,44 @@ class _AsyncAPIClient(BaseAPIClient):
         self.timeout = timeout
         self.client = httpx.AsyncClient(
             timeout=timeout,
-            headers={
-                "Authorization": f"Bearer {self.api_key}",
-                "Content-Type": "application/json",
-            },
+            headers={"Authorization": f"Bearer {self.api_key}"},
         )
+        self._cache_secret = os.urandom(32)
+        self._cached_image_keys = set()
 
         # API endpoints
         self.image = AsyncImageAPI(image_base, self)
         self.user = AsyncUserAPI(self.image.api_base, self)
+
+    async def post_multipart(self, url: str, request: BaseModel) -> httpx.Response:
+        """POST a request as multipart form data, like the web UI"""
+        body = request.model_dump(mode="json", exclude_none=True)
+        return await self.client.post(url, files=self.multipart_files(body))
+
+    async def post_generation(
+        self, url: str, request: BaseImageGenerationRequest, *, stream: bool = False
+    ) -> httpx.Response:
+        """POST a generation request, resending cached images once if they expired"""
+        body = request.model_dump(mode="json", exclude_none=True)
+        response = await self._send_generation(url, body, stream)
+        if response.status_code == 400:
+            await response.aread()
+            invalid_keys = self.invalid_cache_keys(response)
+            if invalid_keys is not None:
+                await response.aclose()
+                self._cached_image_keys -= invalid_keys
+                response = await self._send_generation(url, body, stream)
+        return response
+
+    async def _send_generation(
+        self, url: str, body: dict[str, Any], stream: bool
+    ) -> httpx.Response:
+        files, new_keys = self._generation_files(body)
+        request = self.client.build_request("POST", url, files=files)
+        response = await self.client.send(request, stream=stream)
+        if response.status_code not in (200, 201):
+            self._cached_image_keys -= new_keys
+        return response
 
     async def __aenter__(self):
         return self
