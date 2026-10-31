@@ -103,11 +103,13 @@ Provide your NovelAI API key via environment variable or direct initialization:
 ```python
 # Using .env file (recommended)
 from dotenv import load_dotenv
+
 load_dotenv()
 client = NovelAI()
 
 # Environment variable
 import os
+
 os.environ["NOVELAI_API_KEY"] = "your_api_key_here"
 client = NovelAI()
 

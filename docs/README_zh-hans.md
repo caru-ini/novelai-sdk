@@ -103,11 +103,13 @@ cat examples/request_user.json | python -m novelai --request-json-stdin -o outpu
 ```python
 # 使用 .env 文件 (推荐)
 from dotenv import load_dotenv
+
 load_dotenv()
 client = NovelAI()
 
 # 环境变量
 import os
+
 os.environ["NOVELAI_API_KEY"] = "your_api_key_here"
 client = NovelAI()
 
