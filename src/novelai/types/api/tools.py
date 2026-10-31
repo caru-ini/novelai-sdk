@@ -44,3 +44,6 @@ class UpscaleImageRequest(BaseModel):
 
     image: str = Field(..., description="Base64 encoded source image")
     model: str = Field(..., description="Model to upscale with")
+    declared_blur_sigma: float | None = Field(
+        default=None, description="Blur sigma the source image is declared to have"
+    )

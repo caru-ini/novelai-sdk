@@ -138,11 +138,16 @@ class ImageParameters(BaseModel):
         default=None,
         description="Hint that the image should have a transparent background",
     )
-    tag_hint_qt: bool | None = Field(
-        default=None, description="Enable quality tags for transparent images"
+    tag_hint_qt: int | None = Field(
+        default=None,
+        description="Quality tag preset hint (0 = none, 1 = standard, 3 = light)",
     )
     tag_hint_uc_preset: int | None = Field(
-        default=None, description="Undesired content preset hint"
+        default=None,
+        description=(
+            "Undesired content preset hint "
+            "(0 = none, 2 = heavy, 3 = light, 4 = human focus, 5 = furry focus)"
+        ),
     )
 
     # V4 prompts (for v4 model)

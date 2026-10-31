@@ -11,8 +11,10 @@
 
 NovelAIの画像生成APIのための、モダンで型安全なPython SDKです。Pydantic v2による堅牢なバリデーションと完全な型ヒントを備えています。
 
-対応画像モデルには、`nai-diffusion-5-full`、`nai-diffusion-5-curated`、
-`nai-diffusion-4-5-full`、`nai-diffusion-4-5-curated` などがあります。
+対応画像モデルには、`nai-diffusion-5-full`、`nai-diffusion-5-full-medium`、
+`nai-diffusion-5-curated`、`nai-diffusion-4-5-full`、`nai-diffusion-4-5-curated` などがあります。
+`nai-diffusion-5-full-medium`（V5 Full の Medium Effort）は、steps 14・`k_euler_ancestral`・
+UC プリセット `strong` に固定され、ネガティブプロンプトは指定できません。
 
 ## 特徴
 

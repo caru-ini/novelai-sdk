@@ -6,13 +6,14 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Iterable, Optional, TypeVar
 
 from PIL import Image as PILImage
 from pydantic import TypeAdapter, ValidationError
 from rich.table import Table
 
 from novelai import NovelAI
+from novelai.constants.models import V5_FULL_MEDIUM
 from novelai.types import (
     Character,
     CharacterReference,
@@ -277,6 +278,17 @@ def load_base_image(args: argparse.Namespace) -> Optional[I2iParams]:
     )
 
 
+_T = TypeVar("_T")
+
+
+def _without_fixed_settings(params_kwargs: dict[str, _T]) -> dict[str, _T]:
+    """Drop the CLI defaults that V5 Full Medium pins to its own values"""
+    if params_kwargs["model"] != V5_FULL_MEDIUM:
+        return params_kwargs
+    fixed = ("steps", "sampler", "uc_preset")
+    return {key: value for key, value in params_kwargs.items() if key not in fixed}
+
+
 def generate_streaming(client: NovelAI, args: argparse.Namespace) -> None:
     """Generate images using streaming."""
     info("[bold cyan]Starting streaming generation...[/bold cyan]")
@@ -297,7 +309,7 @@ def generate_streaming(client: NovelAI, args: argparse.Namespace) -> None:
     )
     if args.seed is not None:
         params_kwargs["seed"] = args.seed
-    params = GenerateImageStreamParams(**params_kwargs)
+    params = GenerateImageStreamParams(**_without_fixed_settings(params_kwargs))
 
     try:
         _save_stream_chunks(client.image.generate_stream(params), args.stream_dir)
@@ -333,7 +345,7 @@ def generate_standard(client: NovelAI, args: argparse.Namespace) -> None:
     )
     if args.seed is not None:
         params_kwargs["seed"] = args.seed
-    params = GenerateImageParams(**params_kwargs)
+    params = GenerateImageParams(**_without_fixed_settings(params_kwargs))
 
     info(f"[bold cyan]Generating {args.n_images} image(s)...[/bold cyan]")
     summary = Table(show_header=False, box=None)
@@ -341,7 +353,7 @@ def generate_standard(client: NovelAI, args: argparse.Namespace) -> None:
     summary.add_row("Size", str(size))
     summary.add_row(
         "Params",
-        f"steps={args.steps}, scale={args.scale}, sampler={args.sampler}",
+        f"steps={params.steps}, scale={params.scale}, sampler={params.sampler}",
     )
     if args.seed is not None:
         summary.add_row("Seed", str(args.seed))

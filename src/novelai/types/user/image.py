@@ -23,10 +23,11 @@ from pydantic import (
 
 from novelai._utils.converter import convert_user_params_to_api_request
 from novelai._utils.image import image_to_base64, to_pil_image
-from novelai.constants.models import V4_5_FULL, ImageModel
+from novelai._utils.prompt import add_quality_tags, solve_undesired_content
+from novelai.constants.models import V4_5_FULL, V5_CURATED, V5_FULL_MEDIUM, ImageModel
 from novelai.constants.negative_prompts import (
-    QUALITY_TAGS,
     UC_LIGHT,
+    UC_STRONG,
     UNDESIRED_CONTENT_PRESETS,
     UCPreset,
 )
@@ -358,6 +359,50 @@ class GenerateImageParams(BaseModel):
                 "straight_alpha and tag_hint_transparent_background are only "
                 "supported for V5 models"
             )
+        if (
+            self.model == V5_CURATED
+            and self.inpaint is not None
+            and (self.straight_alpha or self.tag_hint_transparent_background)
+        ):
+            raise ValueError(
+                "V5 Curated inpaints with the V4.5 Curated model, which does not "
+                "support straight_alpha or tag_hint_transparent_background"
+            )
+
+        return self
+
+    @model_validator(mode="after")
+    def _apply_medium_fixed_settings(self) -> Self:
+        """Pin the settings V5 Full Medium always runs with"""
+        if self.model != V5_FULL_MEDIUM:
+            return self
+
+        fixed: dict[str, object] = {
+            "steps": 14,
+            "sampler": K_EULER_ANCESTRAL,
+            "uc_preset": UC_STRONG,
+        }
+        for name, value in fixed.items():
+            if name in self.model_fields_set and getattr(self, name) != value:
+                raise ValueError(f"{V5_FULL_MEDIUM} always uses {name}={value!r}")
+            setattr(self, name, value)
+
+        if self.cfg_rescale:
+            raise ValueError(f"{V5_FULL_MEDIUM} does not support cfg_rescale")
+        if self.negative_prompt or any(
+            char.negative_prompt for char in self.characters or []
+        ):
+            raise ValueError(f"{V5_FULL_MEDIUM} does not take negative prompts")
+
+        return self
+
+    @model_validator(mode="after")
+    def _check_uc_preset(self) -> Self:
+        """Check that the model offers the chosen UC preset"""
+        if self.uc_preset not in UNDESIRED_CONTENT_PRESETS[self.model]:
+            raise ValueError(
+                f"uc_preset {self.uc_preset!r} is not available for {self.model}"
+            )
 
         return self
 
@@ -432,29 +477,37 @@ class GenerateImageParams(BaseModel):
     @property
     def processed_prompt(self) -> str:
         """Prompt with quality tags applied"""
-        if self.quality:
-            return self.prompt + QUALITY_TAGS
-        return self.prompt
+        return add_quality_tags(
+            self.prompt,
+            self.model,
+            quality=self.quality,
+            transparent_background=self.tag_hint_transparent_background,
+        )
 
     @computed_field
     @property
     def processed_negative_prompt(self) -> str:
         """Negative prompt with UC preset applied"""
-        base_negative = self.negative_prompt or ""
-        uc_text = UNDESIRED_CONTENT_PRESETS.get(self.uc_preset, "")
-        return base_negative + uc_text
+        return solve_undesired_content(
+            self.model,
+            self.uc_preset,
+            self.processed_prompt,
+            self.negative_prompt or "",
+        )
 
     @staticmethod
     def is_v4(model: ImageModel) -> bool:
         return model in [
             "nai-diffusion-5-full",
+            "nai-diffusion-5-full-medium",
             "nai-diffusion-5-curated",
             "nai-diffusion-5-full-inpainting",
+            "nai-diffusion-5-full-medium-inpainting",
             "nai-diffusion-5-curated-inpainting",
             "nai-diffusion-4-5-full",
             "nai-diffusion-4-5-curated",
             "nai-diffusion-4-full",
-            "nai-diffusion-4-curated",
+            "nai-diffusion-4-curated-preview",
             "nai-diffusion-4-5-full-inpainting",
             "nai-diffusion-4-5-curated-inpainting",
             "nai-diffusion-4-full-inpainting",
@@ -465,8 +518,10 @@ class GenerateImageParams(BaseModel):
     def is_v5(model: ImageModel) -> bool:
         return model in [
             "nai-diffusion-5-full",
+            "nai-diffusion-5-full-medium",
             "nai-diffusion-5-curated",
             "nai-diffusion-5-full-inpainting",
+            "nai-diffusion-5-full-medium-inpainting",
             "nai-diffusion-5-curated-inpainting",
         ]
 
