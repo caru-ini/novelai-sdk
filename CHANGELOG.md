@@ -2,6 +2,30 @@
 
 <!-- version list -->
 
+## v0.15.0 (2026-10-31)
+
+### Chores
+
+- **deps**: Lock file maintenance
+  ([`a7dc032`](https://github.com/caru-ini/novelai-sdk/commit/a7dc0323503e9a64a2a3632e32343703b4c397b1))
+
+- **lint**: Keep pre-0.16 ruff rules and format Markdown snippets
+  ([`ce67028`](https://github.com/caru-ini/novelai-sdk/commit/ce67028caa91a03aa993ba276e9626b1c1eccb4b))
+
+- **release**: Keep breaking changes on 0.x as minor bumps
+  ([`8fe451a`](https://github.com/caru-ini/novelai-sdk/commit/8fe451a2f2ab4ba6ee4124bd4ec02022cdef4d02))
+
+### Documentation
+
+- **website**: Adapt to fumadocs 16.17 search and i18n APIs
+  ([`6ae071c`](https://github.com/caru-ini/novelai-sdk/commit/6ae071c0804e144795228c06350e583fe7deabe9))
+
+### Features
+
+- **image**: Align requests with the web UI and add V5 Full Medium
+  ([`0d0a8d9`](https://github.com/caru-ini/novelai-sdk/commit/0d0a8d97498979dcbf8d061d3f588ee1e06790dc))
+
+
 ## v0.14.1 (2026-09-05)
 
 ### Bug Fixes
