@@ -27,19 +27,17 @@ def main():
 
         # Opus usage limit: the allowance that free V5 generations draw from.
         # The web UI shows it as "N% of Opus Generations remaining".
+        # client.user.get_opus_usage() returns the same object on its own.
         usage = sub.usage
         if usage is not None:
-            print(f"Opus generations remaining: {usage.remaining_percent}%")
-            print(f"  about {usage.estimated_images} images")
-            print(f"  refills {usage.refill_percent_per_day}% per day")
+            print(f"Opus generations remaining: {usage.percent}%")
             if usage.purchased_percent > 0:
                 print(f"  extra usage: +{usage.purchased_percent}%")
             if usage.is_negative:
                 print("  used up: V5 generations cost Anlas until it refills")
 
-        # Shortcuts when only one of them is needed
+        # Shortcut when only the balance is needed
         print(f"Balance via get_anlas(): {client.user.get_anlas()}")
-        print(f"Usage via get_opus_usage(): {client.user.get_opus_usage()}")
 
 
 if __name__ == "__main__":

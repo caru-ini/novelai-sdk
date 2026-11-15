@@ -444,18 +444,16 @@ class UserAccount:
         """Get the Opus usage limit: how much of the free V5 allowance is left
 
         This is what the web UI shows as "N% of Opus Generations remaining".
-        Once the allowance is used up (``usage.is_negative``), V5 generations
-        cost Anlas until it refills.
+        The values are reported as the API returns them.
 
         Returns:
-            OpusUsage with the remaining percentage and refill rate, or None
-            when the API reports no usage limit. It is only meaningful on an
-            active Opus subscription.
+            OpusUsage, or None when the API reports no usage limit.
 
         Example:
             >>> usage = client.user.get_opus_usage()
-            >>> usage.remaining_percent, usage.refill_percent_per_day
-            (29, 14.3)
+            >>> if usage is not None:
+            ...     print(usage.percent, usage.is_negative)
+            29 False
         """
         return self.get_subscription().usage
 

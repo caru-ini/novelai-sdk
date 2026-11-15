@@ -57,28 +57,26 @@ with NovelAI() as client:
     usage = client.user.get_opus_usage()  # 与 get_subscription().usage 相同
 
     if usage is not None:
-        print(usage.remaining_percent)       # 29
-        print(usage.estimated_images)        # 502
-        print(usage.refill_percent_per_day)  # 14.3
+        print(usage.percent)      # 29
+        print(usage.is_negative)  # False
 ```
 
 | 属性 | 说明 |
 | --- | --- |
-| `remaining_percent` | Web UI 显示的剩余百分比。用完后为 `0` |
-| `estimated_images` | 剩余可生成图片数的估算(每 1% 约 17.3 张),包含额外购买的部分 |
-| `refill_percent_per_day` | 每天恢复的百分比。恢复到 100% 即停止,因此额度已满时为 `0` |
-| `is_negative` | 额度是否已用完 |
-| `percent` | API 返回的百分比 |
+| `percent` | 剩余额度(%)。可能超过 100 |
 | `purchased_percent` | 通过 Opus Usage Boost 增加的额外额度(%) |
-| `time_until_next_percent` | 恢复 1% 所需的秒数 |
+| `is_negative` | 额度是否已用完 |
+| `time_until_next_percent` | 额度再增加 1% 所需的秒数。超过上限、恢复暂停期间为 `0` |
 
-API 未返回使用上限时,`usage` 为 `None`。它仅在 Opus 订阅有效时才有意义。
+API 未返回使用上限时,`usage` 为 `None`。Web UI 仅在 Opus 订阅有效时显示它。
 
-当 `is_negative` 为 `True` 时,受上限约束的模型(V5 Full 与 V5 Curated)在
-Opus 下也不再免费。在额度恢复之前,请对这些模型的 `calculate_anlas()` 传入
-`is_opus=False`。
+当 `is_negative` 为 `True` 时,Web UI 会把 V5 的生成(V5 Full、V5 Full Medium 与
+V5 Curated)按消耗 Anlas 计价,即使是 Opus 也一样。要得到相同的估算,请在额度
+恢复之前,对这些模型的 `calculate_anlas()` 传入 `is_opus=False`。
 
-NovelAI 没有公开说明 `usage` 对象,因此这些数值与 Web UI 的计算方式保持一致。
+各字段对应 NovelAI
+[OpenAPI 规范](https://image.novelai.net/docs/doc.json)中的
+`usagelimit.Status`。SDK 原样返回这些值,不会估算一次生成消耗多少额度。
 
 ## 注意事项
 

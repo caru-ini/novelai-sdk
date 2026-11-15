@@ -57,30 +57,28 @@ with NovelAI() as client:
     usage = client.user.get_opus_usage()  # same as get_subscription().usage
 
     if usage is not None:
-        print(usage.remaining_percent)       # 29
-        print(usage.estimated_images)        # 502
-        print(usage.refill_percent_per_day)  # 14.3
+        print(usage.percent)      # 29
+        print(usage.is_negative)  # False
 ```
 
 | Attribute | Description |
 | --- | --- |
-| `remaining_percent` | Percentage left as the web UI shows it (`0` once used up) |
-| `estimated_images` | Rough number of images left (about 17.3 per percent), purchased extra usage included |
-| `refill_percent_per_day` | Percent regained per day. `0` while full, because refilling stops at 100% |
-| `is_negative` | Whether the allowance is used up |
-| `percent` | Percentage as the API reports it |
+| `percent` | Allowance left, in percent. Can exceed 100 |
 | `purchased_percent` | Extra usage added by Opus Usage Boosts, in percent |
-| `time_until_next_percent` | Seconds the allowance takes to refill by one percent |
+| `is_negative` | Whether the allowance is used up |
+| `time_until_next_percent` | Seconds until the allowance is one percent higher. `0` while refilling is paused above the cap |
 
-`usage` is `None` when the API reports no usage limit. It is only meaningful
-on an active Opus subscription.
+`usage` is `None` when the API reports no usage limit. The web UI only shows
+it on an active Opus subscription.
 
-While `is_negative` is `True`, the models under the limit (V5 Full and V5
-Curated) are no longer free on Opus. Pass `is_opus=False` to
-`calculate_anlas()` for them until the allowance refills.
+While `is_negative` is `True`, the web UI prices V5 generations (V5 Full, V5
+Full Medium, and V5 Curated) in Anlas even on Opus. To get the same estimate,
+pass `is_opus=False` to `calculate_anlas()` for those models until the
+allowance refills.
 
-NovelAI does not document the `usage` object, so these values follow what the
-web UI computes from it.
+The fields mirror `usagelimit.Status` in NovelAI's
+[OpenAPI schema](https://image.novelai.net/docs/doc.json). The SDK reports
+them as they are and does not estimate how much a generation consumes.
 
 ## Notes
 

@@ -91,7 +91,7 @@ def test_subscription_without_usage_reports_none() -> None:
     assert Subscription.model_validate(_SAMPLE_RESPONSE).usage is None
 
 
-def test_usage_reads_like_the_web_ui() -> None:
+def test_usage_parses_api_fields() -> None:
     usage = Subscription.model_validate(_SAMPLE_RESPONSE_WITH_USAGE).usage
 
     assert usage is not None
@@ -99,50 +99,15 @@ def test_usage_reads_like_the_web_ui() -> None:
     assert usage.purchased_percent == 0
     assert usage.is_negative is False
     assert usage.time_until_next_percent == 6048
-    # "29% of Opus Generations remaining", refilling 100% in exactly a week
-    assert usage.remaining_percent == 29
-    assert usage.refill_percent_per_day == 14.3
-    assert usage.estimated_images == 502
-
-
-def test_used_up_usage_shows_zero_percent() -> None:
-    usage = OpusUsage.model_validate(
-        {**_SAMPLE_USAGE, "percent": 3, "isNegative": True}
-    )
-
-    assert usage.remaining_percent == 0
-    assert usage.estimated_images == 0
-    assert usage.refill_percent_per_day == 14.3
-
-
-def test_purchased_usage_adds_to_the_image_estimate() -> None:
-    usage = OpusUsage.model_validate({**_SAMPLE_USAGE, "purchasedPercent": 100})
-
-    assert usage.remaining_percent == 29
-    assert usage.estimated_images == 2232
-
-
-def test_estimated_images_rounds_half_up_like_the_web_ui() -> None:
-    # 17.3 * 5 is 86.5: JavaScript's Math.round gives 87, Python's round() 86.
-    assert OpusUsage(percent=5).estimated_images == 87
-
-
-def test_usage_does_not_refill_while_full_or_without_a_rate() -> None:
-    full = OpusUsage.model_validate({**_SAMPLE_USAGE, "percent": 100})
-    no_rate = OpusUsage.model_validate({**_SAMPLE_USAGE, "timeUntilNextPercent": 0})
-
-    assert full.refill_percent_per_day == 0
-    assert no_rate.refill_percent_per_day == 0
 
 
 def test_usage_tolerates_missing_and_unknown_fields() -> None:
-    # The object is undocumented and has already gained a field once.
-    usage = OpusUsage.model_validate({"percent": 98.5, "somethingNew": 1})
+    usage = OpusUsage.model_validate({"percent": 100, "somethingNew": 1})
 
-    assert usage.remaining_percent == 98.5
+    assert usage.percent == 100
     assert usage.purchased_percent == 0
     assert usage.is_negative is False
-    assert usage.refill_percent_per_day == 0
+    assert usage.time_until_next_percent == 0
 
 
 def _mock_handler(
@@ -221,7 +186,7 @@ def test_get_opus_usage_reads_usage_from_user_subscription() -> None:
     usage = _get_opus_usage(captured, _SAMPLE_RESPONSE_WITH_USAGE)
 
     assert usage is not None
-    assert usage.remaining_percent == 29
+    assert usage.percent == 29
     assert len(captured) == 1
     assert captured[0].url == "https://image.novelai.net/user/subscription"
     assert captured[0].method == "GET"
@@ -251,5 +216,5 @@ def test_async_get_opus_usage() -> None:
     usage = asyncio.run(run())
 
     assert usage is not None
-    assert usage.remaining_percent == 29
+    assert usage.percent == 29
     assert captured[0].url == "https://image.novelai.net/user/subscription"

@@ -8,7 +8,6 @@ while the Python attributes use snake_case.
 
 from __future__ import annotations
 
-from math import floor
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -16,20 +15,6 @@ from pydantic import BaseModel, ConfigDict, Field
 _OPUS_TIER: int = 3
 
 _TIER_NAMES: dict[int, str] = {0: "Paper", 1: "Tablet", 2: "Scroll", 3: "Opus"}
-
-# Figures the web UI uses to present the Opus usage limit.
-_USAGE_FULL_PERCENT: int = 100
-_USAGE_IMAGES_PER_PERCENT: float = 17.3
-_SECONDS_PER_DAY: int = 86_400
-
-
-def _round_half_up(value: float) -> int:
-    """Round like JavaScript's ``Math.round``, which the web UI uses.
-
-    Python's ``round()`` rounds ties to even, so 5% would read as 86 images
-    where the web UI shows 87.
-    """
-    return floor(value + 0.5)
 
 
 class TrainingStepsLeft(BaseModel):
@@ -94,17 +79,13 @@ class OpusUsage(BaseModel):
 
     On Opus, free NovelAI Diffusion V5 generations draw from an allowance that
     refills by itself over time. The web UI shows it as "N% of Opus Generations
-    remaining"; once it is used up, those generations cost Anlas until it
-    refills.
+    remaining".
 
-    NovelAI does not document this object. The derived properties follow what
-    the web UI computes from it.
+    The fields mirror ``usagelimit.Status`` in NovelAI's OpenAPI schema.
     """
 
-    percent: int | float = Field(
-        description="Allowance left, as a percentage of a full allowance"
-    )
-    purchased_percent: int | float = Field(
+    percent: int = Field(description="Allowance left, in percent. Can exceed 100")
+    purchased_percent: int = Field(
         default=0,
         alias="purchasedPercent",
         description="Extra usage added by Opus Usage Boosts, in percent",
@@ -112,45 +93,16 @@ class OpusUsage(BaseModel):
     is_negative: bool = Field(
         default=False,
         alias="isNegative",
-        description="Whether the allowance is used up, so V5 generations cost Anlas",
+        description="Whether the allowance is used up",
     )
-    time_until_next_percent: int | float = Field(
+    time_until_next_percent: int = Field(
         default=0,
         alias="timeUntilNextPercent",
-        description="Seconds the allowance takes to refill by one percent",
+        description="Seconds until the allowance is one percent higher. "
+        "0 while refilling is paused above the cap",
     )
 
     model_config = ConfigDict(populate_by_name=True, extra="allow")
-
-    @property
-    def remaining_percent(self) -> float:
-        """Percentage left as the web UI shows it (``0`` once used up)."""
-        return 0 if self.is_negative else max(0, self.percent)
-
-    @property
-    def refill_percent_per_day(self) -> float:
-        """Percent regained per day, to one decimal place.
-
-        ``0`` while the allowance is full, because it stops refilling at 100%,
-        and when the API reports no refill rate.
-        """
-        if (
-            self.time_until_next_percent <= 0
-            or self.remaining_percent >= _USAGE_FULL_PERCENT
-        ):
-            return 0
-        return _round_half_up(_SECONDS_PER_DAY / self.time_until_next_percent * 10) / 10
-
-    @property
-    def estimated_images(self) -> int:
-        """Rough number of images left, purchased extra usage included.
-
-        The web UI's estimate: about 17.3 images per percent.
-        """
-        return _round_half_up(
-            _USAGE_IMAGES_PER_PERCENT
-            * (self.remaining_percent + max(0, self.purchased_percent))
-        )
 
 
 class Subscription(BaseModel):
@@ -173,8 +125,7 @@ class Subscription(BaseModel):
     )
     usage: OpusUsage | None = Field(
         default=None,
-        description="Opus usage limit, or None when the API reports none. "
-        "Only meaningful on an active Opus subscription",
+        description="Opus usage limit, or None when the API reports none",
     )
 
     model_config = ConfigDict(populate_by_name=True, extra="allow")
