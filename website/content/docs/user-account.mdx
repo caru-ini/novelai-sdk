@@ -1,6 +1,6 @@
 ---
 title: User Account
-description: Fetch your subscription tier and actual Anlas balance.
+description: Fetch your subscription tier, actual Anlas balance, and Opus usage limit.
 ---
 
 `client.user` reports the actual state of your account from the NovelAI API.
@@ -42,11 +42,48 @@ async with AsyncNovelAI() as client:
 | `training_steps_left` | Balance split into `fixed_training_steps_left` (granted monthly) and `purchased_training_steps` (never expire) |
 | `is_opus` | Whether the account is on the Opus tier |
 | `perks.unlimited_image_generation` | Whether free image generation (the Opus perk) is granted |
+| `usage` | [Opus usage limit](#opus-usage-limit), or `None` when the API reports none |
 
 Purchased Anlas is only consumed after the subscription portion runs out.
 
+## Opus Usage Limit
+
+On Opus, free NovelAI Diffusion V5 generations draw from an allowance that
+refills by itself over time. The web UI shows it as "N% of Opus Generations
+remaining". `client.user.get_opus_usage()` reports the same state:
+
+```python
+with NovelAI() as client:
+    usage = client.user.get_opus_usage()  # same as get_subscription().usage
+
+    if usage is not None:
+        print(usage.remaining_percent)       # 29
+        print(usage.estimated_images)        # 502
+        print(usage.refill_percent_per_day)  # 14.3
+```
+
+| Attribute | Description |
+| --- | --- |
+| `remaining_percent` | Percentage left as the web UI shows it (`0` once used up) |
+| `estimated_images` | Rough number of images left (about 17.3 per percent), purchased extra usage included |
+| `refill_percent_per_day` | Percent regained per day. `0` while full, because refilling stops at 100% |
+| `is_negative` | Whether the allowance is used up |
+| `percent` | Percentage as the API reports it |
+| `purchased_percent` | Extra usage added by Opus Usage Boosts, in percent |
+| `time_until_next_percent` | Seconds the allowance takes to refill by one percent |
+
+`usage` is `None` when the API reports no usage limit. It is only meaningful
+on an active Opus subscription.
+
+While `is_negative` is `True`, the models under the limit (V5 Full and V5
+Curated) are no longer free on Opus. Pass `is_opus=False` to
+`calculate_anlas()` for them until the allowance refills.
+
+NovelAI does not document the `usage` object, so these values follow what the
+web UI computes from it.
+
 ## Notes
 
-- `get_subscription()` and `get_anlas()` each send one request to
+- `get_subscription()`, `get_anlas()`, and `get_opus_usage()` each send one request to
   `/user/subscription`. Keep the `Subscription` object around when you need
   several fields instead of calling them repeatedly.

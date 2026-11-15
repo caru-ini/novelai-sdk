@@ -432,7 +432,8 @@ class UserAPI:
         """Fetch the account subscription using /user/subscription
 
         Returns:
-            Subscription with tier, perks, and remaining Anlas balance
+            Subscription with tier, perks, remaining Anlas balance, and
+            Opus usage limit
 
         Raises:
             AuthenticationError: Invalid API key

@@ -238,7 +238,7 @@ After the server starts, you can generate an image by visiting `http://localhost
 
 #### [`12_user_account.py`](12_user_account.py)
 
-Fetches the subscription state and the actual Anlas balance of your account.
+Fetches the subscription state, the actual Anlas balance, and the Opus usage limit of your account.
 
 ```bash
 python 12_user_account.py
@@ -248,6 +248,7 @@ python 12_user_account.py
 
 - Subscription tier and expiry (`client.user.get_subscription()`)
 - Actual Anlas balance (`client.user.get_anlas()`)
+- Opus usage limit, shown in the web UI as "N% of Opus Generations remaining" (`client.user.get_opus_usage()`)
 
 ---
 

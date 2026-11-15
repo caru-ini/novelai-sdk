@@ -1,6 +1,6 @@
 ---
 title: ユーザーアカウント
-description: サブスクリプションの tier と実際の Anlas 残高を取得します。
+description: サブスクリプションの tier、実際の Anlas 残高、Opus 利用上限を取得します。
 ---
 
 `client.user` は NovelAI API からアカウントの実際の状態を取得します。
@@ -42,11 +42,48 @@ async with AsyncNovelAI() as client:
 | `training_steps_left` | 残高の内訳。`fixed_training_steps_left`(毎月付与)と `purchased_training_steps`(無期限) |
 | `is_opus` | Opus tier かどうか |
 | `perks.unlimited_image_generation` | 無料画像生成(Opus の perk)が付与されているか |
+| `usage` | [Opus 利用上限](#opus-利用上限)。API が返さない場合は `None` |
 
 購入分の Anlas は、サブスク付与分を使い切ってから消費されます。
 
+## Opus 利用上限
+
+Opus では、NovelAI Diffusion V5 の無料生成に上限があり、時間の経過とともに
+自動で回復します。Web UI では「Opus生成の残量 N%」と表示されます。
+`client.user.get_opus_usage()` で同じ状態を取得できます:
+
+```python
+with NovelAI() as client:
+    usage = client.user.get_opus_usage()  # get_subscription().usage と同じ
+
+    if usage is not None:
+        print(usage.remaining_percent)       # 29
+        print(usage.estimated_images)        # 502
+        print(usage.refill_percent_per_day)  # 14.3
+```
+
+| 属性 | 説明 |
+| --- | --- |
+| `remaining_percent` | Web UI に表示される残量(%)。使い切ると `0` |
+| `estimated_images` | 残りで生成できる枚数の目安(1% あたり約 17.3 枚)。追加購入分を含む |
+| `refill_percent_per_day` | 1 日あたりの回復量(%)。回復は 100% で止まるため、満タンの間は `0` |
+| `is_negative` | 上限を使い切っているかどうか |
+| `percent` | API が返す残量(%) |
+| `purchased_percent` | Opus Usage Boost で追加した分(%) |
+| `time_until_next_percent` | 1% 回復するのにかかる秒数 |
+
+API が利用上限を返さない場合、`usage` は `None` です。意味を持つのは Opus の
+サブスクリプションが有効なときだけです。
+
+`is_negative` が `True` の間は、上限の対象モデル(V5 Full と V5 Curated)は
+Opus でも無料になりません。回復するまで、これらのモデルの `calculate_anlas()`
+には `is_opus=False` を渡してください。
+
+`usage` オブジェクトは NovelAI のドキュメントに記載がないため、これらの値は
+Web UI の計算方法に合わせています。
+
 ## 注意点
 
-- `get_subscription()` と `get_anlas()` は呼び出すたびに `/user/subscription`
+- `get_subscription()`、`get_anlas()`、`get_opus_usage()` は呼び出すたびに `/user/subscription`
   へ 1 リクエスト送ります。複数のフィールドが必要な場合は、繰り返し呼ばずに
   `Subscription` オブジェクトを保持してください。

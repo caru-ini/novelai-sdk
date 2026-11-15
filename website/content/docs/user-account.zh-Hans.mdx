@@ -1,6 +1,6 @@
 ---
 title: 用户账户
-description: 获取订阅等级与实际的 Anlas 余额。
+description: 获取订阅等级、实际的 Anlas 余额与 Opus 使用上限。
 ---
 
 `client.user` 从 NovelAI API 获取账户的实际状态。
@@ -42,10 +42,45 @@ async with AsyncNovelAI() as client:
 | `training_steps_left` | 余额明细:`fixed_training_steps_left`(每月发放)与 `purchased_training_steps`(永不过期) |
 | `is_opus` | 是否为 Opus 等级 |
 | `perks.unlimited_image_generation` | 是否拥有免费图片生成(Opus 特权) |
+| `usage` | [Opus 使用上限](#opus-使用上限)。API 未返回时为 `None` |
 
 购买的 Anlas 会在订阅赠送部分用完之后才开始消耗。
 
+## Opus 使用上限
+
+在 Opus 下,NovelAI Diffusion V5 的免费生成有一个额度,会随时间自动恢复。
+Web UI 将其显示为 "N% of Opus Generations remaining"。
+`client.user.get_opus_usage()` 返回同样的状态:
+
+```python
+with NovelAI() as client:
+    usage = client.user.get_opus_usage()  # 与 get_subscription().usage 相同
+
+    if usage is not None:
+        print(usage.remaining_percent)       # 29
+        print(usage.estimated_images)        # 502
+        print(usage.refill_percent_per_day)  # 14.3
+```
+
+| 属性 | 说明 |
+| --- | --- |
+| `remaining_percent` | Web UI 显示的剩余百分比。用完后为 `0` |
+| `estimated_images` | 剩余可生成图片数的估算(每 1% 约 17.3 张),包含额外购买的部分 |
+| `refill_percent_per_day` | 每天恢复的百分比。恢复到 100% 即停止,因此额度已满时为 `0` |
+| `is_negative` | 额度是否已用完 |
+| `percent` | API 返回的百分比 |
+| `purchased_percent` | 通过 Opus Usage Boost 增加的额外额度(%) |
+| `time_until_next_percent` | 恢复 1% 所需的秒数 |
+
+API 未返回使用上限时,`usage` 为 `None`。它仅在 Opus 订阅有效时才有意义。
+
+当 `is_negative` 为 `True` 时,受上限约束的模型(V5 Full 与 V5 Curated)在
+Opus 下也不再免费。在额度恢复之前,请对这些模型的 `calculate_anlas()` 传入
+`is_opus=False`。
+
+NovelAI 没有公开说明 `usage` 对象,因此这些数值与 Web UI 的计算方式保持一致。
+
 ## 注意事项
 
-- `get_subscription()` 和 `get_anlas()` 每次调用都会向 `/user/subscription`
+- `get_subscription()`、`get_anlas()` 和 `get_opus_usage()` 每次调用都会向 `/user/subscription`
   发送一个请求。需要多个字段时,请保留 `Subscription` 对象,避免重复调用。
