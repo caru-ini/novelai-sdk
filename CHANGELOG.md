@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v0.16.0 (2026-11-17)
+
+### Features
+
+- **user**: Add Opus usage limit (get_opus_usage)
+  ([`1ad1492`](https://github.com/caru-ini/novelai-sdk/commit/1ad14920388c91ff02ce6276bf2db85017ed4831))
+
+### Refactoring
+
+- **user**: Limit OpusUsage to the documented API fields
+  ([`843f9fb`](https://github.com/caru-ini/novelai-sdk/commit/843f9fbf63a9dce3e8743de843215360ffac728b))
+
+
 ## v0.15.0 (2026-10-31)
 
 ### Chores
