@@ -7,9 +7,9 @@ import pytest
 from pydantic import ValidationError
 
 from novelai import AsyncNovelAI, NovelAI
-from novelai.types import Subscription
+from novelai.types import OpusUsage, Subscription
 
-_SAMPLE_RESPONSE = {
+_SAMPLE_RESPONSE: dict[str, object] = {
     "tier": 3,
     "active": True,
     "expiresAt": 1893456000,
@@ -34,6 +34,19 @@ _SAMPLE_RESPONSE = {
     },
     "accountType": 0,
     "isGracePeriod": False,
+}
+
+# The `usage` object as the API returns it for an Opus account.
+_SAMPLE_USAGE: dict[str, object] = {
+    "percent": 29,
+    "purchasedPercent": 0,
+    "isNegative": False,
+    "timeUntilNextPercent": 6048,
+}
+
+_SAMPLE_RESPONSE_WITH_USAGE: dict[str, object] = {
+    **_SAMPLE_RESPONSE,
+    "usage": _SAMPLE_USAGE,
 }
 
 
@@ -74,10 +87,36 @@ def test_missing_training_steps_left_raises() -> None:
         Subscription.model_validate(payload)
 
 
-def _mock_handler(captured: list[httpx.Request]) -> httpx.MockTransport:
+def test_subscription_without_usage_reports_none() -> None:
+    assert Subscription.model_validate(_SAMPLE_RESPONSE).usage is None
+
+
+def test_usage_parses_api_fields() -> None:
+    usage = Subscription.model_validate(_SAMPLE_RESPONSE_WITH_USAGE).usage
+
+    assert usage is not None
+    assert usage.percent == 29
+    assert usage.purchased_percent == 0
+    assert usage.is_negative is False
+    assert usage.time_until_next_percent == 6048
+
+
+def test_usage_tolerates_missing_and_unknown_fields() -> None:
+    usage = OpusUsage.model_validate({"percent": 100, "somethingNew": 1})
+
+    assert usage.percent == 100
+    assert usage.purchased_percent == 0
+    assert usage.is_negative is False
+    assert usage.time_until_next_percent == 0
+
+
+def _mock_handler(
+    captured: list[httpx.Request],
+    payload: dict[str, object] = _SAMPLE_RESPONSE,
+) -> httpx.MockTransport:
     def handler(request: httpx.Request) -> httpx.Response:
         captured.append(request)
-        return httpx.Response(200, json=_SAMPLE_RESPONSE)
+        return httpx.Response(200, json=payload)
 
     return httpx.MockTransport(handler)
 
@@ -123,3 +162,59 @@ def test_async_get_anlas() -> None:
     assert asyncio.run(run()) == 4250
     assert captured[0].url == "https://image.novelai.net/user/subscription"
     assert captured[0].headers["Authorization"] == "Bearer dummy"
+
+
+def _get_opus_usage(
+    captured: list[httpx.Request], payload: dict[str, object]
+) -> OpusUsage | None:
+    client = NovelAI(api_key="dummy")
+    api = client.api_client
+    headers = api.client.headers
+    api.client.close()
+    api.client = httpx.Client(
+        transport=_mock_handler(captured, payload), headers=headers
+    )
+    try:
+        return client.user.get_opus_usage()
+    finally:
+        client.close()
+
+
+def test_get_opus_usage_reads_usage_from_user_subscription() -> None:
+    captured: list[httpx.Request] = []
+
+    usage = _get_opus_usage(captured, _SAMPLE_RESPONSE_WITH_USAGE)
+
+    assert usage is not None
+    assert usage.percent == 29
+    assert len(captured) == 1
+    assert captured[0].url == "https://image.novelai.net/user/subscription"
+    assert captured[0].method == "GET"
+
+
+def test_get_opus_usage_is_none_when_the_api_reports_no_usage() -> None:
+    assert _get_opus_usage([], _SAMPLE_RESPONSE) is None
+
+
+def test_async_get_opus_usage() -> None:
+    captured: list[httpx.Request] = []
+
+    async def run() -> OpusUsage | None:
+        client = AsyncNovelAI(api_key="dummy")
+        api = client.api_client
+        headers = api.client.headers
+        await api.client.aclose()
+        api.client = httpx.AsyncClient(
+            transport=_mock_handler(captured, _SAMPLE_RESPONSE_WITH_USAGE),
+            headers=headers,
+        )
+        try:
+            return await client.user.get_opus_usage()
+        finally:
+            await client.close()
+
+    usage = asyncio.run(run())
+
+    assert usage is not None
+    assert usage.percent == 29
+    assert captured[0].url == "https://image.novelai.net/user/subscription"

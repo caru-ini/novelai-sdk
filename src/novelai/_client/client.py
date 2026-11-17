@@ -54,7 +54,7 @@ from ..types.user.tools import (
     SketchParams,
     UpscaleParams,
 )
-from ..types.user.user import Subscription
+from ..types.user.user import OpusUsage, Subscription
 
 
 class ImageGeneration:
@@ -385,10 +385,11 @@ class DirectorTools:
 class UserAccount:
     """High-level user account interface
 
-    This class exposes account information such as the subscription tier and
-    the remaining Anlas balance. Unlike ``GenerateImageParams.calculate_anlas()``,
-    which *estimates* the cost of a generation, these methods report the actual
-    state of the account from NovelAI's API.
+    This class exposes account information such as the subscription tier, the
+    remaining Anlas balance, and the Opus usage limit. Unlike
+    ``GenerateImageParams.calculate_anlas()``, which *estimates* the cost of a
+    generation, these methods report the actual state of the account from
+    NovelAI's API.
 
     Note:
         This class is not meant to be instantiated directly. Access it through
@@ -439,6 +440,23 @@ class UserAccount:
         """
         return self.get_subscription().anlas
 
+    def get_opus_usage(self) -> OpusUsage | None:
+        """Get the Opus usage limit: how much of the free V5 allowance is left
+
+        This is what the web UI shows as "N% of Opus Generations remaining".
+        The values are reported as the API returns them.
+
+        Returns:
+            OpusUsage, or None when the API reports no usage limit.
+
+        Example:
+            >>> usage = client.user.get_opus_usage()
+            >>> if usage is not None:
+            ...     print(usage.percent, usage.is_negative)
+            29 False
+        """
+        return self.get_subscription().usage
+
 
 class NovelAI:
     """High-level client for NovelAI API
@@ -454,7 +472,7 @@ class NovelAI:
     Attributes:
         image: ImageGeneration instance for image generation operations
         tools: DirectorTools instance for image augmentation (line art, emotion, etc.)
-        user: UserAccount instance for subscription and Anlas balance
+        user: UserAccount instance for subscription, Anlas balance, and Opus usage
         api_client: Internal low-level API client (not recommended for direct use)
 
     Example:
@@ -730,6 +748,10 @@ class AsyncUserAccount:
     async def get_anlas(self) -> int:
         """Get the current total Anlas balance (subscription + purchased)"""
         return (await self.get_subscription()).anlas
+
+    async def get_opus_usage(self) -> OpusUsage | None:
+        """Get the Opus usage limit: how much of the free V5 allowance is left"""
+        return (await self.get_subscription()).usage
 
 
 class AsyncNovelAI:

@@ -27,6 +27,7 @@ from .user.tools import (
     UpscaleParams,
 )
 from .user.user import (
+    OpusUsage,
     Subscription,
     SubscriptionPerks,
     TrainingStepsLeft,
@@ -57,6 +58,7 @@ __all__ = [
     "SuggestTagsParams",
     "TagSuggestion",
     "JpTagSuggestion",
+    "OpusUsage",
     "Subscription",
     "SubscriptionPerks",
     "TrainingStepsLeft",

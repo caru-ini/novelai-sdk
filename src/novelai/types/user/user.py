@@ -1,9 +1,9 @@
 """User account type definitions for NovelAI API.
 
 These models mirror the response of ``GET /user/subscription``, which reports
-the account tier, perks, and remaining Anlas (NovelAI's "training steps").
-Field aliases match the camelCase JSON returned by the API, while the Python
-attributes use snake_case.
+the account tier, perks, remaining Anlas (NovelAI's "training steps"), and the
+Opus usage limit. Field aliases match the camelCase JSON returned by the API,
+while the Python attributes use snake_case.
 """
 
 from __future__ import annotations
@@ -74,6 +74,37 @@ class SubscriptionPerks(BaseModel):
     model_config = ConfigDict(populate_by_name=True, extra="allow")
 
 
+class OpusUsage(BaseModel):
+    """Opus usage limit, the ``usage`` object of ``GET /user/subscription``.
+
+    On Opus, free NovelAI Diffusion V5 generations draw from an allowance that
+    refills by itself over time. The web UI shows it as "N% of Opus Generations
+    remaining".
+
+    The fields mirror ``usagelimit.Status`` in NovelAI's OpenAPI schema.
+    """
+
+    percent: int = Field(description="Allowance left, in percent. Can exceed 100")
+    purchased_percent: int = Field(
+        default=0,
+        alias="purchasedPercent",
+        description="Extra usage added by Opus Usage Boosts, in percent",
+    )
+    is_negative: bool = Field(
+        default=False,
+        alias="isNegative",
+        description="Whether the allowance is used up",
+    )
+    time_until_next_percent: int = Field(
+        default=0,
+        alias="timeUntilNextPercent",
+        description="Seconds until the allowance is one percent higher. "
+        "0 while refilling is paused above the cap",
+    )
+
+    model_config = ConfigDict(populate_by_name=True, extra="allow")
+
+
 class Subscription(BaseModel):
     """Account subscription state from ``GET /user/subscription``."""
 
@@ -91,6 +122,10 @@ class Subscription(BaseModel):
     is_grace_period: bool = Field(default=False, alias="isGracePeriod")
     payment_processor_data: dict[str, Any] | None = Field(
         default=None, alias="paymentProcessorData"
+    )
+    usage: OpusUsage | None = Field(
+        default=None,
+        description="Opus usage limit, or None when the API reports none",
     )
 
     model_config = ConfigDict(populate_by_name=True, extra="allow")
@@ -117,6 +152,7 @@ class Subscription(BaseModel):
 
 
 __all__ = [
+    "OpusUsage",
     "Subscription",
     "SubscriptionPerks",
     "TrainingStepsLeft",

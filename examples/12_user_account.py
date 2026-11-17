@@ -1,7 +1,7 @@
 """User account example
 
-This example demonstrates how to fetch the subscription state and the actual
-Anlas balance of your account.
+This example demonstrates how to fetch the subscription state, the actual
+Anlas balance, and the Opus usage limit of your account.
 """
 
 from dotenv import load_dotenv
@@ -24,6 +24,17 @@ def main():
         print(f"  from subscription: {steps_left.fixed_training_steps_left}")
         print(f"  purchased: {steps_left.purchased_training_steps}")
         print(f"Free image generation: {sub.perks.unlimited_image_generation}")
+
+        # Opus usage limit: the allowance that free V5 generations draw from.
+        # The web UI shows it as "N% of Opus Generations remaining".
+        # client.user.get_opus_usage() returns the same object on its own.
+        usage = sub.usage
+        if usage is not None:
+            print(f"Opus generations remaining: {usage.percent}%")
+            if usage.purchased_percent > 0:
+                print(f"  extra usage: +{usage.purchased_percent}%")
+            if usage.is_negative:
+                print("  used up: V5 generations cost Anlas until it refills")
 
         # Shortcut when only the balance is needed
         print(f"Balance via get_anlas(): {client.user.get_anlas()}")
