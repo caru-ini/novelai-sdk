@@ -148,7 +148,7 @@ images = client.image.generate(params)
 
 ### Character Reference
 
-Maintain consistent character appearances with reference images:
+Maintain consistent character appearances with reference images. V4.5 supports `fidelity`:
 
 ```python
 from novelai.types import CharacterReference
@@ -167,6 +167,31 @@ params = GenerateImageParams(
     character_references=character_references,
 )
 ```
+
+V5 Full and V5 Curated support precise references without `fidelity`, including outfit references and the same-outfit preference:
+
+```python
+character_references = [
+    CharacterReference(
+        image="reference.png",
+        type="character&style",
+        prefer_same_outfit=True,
+        strength=2.5,
+    ),
+    CharacterReference(
+        image="outfit.png",
+        type="outfit",
+    ),
+]
+
+params = GenerateImageParams(
+    prompt="1girl, standing",
+    model="nai-diffusion-5-curated",
+    character_references=character_references,
+)
+```
+
+`prefer_same_outfit=None` uses the web UI default: off for `character` and on for `character&style`. V5 Full Medium does not support precise references. V5 inpainting support depends on the effective inpainting model: V5 Curated inpaints through the V4.5 Curated inpainting model, while V5 Full inpainting rejects references.
 
 ### Multi-Character Positioning
 

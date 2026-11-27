@@ -148,7 +148,7 @@ images = client.image.generate(params)
 
 ### キャラクターリファレンス
 
-リファレンス画像で一貫したキャラクターの外観を維持:
+リファレンス画像で一貫したキャラクターの外観を維持します。V4.5 では `fidelity` を使えます:
 
 ```python
 from novelai.types import CharacterReference
@@ -167,6 +167,31 @@ params = GenerateImageParams(
     character_references=character_references,
 )
 ```
+
+V5 Full と V5 Curated では、`fidelity` を使わない精密参照に加えて、衣装参照と衣装優先設定を使えます:
+
+```python
+character_references = [
+    CharacterReference(
+        image="reference.png",
+        type="character&style",
+        prefer_same_outfit=True,
+        strength=2.5,
+    ),
+    CharacterReference(
+        image="outfit.png",
+        type="outfit",
+    ),
+]
+
+params = GenerateImageParams(
+    prompt="1girl, standing",
+    model="nai-diffusion-5-curated",
+    character_references=character_references,
+)
+```
+
+`prefer_same_outfit=None` の場合は Web UI と同じ初期値を使います。`character` では OFF、`character&style` では ON です。V5 Full Medium は精密参照に対応していません。V5 の inpainting での対応は実効モデルに依存します。V5 Curated の inpainting は V4.5 Curated inpainting モデル経由ですが、V5 Full の inpainting は参照画像を拒否します。
 
 ### マルチキャラクターポジショニング
 

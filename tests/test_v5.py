@@ -1,8 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import base64
+from io import BytesIO
 
 import pytest
+from PIL import Image as PILImage
 from pydantic import ValidationError
 
 from novelai._utils.converter import (
@@ -11,7 +14,13 @@ from novelai._utils.converter import (
 )
 from novelai.constants.models import V5_FULL_MEDIUM
 from novelai.constants.negative_prompts import UNDESIRED_CONTENT_PRESETS
-from novelai.types import Character, CharacterReference, ControlNet, ControlNetImage
+from novelai.types import (
+    Character,
+    CharacterReference,
+    ControlNet,
+    ControlNetImage,
+    InpaintParams,
+)
 from novelai.types.api.image import ImageParameters
 from novelai.types.user.image import GenerateImageParams
 
@@ -82,15 +91,163 @@ def test_controlnet_is_rejected_for_v5() -> None:
         )
 
 
-def test_character_references_are_rejected_for_v5() -> None:
-    with pytest.raises(
-        ValueError, match="Character references are only supported for V4.5 models"
-    ):
+def _png_bytes(width: int = 900, height: int = 700) -> bytes:
+    image = PILImage.new("RGB", (width, height), (128, 64, 32))
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    return buffer.getvalue()
+
+
+def test_v5_character_references_convert_to_wire_format() -> None:
+    references = [
+        CharacterReference(image=_png_bytes(), type="character"),
+        CharacterReference(
+            image=_png_bytes(), type="character", prefer_same_outfit=True
+        ),
+        CharacterReference(image=_png_bytes(), type="character&style"),
+        CharacterReference(
+            image=_png_bytes(), type="character&style", prefer_same_outfit=False
+        ),
+        CharacterReference(image=_png_bytes(), type="outfit"),
+        CharacterReference(image=_png_bytes(), type="style"),
+    ]
+    params = GenerateImageParams(
+        prompt="1girl",
+        model="nai-diffusion-5-full",
+        character_references=references,
+    )
+
+    api_params = convert_user_params_to_api_params(params, None)  # type: ignore[arg-type]
+
+    assert api_params.director_reference_descriptions is not None
+    captions = [
+        reference.caption.base_caption
+        for reference in api_params.director_reference_descriptions
+        if reference.caption is not None
+    ]
+    assert captions == [
+        "character",
+        "character_mainoutfit",
+        "character&style",
+        "character&style_anyoutfit",
+        "costume",
+        "style",
+    ]
+    assert api_params.director_reference_secondary_strength_values == [0.0] * 6
+    assert api_params.director_reference_information_extracted == [1.0] * 6
+
+
+def test_v5_character_reference_uses_aspect_bucket_crop() -> None:
+    params = GenerateImageParams(
+        prompt="1girl",
+        model="nai-diffusion-5-full",
+        character_references=[CharacterReference(image=_png_bytes(900, 700))],
+    )
+
+    api_params = convert_user_params_to_api_params(params, None)  # type: ignore[arg-type]
+
+    assert api_params.director_reference_images is not None
+    image_data = base64.b64decode(api_params.director_reference_images[0])
+    with PILImage.open(BytesIO(image_data)) as image:
+        assert image.size == (1152, 896)
+
+
+def test_v5_character_reference_strength_is_uncapped() -> None:
+    params = GenerateImageParams(
+        prompt="1girl",
+        model="nai-diffusion-5-full",
+        character_references=[CharacterReference(image=b"reference", strength=6.0)],
+    )
+    negative = GenerateImageParams(
+        prompt="1girl",
+        model="nai-diffusion-5-full",
+        character_references=[CharacterReference(image=b"reference", strength=-1.0)],
+    )
+
+    assert params.character_references is not None
+    assert negative.character_references is not None
+    assert params.character_references[0].strength == 6.0
+    assert negative.character_references[0].strength == -1.0
+
+
+def test_v5_character_reference_rejects_non_default_fidelity() -> None:
+    with pytest.raises(ValueError, match="do not support fidelity"):
         GenerateImageParams(
             prompt="1girl",
             model="nai-diffusion-5-full",
+            character_references=[CharacterReference(image=b"reference", fidelity=0.5)],
+        )
+
+
+def test_v5_prefer_same_outfit_is_rejected_for_style_and_outfit() -> None:
+    for reference_type in ("style", "outfit"):
+        with pytest.raises(ValueError, match="only meaningful"):
+            GenerateImageParams(
+                prompt="1girl",
+                model="nai-diffusion-5-full",
+                character_references=[
+                    CharacterReference(
+                        image=b"reference",
+                        type=reference_type,  # type: ignore[arg-type]
+                        prefer_same_outfit=False,
+                    )
+                ],
+            )
+
+
+def test_full_medium_rejects_character_references() -> None:
+    with pytest.raises(ValueError, match="nai-diffusion-5-full-medium"):
+        GenerateImageParams(
+            prompt="1girl",
+            model=V5_FULL_MEDIUM,
             character_references=[CharacterReference(image=b"reference")],
         )
+
+
+def test_v5_full_inpainting_rejects_character_references() -> None:
+    with pytest.raises(ValueError, match="nai-diffusion-5-full-inpainting"):
+        GenerateImageParams(
+            prompt="1girl",
+            model="nai-diffusion-5-full",
+            inpaint=InpaintParams(image=b"image", mask=b"mask"),
+            character_references=[CharacterReference(image=b"reference")],
+        )
+
+
+def test_v5_curated_inpainting_uses_v4_5_reference_rules() -> None:
+    params = GenerateImageParams(
+        prompt="1girl",
+        model="nai-diffusion-5-curated",
+        inpaint=InpaintParams(image=_png_bytes(), mask=_png_bytes()),
+        character_references=[CharacterReference(image=b"reference")],
+    )
+
+    assert params.character_references is not None
+
+    with pytest.raises(ValueError, match="Outfit references"):
+        GenerateImageParams(
+            prompt="1girl",
+            model="nai-diffusion-5-curated",
+            inpaint=InpaintParams(image=_png_bytes(), mask=_png_bytes()),
+            character_references=[
+                CharacterReference(image=b"reference", type="outfit")
+            ],
+        )
+
+
+def test_v4_5_reference_restrictions_are_preserved() -> None:
+    invalid_references = [
+        CharacterReference(image=b"reference", type="outfit"),
+        CharacterReference(image=b"reference", prefer_same_outfit=False),
+        CharacterReference(image=b"reference", strength=1.5),
+    ]
+    for reference in invalid_references:
+        with pytest.raises(ValueError):
+            GenerateImageParams(
+                prompt="1girl",
+                model="nai-diffusion-4-5-full",
+                character_references=[reference],
+            )
 
 
 def test_v5_only_parameters_are_rejected_for_non_v5() -> None:

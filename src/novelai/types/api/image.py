@@ -58,9 +58,14 @@ class V4Caption(BaseModel):
 class ReferenceCaption(BaseModel):
     """Caption structure for image reference"""
 
-    base_caption: Literal["character&style", "character", "style"] = Field(
-        ..., description="Base caption text"
-    )
+    base_caption: Literal[
+        "character&style",
+        "character&style_anyoutfit",
+        "character",
+        "character_mainoutfit",
+        "style",
+        "costume",
+    ] = Field(..., description="Base caption text")
     char_captions: list[V4CharacterCaption] = Field(default=[], description="Noop.")
 
 

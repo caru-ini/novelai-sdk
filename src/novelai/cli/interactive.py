@@ -66,6 +66,7 @@ def _interactive_setters() -> dict[str, tuple[str, Callable[[str], Any]]]:
         "ref-type": ("ref_type", str),
         "ref-fidelity": ("ref_fidelity", float),
         "ref-strength": ("ref_strength", float),
+        "ref-prefer-same-outfit": ("ref_prefer_same_outfit", parse_bool_value),
         "character-prompt": ("character_prompt", str),
         "controlnet": ("controlnet", str),
         "controlnet-strength": ("controlnet_strength", float),
@@ -135,7 +136,7 @@ def _print_interactive_status(args: argparse.Namespace) -> None:
     if args.reference:
         table.add_row(
             "reference",
-            f"{args.reference} (type={args.ref_type}, fidelity={args.ref_fidelity}, strength={args.ref_strength})",
+            f"{args.reference} (type={args.ref_type}, fidelity={args.ref_fidelity}, strength={args.ref_strength}, prefer_same_outfit={args.ref_prefer_same_outfit})",
         )
     if args.character_prompt:
         table.add_row("character-prompt", str(args.character_prompt))
@@ -203,6 +204,7 @@ def _apply_interactive_set(
         args.ref_type = defaults.ref_type
         args.ref_fidelity = defaults.ref_fidelity
         args.ref_strength = defaults.ref_strength
+        args.ref_prefer_same_outfit = defaults.ref_prefer_same_outfit
     if key == "controlnet" and new_value is None:
         args.controlnet_strength = defaults.controlnet_strength
     if key == "image" and new_value is None:

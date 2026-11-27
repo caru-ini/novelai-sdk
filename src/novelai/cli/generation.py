@@ -231,6 +231,7 @@ def load_reference_image(
             type=args.ref_type,
             fidelity=args.ref_fidelity,
             strength=args.ref_strength,
+            prefer_same_outfit=args.ref_prefer_same_outfit,
         )
     ]
 
