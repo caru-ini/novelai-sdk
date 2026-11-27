@@ -137,19 +137,20 @@ def test_v5_character_references_convert_to_wire_format() -> None:
     assert api_params.director_reference_information_extracted == [1.0] * 6
 
 
-def test_v5_character_reference_uses_aspect_bucket_crop() -> None:
+def test_v5_character_reference_image_is_sent_unmodified() -> None:
+    # The API normalizes reference images server-side; the SDK passes them through.
+    source = _png_bytes(900, 700)
     params = GenerateImageParams(
         prompt="1girl",
         model="nai-diffusion-5-full",
-        character_references=[CharacterReference(image=_png_bytes(900, 700))],
+        character_references=[CharacterReference(image=source)],
     )
 
     api_params = convert_user_params_to_api_params(params, None)  # type: ignore[arg-type]
 
     assert api_params.director_reference_images is not None
     image_data = base64.b64decode(api_params.director_reference_images[0])
-    with PILImage.open(BytesIO(image_data)) as image:
-        assert image.size == (1152, 896)
+    assert image_data == source
 
 
 def test_v5_character_reference_strength_is_uncapped() -> None:

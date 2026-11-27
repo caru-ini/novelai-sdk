@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Literal
 
 from .._utils.image import (
-    bucket_and_crop,
     crop_and_resize,
     image_to_base64,
     mask_to_base64,
@@ -211,8 +210,12 @@ def _convert_character_references(
         return None, None, None, None, None
 
     is_v5 = model in {V5_FULL, V5_CURATED}
-    preprocess = bucket_and_crop if is_v5 else crop_and_resize
-    images = [preprocess(image_to_base64(ref.image)) for ref in character_references]
+    images = [
+        image_to_base64(ref.image)
+        if is_v5
+        else crop_and_resize(image_to_base64(ref.image))
+        for ref in character_references
+    ]
     descriptions = [
         api_types.ReferenceConditionInput(
             caption=api_types.ReferenceCaption(
