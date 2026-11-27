@@ -1,10 +1,10 @@
 """
 Advanced example of character references (precise references).
 
-This example shows V5 precise references. The reference type can be set to
-"character", "style", "character&style", or "outfit" for a single image.
-Character reference types can also prefer the same outfit. Multiple references
-are supported and can be combined to apply different characters and styles.
+This example shows how to use new precise character references (formerly called character references),
+introduced in February 2026.
+The reference type can be set to "char", "style", or "character&style" for a single image.
+Multiple references are supported and can be combined to apply different characters and styles.
 """
 
 from pathlib import Path
@@ -37,13 +37,14 @@ character_references = [
     CharacterReference(
         image=char_image,
         type="character",
-        prefer_same_outfit=True,
-        strength=2.0,
+        fidelity=1,
+        strength=0.75,
     ),
     CharacterReference(
         image=style_image,
         type="style",
-        strength=1.0,
+        fidelity=1,
+        strength=0.75,
     ),
 ]
 
@@ -58,7 +59,7 @@ characters = [
 
 params = GenerateImageParams(
     prompt=base_prompt,
-    model="nai-diffusion-5-curated",
+    model="nai-diffusion-4-5-full",
     size=(832, 1216),
     steps=23,
     scale=5.0,
