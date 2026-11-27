@@ -11,7 +11,7 @@ from novelai.constants.samplers import K_EULER_ANCESTRAL, Sampler
 MODEL_CHOICES = list(get_args(ImageModel))
 SAMPLER_CHOICES = list(get_args(Sampler))
 UC_PRESET_CHOICES = list(get_args(UCPreset))
-REF_TYPE_CHOICES = ["character", "style", "character&style"]
+REF_TYPE_CHOICES = ["character", "style", "character&style", "outfit"]
 DEFAULT_MODEL = V4_5_FULL
 DEFAULT_SAMPLER = K_EULER_ANCESTRAL
 DEFAULT_UC_PRESET = UC_LIGHT

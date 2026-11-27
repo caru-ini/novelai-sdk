@@ -24,7 +24,14 @@ from pydantic import (
 from novelai._utils.converter import convert_user_params_to_api_request
 from novelai._utils.image import image_to_base64, to_pil_image
 from novelai._utils.prompt import add_quality_tags, solve_undesired_content
-from novelai.constants.models import V4_5_FULL, V5_CURATED, V5_FULL_MEDIUM, ImageModel
+from novelai.constants.models import (
+    INPAINTING_MODELS,
+    V4_5_FULL,
+    V5_CURATED,
+    V5_FULL,
+    V5_FULL_MEDIUM,
+    ImageModel,
+)
 from novelai.constants.negative_prompts import (
     UC_LIGHT,
     UC_STRONG,
@@ -203,14 +210,21 @@ class CharacterReference(BaseModel):
     """
 
     image: ImageInput = Field(..., description="Character reference image")
-    type: Literal["character", "style", "character&style"] = Field(
+    type: Literal["character", "style", "character&style", "outfit"] = Field(
         default="character&style", description="Character reference type"
     )
     fidelity: float = Field(
-        default=1.0, ge=0.0, le=1.0, description="Reference fidelity"
+        default=1.0, ge=0.0, le=1.0, description="Reference fidelity (V4.5 only)"
     )
     strength: float = Field(
-        default=1.0, ge=0.0, le=1.0, description="Reference strength"
+        default=1.0, allow_inf_nan=False, description="Reference strength"
+    )
+    prefer_same_outfit: bool | None = Field(
+        default=None,
+        description=(
+            "Prefer the same outfit for V5 character references. None uses the "
+            "web UI default: off for character and on for character&style."
+        ),
     )
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -312,7 +326,7 @@ class GenerateImageParams(BaseModel):
         description="ControlNet(Vibe Transfer) configuration",
     )
 
-    # Director Tools (Character Reference) (v4.5 only)
+    # Director Tools (Character Reference)
     character_references: list[CharacterReference] | None = Field(
         default=None,
         description="Character reference images with settings (high-level API)",
@@ -334,10 +348,54 @@ class GenerateImageParams(BaseModel):
 
     @model_validator(mode="after")
     def _check_character_references(self) -> Self:
-        """Check if character references are compatible with the model"""
+        """Check if character references are compatible with the effective model"""
         character_references = getattr(self, "character_references", []) or []
-        if not self.is_v4_5(self.model) and len(character_references) > 0:
-            raise ValueError("Character references are only supported for V4.5 models")
+        if not character_references:
+            return self
+
+        effective_model = (
+            INPAINTING_MODELS[self.model] if self.inpaint is not None else self.model
+        )
+        v4_5_reference_models = {
+            "nai-diffusion-4-5-full",
+            "nai-diffusion-4-5-curated",
+            "nai-diffusion-4-5-full-inpainting",
+            "nai-diffusion-4-5-curated-inpainting",
+        }
+        v5_reference_models = {V5_FULL, V5_CURATED}
+
+        if effective_model in v4_5_reference_models:
+            for ref in character_references:
+                if ref.type == "outfit":
+                    raise ValueError(
+                        "Outfit references are only supported for V5 models"
+                    )
+                if ref.prefer_same_outfit is not None:
+                    raise ValueError(
+                        "prefer_same_outfit is only supported for V5 character references"
+                    )
+                if not 0.0 <= ref.strength <= 1.0:
+                    raise ValueError(
+                        "V4.5 character reference strength must be between 0.0 and 1.0"
+                    )
+        elif effective_model in v5_reference_models:
+            for ref in character_references:
+                if ref.fidelity != 1.0:
+                    raise ValueError(
+                        "V5 character references do not support fidelity; use the default 1.0"
+                    )
+                if (
+                    ref.type in {"style", "outfit"}
+                    and ref.prefer_same_outfit is not None
+                ):
+                    raise ValueError(
+                        "prefer_same_outfit is only meaningful for character and "
+                        "character&style references"
+                    )
+        else:
+            raise ValueError(
+                f"Character references are not supported for {effective_model}"
+            )
 
         return self
 

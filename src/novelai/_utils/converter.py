@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from .._utils.image import (
     crop_and_resize,
@@ -10,7 +10,7 @@ from .._utils.image import (
     mask_to_base64,
     resize_base64,
 )
-from ..constants.models import INPAINTING_MODELS, V5_FULL_MEDIUM
+from ..constants.models import INPAINTING_MODELS, V5_CURATED, V5_FULL, V5_FULL_MEDIUM
 from ..constants.negative_prompts import (
     UC_FURRY_FOCUS,
     UC_HUMAN_FOCUS,
@@ -162,8 +162,38 @@ def _convert_image_input(
     return image_to_base64(image)
 
 
+def _reference_base_caption(
+    reference: user_types.CharacterReference,
+    *,
+    is_v5: bool,
+) -> Literal[
+    "character&style",
+    "character&style_anyoutfit",
+    "character",
+    "character_mainoutfit",
+    "style",
+    "costume",
+]:
+    """Convert the high-level reference type to the API caption value"""
+    if not is_v5:
+        if reference.type == "outfit":
+            raise ValueError("Outfit references are only supported for V5 models")
+        return reference.type
+
+    if reference.type == "outfit":
+        return "costume"
+    if reference.type == "character":
+        prefer_same_outfit = reference.prefer_same_outfit is True
+        return "character_mainoutfit" if prefer_same_outfit else "character"
+    if reference.type == "character&style":
+        prefer_same_outfit = reference.prefer_same_outfit is not False
+        return "character&style" if prefer_same_outfit else "character&style_anyoutfit"
+    return reference.type
+
+
 def _convert_character_references(
     character_references: list[user_types.CharacterReference] | None,
+    model: str,
 ) -> tuple[
     list[str] | None,  # images
     list[api_types.ReferenceConditionInput] | None,  # descriptions
@@ -179,19 +209,27 @@ def _convert_character_references(
     if character_references is None:
         return None, None, None, None, None
 
+    is_v5 = model in {V5_FULL, V5_CURATED}
     images = [
-        crop_and_resize(image_to_base64(ref.image)) for ref in character_references
+        image_to_base64(ref.image)
+        if is_v5
+        else crop_and_resize(image_to_base64(ref.image))
+        for ref in character_references
     ]
     descriptions = [
         api_types.ReferenceConditionInput(
-            caption=api_types.ReferenceCaption(base_caption=ref.type),
+            caption=api_types.ReferenceCaption(
+                base_caption=_reference_base_caption(ref, is_v5=is_v5)
+            ),
             legacy_uc=False,
         )
         for ref in character_references
     ]
     strengths = [round(ref.strength, 2) for ref in character_references]
     information_extracted = [1.0] * len(character_references)
-    secondary_strengths = [round(1 - ref.fidelity, 2) for ref in character_references]
+    secondary_strengths = [
+        0.0 if is_v5 else round(1 - ref.fidelity, 2) for ref in character_references
+    ]
 
     return (
         images,
@@ -302,7 +340,10 @@ def convert_user_params_to_api_params(
         cr_strengths,
         cr_secondary_strengths,
         cr_information_extracted,
-    ) = _convert_character_references(params.character_references)
+    ) = _convert_character_references(
+        params.character_references,
+        INPAINTING_MODELS[params.model] if params.inpaint is not None else params.model,
+    )
 
     (
         cn_vibe_data,
@@ -434,7 +475,10 @@ async def async_convert_user_params_to_api_params(
         cr_strengths,
         cr_secondary_strengths,
         cr_information_extracted,
-    ) = _convert_character_references(params.character_references)
+    ) = _convert_character_references(
+        params.character_references,
+        INPAINTING_MODELS[params.model] if params.inpaint is not None else params.model,
+    )
 
     (
         cn_vibe_data,

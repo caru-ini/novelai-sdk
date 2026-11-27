@@ -144,7 +144,13 @@ def build_parser() -> argparse.ArgumentParser:
         "--ref-strength",
         type=float,
         default=1.0,
-        help="Reference strength 0.0-1.0 (default: 1.0)",
+        help="Reference strength (V4.5: 0.0-1.0; V5 is uncapped, default: 1.0)",
+    )
+    parser.add_argument(
+        "--ref-prefer-same-outfit",
+        action=argparse.BooleanOptionalAction,
+        default=None,
+        help="Prefer the same outfit for V5 character references",
     )
 
     parser.add_argument(
@@ -231,7 +237,6 @@ def validate_args(
             raise ValueError("n-images must be <= 8")
         _validate_range(args.scale, 0.0, 10.0, "scale")
         _validate_range(args.ref_fidelity, 0.0, 1.0, "ref-fidelity")
-        _validate_range(args.ref_strength, 0.0, 1.0, "ref-strength")
         _validate_range(args.controlnet_strength, 0.01, 1.0, "controlnet-strength")
         _validate_range(args.strength, 0.01, 0.99, "strength")
         _validate_range(args.noise, 0.0, 0.99, "noise")

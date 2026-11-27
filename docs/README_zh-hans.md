@@ -148,7 +148,7 @@ images = client.image.generate(params)
 
 ### 角色参考
 
-使用参考图像保持一致的角色外观：
+使用参考图像保持一致的角色外观。V4.5 支持 `fidelity`：
 
 ```python
 from novelai.types import CharacterReference
@@ -167,6 +167,31 @@ params = GenerateImageParams(
     character_references=character_references,
 )
 ```
+
+V5 Full 和 V5 Curated 支持不使用 `fidelity` 的精确参考，并支持服装参考和保持同一服装的设置：
+
+```python
+character_references = [
+    CharacterReference(
+        image="reference.png",
+        type="character&style",
+        prefer_same_outfit=True,
+        strength=2.5,
+    ),
+    CharacterReference(
+        image="outfit.png",
+        type="outfit",
+    ),
+]
+
+params = GenerateImageParams(
+    prompt="1girl, standing",
+    model="nai-diffusion-5-curated",
+    character_references=character_references,
+)
+```
+
+`prefer_same_outfit=None` 时使用 Web UI 的默认值：`character` 为关闭，`character&style` 为开启。V5 Full Medium 不支持精确参考。V5 inpainting 的支持取决于实际使用的 inpainting 模型：V5 Curated 会通过 V4.5 Curated inpainting 模型执行，而 V5 Full inpainting 会拒绝参考图像。
 
 ### 多角色定位
 
